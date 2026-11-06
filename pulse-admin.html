@@ -1,0 +1,1677 @@
+<meta charset="utf-8">
+<title>Pulse Admin Master</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+<style>
+/* Layout: barra lateral fixa em petróleo + área de trabalho clara em grade; dados em fonte mono para códigos e CNPJ */
+:root {
+  --bg: #f3f6f7;
+  --surface: #ffffff;
+  --surface-2: #f7f9fa;
+  --line: #dfe6e9;
+  --line-strong: #c8d3d8;
+  --fg: #15242b;
+  --fg-2: #4a5c65;
+  --fg-3: #7a8b93;
+  --accent: #155e75;
+  --accent-strong: #0e4a5e;
+  --accent-soft: #e3f0f3;
+  --on-accent: #ffffff;
+  --side: #0f2f3a;
+  --side-fg: #c9dbe1;
+  --side-fg-dim: #7f9ea8;
+  --side-active: #18414f;
+  --ok: #2f855a;
+  --ok-soft: #e4f3ea;
+  --warn: #b7791f;
+  --warn-soft: #fbf0dc;
+  --risk: #c53030;
+  --risk-soft: #fbe5e5;
+  --chart-grid: #e8eef0;
+  --shadow: 0 1px 2px rgba(15, 47, 58, .06), 0 4px 16px rgba(15, 47, 58, .05);
+  --font-display: "Sora", "IBM Plex Sans", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1a20; --surface: #12242c; --surface-2: #162b34; --line: #223c47; --line-strong: #2f4d59;
+    --fg: #e4eef1; --fg-2: #a9bec6; --fg-3: #78929c; --accent: #4fb3cc; --accent-strong: #7cc9dc; --accent-soft: #163a46; --on-accent: #06202a;
+    --side: #08141a; --side-fg: #c9dbe1; --side-fg-dim: #6d8a94; --side-active: #143340;
+    --ok: #55b984; --ok-soft: #15332a; --warn: #e0a84a; --warn-soft: #3a2e16; --risk: #ec6a6a; --risk-soft: #3d1c1f;
+    --chart-grid: #1d343e; --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1a20; --surface: #12242c; --surface-2: #162b34; --line: #223c47; --line-strong: #2f4d59;
+  --fg: #e4eef1; --fg-2: #a9bec6; --fg-3: #78929c; --accent: #4fb3cc; --accent-strong: #7cc9dc; --accent-soft: #163a46; --on-accent: #06202a;
+  --side: #08141a; --side-fg: #c9dbe1; --side-fg-dim: #6d8a94; --side-active: #143340;
+  --ok: #55b984; --ok-soft: #15332a; --warn: #e0a84a; --warn-soft: #3a2e16; --risk: #ec6a6a; --risk-soft: #3d1c1f;
+  --chart-grid: #1d343e; --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+.mono { font-family: var(--font-mono); font-size: .92em; }
+.num { font-variant-numeric: tabular-nums; }
+svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- Botões e campos ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 38px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--surface); font-weight: 500; white-space: nowrap; transition: background .15s, border-color .15s; }
+.btn:hover { background: var(--surface-2); border-color: var(--fg-3); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+.btn-ghost { border-color: transparent; background: transparent; }
+.btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 13px; font-weight: 500; color: var(--fg-2); }
+.input { height: 42px; width: 100%; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--surface); transition: border-color .15s, box-shadow .15s; }
+.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.input-icon { position: relative; }
+.input-icon svg.i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--fg-3); }
+.input-icon .input { padding-left: 40px; }
+select.input { padding-right: 32px; }
+.seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 8px; padding: 3px; background: var(--surface); }
+.seg button { border: 0; background: transparent; height: 28px; padding: 0 12px; border-radius: 6px; font-size: 13px; color: var(--fg-2); font-weight: 500; }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-strong); }
+
+/* ---------- Pílulas de classificação ---------- */
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.apto { background: var(--ok-soft); color: var(--ok); }
+.pill.atencao { background: var(--warn-soft); color: var(--warn); }
+.pill.risco { background: var(--risk-soft); color: var(--risk); }
+.pill.neutro { background: var(--surface-2); color: var(--fg-2); border: 1px solid var(--line); }
+
+/* ---------- Login ---------- */
+#login { min-height: 100%; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+.login-brand { position: relative; overflow: hidden; background: var(--side); color: #e6f1f4; padding-block: 48px; padding-left: max(48px, env(safe-area-inset-left, 0px)); padding-right: 48px; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; }
+.login-brand canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .55; pointer-events: none; }
+.login-brand > *:not(canvas) { position: relative; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: -.01em; }
+.brand-mark { width: 34px; height: 34px; border-radius: 9px; background: #1c7d96; display: grid; place-items: center; }
+.brand-mark svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.login-pitch h1 { font-family: var(--font-display); font-size: clamp(28px, 3.2vw, 40px); line-height: 1.15; font-weight: 600; letter-spacing: -.02em; max-width: 16ch; }
+.login-pitch p { color: #a9c6cf; font-size: 16px; max-width: 46ch; margin: 16px 0 0; }
+.login-legend { display: flex; flex-wrap: wrap; gap: 10px; }
+.login-legend span { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); font-size: 13px; color: #d4e5ea; }
+.login-legend i { width: 8px; height: 8px; border-radius: 50%; }
+.login-foot { font-size: 12px; color: #7f9ea8; }
+.login-form-wrap { display: grid; place-items: center; padding-block: 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: var(--surface); }
+.login-form { width: 100%; max-width: 380px; display: grid; gap: 20px; }
+.login-form h2 { font-family: var(--font-display); font-size: 24px; font-weight: 600; letter-spacing: -.01em; }
+.login-form .sub { color: var(--fg-2); margin: 6px 0 0; }
+.login-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; }
+.login-row label { display: inline-flex; gap: 8px; align-items: center; color: var(--fg-2); }
+.link { background: none; border: 0; padding: 0; color: var(--accent); font-weight: 500; text-decoration: none; }
+.link:hover { text-decoration: underline; }
+.login-form .btn-primary { height: 44px; font-size: 15px; }
+.demo-note { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 8px; background: var(--accent-soft); color: var(--accent-strong); font-size: 13px; }
+.form-error { color: var(--risk); font-size: 13px; margin: 0; }
+.lgpd-line { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--fg-3); border-top: 1px solid var(--line); padding-top: 16px; }
+
+/* ---------- Shell do app ---------- */
+#app { min-height: 100%; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
+.side { position: sticky; top: 0; height: 100vh; height: 100dvh; background: var(--side); color: var(--side-fg); display: flex; flex-direction: column; padding: 20px 14px; padding-top: max(20px, env(safe-area-inset-top, 0px)); padding-left: max(14px, env(safe-area-inset-left, 0px)); gap: 24px; z-index: 30; }
+.side .brand { color: #fff; padding: 0 8px; }
+.side-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--side-fg-dim); padding: 0 12px; margin-bottom: 6px; }
+.nav { display: grid; gap: 2px; }
+.nav a { display: flex; align-items: center; gap: 12px; height: 42px; padding: 0 12px; border-radius: 8px; color: var(--side-fg); text-decoration: none; font-weight: 500; position: relative; }
+.nav a:hover { background: rgba(255,255,255,.05); color: #fff; }
+.nav a[aria-current="page"] { background: var(--side-active); color: #fff; }
+.nav a[aria-current="page"]::before { content: ""; position: absolute; left: -14px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: #4fb3cc; }
+.nav .badge { margin-left: auto; font-size: 11px; font-weight: 600; background: rgba(236,106,106,.18); color: #f19a9a; padding: 1px 8px; border-radius: 999px; }
+.side-foot { margin-top: auto; display: grid; gap: 10px; }
+.side-card { border: 1px solid rgba(255,255,255,.08); border-radius: 10px; padding: 12px; font-size: 12px; color: var(--side-fg-dim); display: grid; gap: 6px; }
+.side-card strong { color: var(--side-fg); font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.side-card .dot { width: 8px; height: 8px; border-radius: 50%; background: #55b984; box-shadow: 0 0 0 3px rgba(85,185,132,.2); }
+.side-user { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; }
+.avatar { width: 34px; height: 34px; border-radius: 50%; background: #1c7d96; color: #fff; display: grid; place-items: center; font-weight: 600; font-size: 13px; flex: none; }
+.side-user .who { min-width: 0; line-height: 1.3; }
+.side-user .who b { display: block; color: #fff; font-weight: 500; font-size: 13px; }
+.side-user .who span { font-size: 12px; color: var(--side-fg-dim); }
+.side-user button { margin-left: auto; background: none; border: 0; color: var(--side-fg-dim); padding: 6px; border-radius: 6px; display: grid; }
+.side-user button:hover { color: #fff; background: rgba(255,255,255,.06); }
+
+.main { min-width: 0; display: flex; flex-direction: column; }
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 12px; padding-block: 12px; padding-left: 28px; padding-right: max(28px, env(safe-area-inset-right, 0px)); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 40; background: var(--bg); }
+.crumbs { font-size: 13px; color: var(--fg-3); display: flex; align-items: center; gap: 6px; min-width: 0; }
+.crumbs b { color: var(--fg); font-weight: 500; }
+.topbar .spacer { flex: 1; }
+.env-tag { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--warn); background: var(--warn-soft); padding: 4px 10px; border-radius: 999px; }
+.icon-btn { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); position: relative; color: var(--fg-2); }
+.icon-btn:hover { color: var(--fg); border-color: var(--line-strong); }
+.icon-btn .count { position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--risk); color: #fff; font-size: 10px; font-weight: 700; display: grid; place-items: center; border: 2px solid var(--bg); }
+.menu-btn { display: none; }
+.content { padding-block: 28px 48px; padding-left: 28px; padding-right: max(28px, env(safe-area-inset-right, 0px)); display: grid; gap: 24px; max-width: 1480px; width: 100%; }
+
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.page-head h1 { font-family: var(--font-display); font-size: 26px; font-weight: 600; letter-spacing: -.02em; }
+.page-head p { margin: 4px 0 0; color: var(--fg-2); }
+.page-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); min-width: 0; }
+.card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 20px 0; flex-wrap: wrap; }
+.card-head h2 { font-size: 15px; font-weight: 600; }
+.card-head p { margin: 2px 0 0; font-size: 13px; color: var(--fg-3); }
+.card-body { padding: 16px 20px 20px; }
+
+/* ---------- KPIs ---------- */
+.kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
+.kpi { padding: 16px 18px; display: grid; gap: 10px; position: relative; overflow: hidden; }
+.kpi-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--fg-2); font-size: 13px; font-weight: 500; }
+.kpi-ico { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.kpi-ico svg.i { width: 16px; height: 16px; }
+.kpi-val { font-family: var(--font-display); font-size: 28px; font-weight: 600; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kpi-val small { font-size: 15px; font-weight: 500; color: var(--fg-3); margin-left: 2px; }
+.kpi-foot { font-size: 12px; color: var(--fg-3); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.delta { font-weight: 600; display: inline-flex; align-items: center; gap: 2px; }
+.delta.up { color: var(--ok); }
+.delta.down { color: var(--risk); }
+.delta.bad-up { color: var(--risk); }
+.delta.good-down { color: var(--ok); }
+.kpi.warn .kpi-ico { background: var(--warn-soft); color: var(--warn); }
+.kpi.risk .kpi-ico { background: var(--risk-soft); color: var(--risk); }
+.kpi.warn::after, .kpi.risk::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.kpi.warn::after { background: var(--warn); }
+.kpi.risk::after { background: var(--risk); }
+.meter { height: 6px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
+.meter > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+
+.grid-2 { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 16px; }
+.chart-box { position: relative; height: 290px; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--fg-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; }
+
+/* Funil Principais → Avaliação → Adicionais */
+.funnel { display: grid; gap: 14px; }
+.stage { display: grid; gap: 8px; }
+.stage-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.stage-head b { font-weight: 600; font-size: 13px; }
+.stage-head span { font-size: 12px; color: var(--fg-3); }
+.stage-head .vol { font-family: var(--font-display); font-weight: 600; font-size: 16px; color: var(--fg); font-variant-numeric: tabular-nums; }
+.stack { display: flex; height: 26px; border-radius: 6px; overflow: hidden; gap: 2px; }
+.stack > div { display: grid; place-items: center; font-size: 11px; font-weight: 600; color: #fff; min-width: 0; overflow: hidden; white-space: nowrap; }
+.stack .a { background: var(--ok); }
+.stack .t { background: var(--warn); }
+.stack .r { background: var(--risk); }
+.stage-arrow { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--fg-3); padding-left: 4px; }
+.stage-arrow svg.i { width: 14px; height: 14px; transform: rotate(90deg); }
+.funnel-note { font-size: 12px; color: var(--fg-2); background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-top: 4px; }
+
+/* ---------- Tabelas ---------- */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; background: var(--surface-2); }
+td { padding: 11px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+tbody tr { cursor: pointer; transition: background .12s; }
+tbody tr:hover { background: var(--surface-2); }
+tbody tr:last-child td { border-bottom: 0; }
+td .sub { display: block; font-size: 12px; color: var(--fg-3); }
+.code { font-family: var(--font-mono); font-weight: 500; color: var(--accent-strong); }
+.notified { display: inline-flex; align-items: center; gap: 6px; color: var(--fg-2); font-size: 12px; }
+.notified svg.i { width: 14px; height: 14px; color: var(--ok); }
+
+.adh-list { display: grid; gap: 14px; }
+.adh-row { display: grid; gap: 6px; }
+.adh-row .top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.adh-row .top span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.adh-row .top b { font-variant-numeric: tabular-nums; font-weight: 600; }
+.adh-row .meter > i.low { background: var(--risk); }
+.adh-row .meter > i.mid { background: var(--warn); }
+.adh-row .meter > i.high { background: var(--ok); }
+
+/* ---------- Telas em construção ---------- */
+.soon { display: grid; place-items: center; text-align: center; padding: 64px 24px; gap: 12px; }
+.soon .kpi-ico { width: 52px; height: 52px; border-radius: 14px; }
+.soon .kpi-ico svg.i { width: 24px; height: 24px; }
+.soon h2 { font-family: var(--font-display); font-size: 20px; font-weight: 600; }
+.soon p { color: var(--fg-2); max-width: 52ch; margin: 0; }
+
+/* ---------- Listagens, filtros e formulários ---------- */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.toolbar .input { height: 38px; width: auto; max-width: 100%; }
+.toolbar .grow { flex: 1 1 260px; min-width: 0; }
+.toolbar .grow .input { width: 100%; }
+.pill.on { background: var(--ok-soft); color: var(--ok); }
+.pill.off { background: var(--surface-2); color: var(--fg-3); border: 1px solid var(--line); }
+.chip { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 8px; border-radius: 6px; font-size: 12px; font-weight: 500; background: var(--surface-2); border: 1px solid var(--line); color: var(--fg-2); white-space: nowrap; }
+.chip svg.i { width: 13px; height: 13px; }
+.chip.accent { background: var(--accent-soft); border-color: transparent; color: var(--accent-strong); }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 20px; border-top: 1px solid var(--line); font-size: 13px; color: var(--fg-3); flex-wrap: wrap; }
+.pager .btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.pager .btn[aria-current] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-strong); }
+.row-actions { display: flex; gap: 6px; justify-content: flex-end; align-items: center; }
+.icon-btn.sm { width: 32px; height: 32px; }
+.icon-btn.sm svg.i { width: 16px; height: 16px; }
+td.empty, .empty { padding: 40px 20px; text-align: center; color: var(--fg-3); white-space: normal; }
+tbody.static tr { cursor: default; }
+.meter > i.low { background: var(--risk); }
+.meter > i.mid { background: var(--warn); }
+.meter > i.high { background: var(--ok); }
+.adh-cell { display: flex; align-items: center; gap: 10px; }
+.adh-cell .meter { flex: 1; min-width: 90px; }
+.form-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
+.span-1 { grid-column: span 1; } .span-2 { grid-column: span 2; } .span-3 { grid-column: span 3; } .span-4 { grid-column: span 4; } .span-6 { grid-column: 1 / -1; }
+.form-section { grid-column: 1 / -1; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--fg-3); border-top: 1px solid var(--line); padding-top: 14px; margin-top: 2px; }
+textarea.input { height: auto; min-height: 72px; padding: 10px 12px; resize: vertical; line-height: 1.45; }
+.input.invalid { border-color: var(--risk); box-shadow: 0 0 0 3px var(--risk-soft); }
+.hint { font-size: 12px; color: var(--fg-3); font-weight: 400; }
+.field .flabel { font-size: 13px; font-weight: 500; color: var(--fg-2); }
+.switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500; }
+.switch input { appearance: none; -webkit-appearance: none; width: 38px; height: 22px; border-radius: 999px; background: var(--line-strong); position: relative; transition: background .15s; margin: 0; flex: none; cursor: pointer; }
+.switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.switch input:checked { background: var(--ok); }
+.switch input:checked::after { transform: translateX(16px); }
+.radio-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.radio-card { border: 1px solid var(--line-strong); border-radius: 10px; padding: 12px; display: flex; gap: 10px; cursor: pointer; align-items: flex-start; background: var(--surface); }
+.radio-card:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.radio-card input { margin: 3px 0 0; accent-color: var(--accent); }
+.radio-card b { display: block; font-weight: 600; font-size: 13px; }
+.radio-card small { display: block; font-size: 12px; color: var(--fg-3); }
+
+/* Abas e banco de perguntas */
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); overflow-x: auto; padding: 0 12px; }
+.tabs button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 14px 12px 12px; font-weight: 500; color: var(--fg-2); white-space: nowrap; display: inline-flex; gap: 8px; align-items: center; margin-bottom: -1px; }
+.tabs button:hover { color: var(--fg); }
+.tabs button[aria-selected="true"] { color: var(--accent-strong); border-bottom-color: var(--accent); }
+.tabs .n { font-size: 11px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 0 7px; color: var(--fg-3); font-variant-numeric: tabular-nums; }
+.info-banner { display: flex; gap: 10px; align-items: flex-start; padding: 12px 20px; background: var(--accent-soft); color: var(--accent-strong); font-size: 13px; }
+.info-banner svg.i { width: 16px; height: 16px; margin-top: 2px; }
+.q-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--line); cursor: pointer; transition: background .12s; }
+.q-row:last-child { border-bottom: 0; }
+.q-row:hover { background: var(--surface-2); }
+.q-thumb { width: 64px; height: 52px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); display: grid; place-items: center; overflow: hidden; color: var(--fg-3); }
+.q-thumb > svg:not(.i), .q-thumb > img, .prev > svg:not(.i), .prev > img, .alt-img > svg:not(.i), .alt-img > img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.q-title { font-weight: 600; }
+.q-desc { font-size: 13px; color: var(--fg-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.q-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.upload { border: 1.5px dashed var(--line-strong); border-radius: 10px; padding: 12px; display: flex; align-items: center; gap: 14px; background: var(--surface-2); flex-wrap: wrap; }
+.upload .prev { width: 132px; height: 80px; border-radius: 8px; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; flex: none; color: var(--fg-3); }
+.alt-row { display: grid; grid-template-columns: 32px minmax(0, 1fr) 84px 56px; gap: 10px; align-items: center; }
+.alt-head { font-size: 12px; color: var(--fg-3); }
+.alt-letter { width: 32px; height: 32px; border-radius: 8px; background: var(--accent-soft); color: var(--accent-strong); display: grid; place-items: center; font-weight: 600; }
+.alt-row .input { height: 38px; }
+.alt-img-wrap { position: relative; width: 56px; height: 42px; }
+.alt-img { width: 100%; height: 100%; border-radius: 8px; border: 1.5px dashed var(--line-strong); background: var(--surface-2); display: grid; place-items: center; overflow: hidden; color: var(--fg-3); padding: 0; }
+.alt-img.has { border-style: solid; border-color: var(--line); }
+.alt-img:hover { border-color: var(--accent); color: var(--accent); }
+.alt-x { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--surface); display: grid; place-items: center; padding: 0; color: var(--fg-2); }
+.alt-x svg.i { width: 11px; height: 11px; }
+
+/* Pré-visualização no celular (cores fixas: simula o app do funcionário) */
+.phone { width: 300px; max-width: 100%; margin: 0 auto; border-radius: 30px; border: 9px solid #1d2b31; background: #f6f9fa; color: #15242b; padding: 16px 14px 18px; display: grid; gap: 12px; font-size: 13px; }
+.ph-top { display: flex; justify-content: space-between; font-size: 11px; color: #6b7c84; }
+.ph-top span { display: inline-flex; gap: 4px; align-items: center; }
+.ph-top svg.i { width: 12px; height: 12px; }
+.ph-prog { height: 4px; background: #dfe6e9; border-radius: 4px; overflow: hidden; }
+.ph-prog i { display: block; height: 100%; background: #155e75; }
+.ph-q { font-family: var(--font-display); font-weight: 600; font-size: 16px; line-height: 1.3; }
+.ph-d { color: #4a5c65; font-size: 12px; margin-top: -6px; }
+.ph-img { border-radius: 10px; overflow: hidden; border: 1px solid #dfe6e9; background: #fff; }
+.ph-img > svg, .ph-img > img { display: block; width: 100%; height: auto; }
+.ph-alts { display: grid; gap: 8px; }
+.ph-alts.img { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ph-alt { display: flex; align-items: center; gap: 10px; text-align: left; border: 1px solid #d5dfe3; background: #fff; border-radius: 10px; padding: 9px 10px; color: #15242b; font-size: 13px; }
+.ph-alts.img .ph-alt { flex-direction: column; gap: 4px; padding: 6px; font-size: 11px; text-align: center; }
+.ph-alt-img { width: 100%; aspect-ratio: 1; display: block; border-radius: 6px; overflow: hidden; }
+.ph-alt-img > svg, .ph-alt-img > img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.ph-l { width: 22px; height: 22px; border-radius: 6px; background: #e3f0f3; color: #0e4a5e; display: grid; place-items: center; font-weight: 600; font-size: 11px; flex: none; }
+.ph-alt.sel { border-color: #155e75; box-shadow: inset 0 0 0 1px #155e75; background: #eef6f8; }
+.ph-btn { background: #155e75; color: #fff; text-align: center; border-radius: 10px; padding: 11px; font-weight: 600; }
+
+/* Configurações */
+.cfg-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.cfg-grid > .span-all { grid-column: 1 / -1; }
+.cfg-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.cfg-row:first-child { padding-top: 0; }
+.cfg-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.lbl { min-width: 0; }
+.lbl b { display: block; font-weight: 500; }
+.lbl span { font-size: 12px; color: var(--fg-3); }
+.num-input { display: flex; align-items: center; gap: 8px; flex: none; }
+.num-input .input { width: 80px; height: 36px; text-align: right; font-variant-numeric: tabular-nums; }
+.unit { font-size: 13px; color: var(--fg-3); white-space: nowrap; }
+.cfg-total { margin-top: 14px; padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; font-size: 13px; color: var(--fg-2); }
+.days { display: flex; gap: 6px; flex-wrap: wrap; }
+.days button { width: 44px; height: 34px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--surface); font-weight: 500; font-size: 13px; color: var(--fg-2); }
+.days button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.range-bar { display: flex; height: 40px; border-radius: 8px; overflow: hidden; gap: 2px; }
+.range-bar > div { display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; min-width: 0; padding: 0 6px; transition: flex .2s; }
+.range-bar .r { background: var(--risk); } .range-bar .t { background: var(--warn); } .range-bar .a { background: var(--ok); }
+.range-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.savebar { position: sticky; bottom: max(16px, env(safe-area-inset-bottom, 0px)); z-index: 15; display: flex; align-items: center; gap: 12px; justify-content: space-between; padding: 10px 12px 10px 16px; background: var(--fg); color: var(--bg); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.2); flex-wrap: wrap; }
+.savebar > span { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; }
+.savebar .btn { height: 34px; }
+.savebar .btn:not(.btn-primary) { background: transparent; color: var(--bg); border-color: color-mix(in srgb, var(--bg) 35%, transparent); }
+
+/* Relatórios */
+.filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; padding: 16px 20px; }
+.filters .input { height: 38px; }
+.filters .grow { flex: 1 1 240px; min-width: 0; }
+.kpis.k4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tipo-nums { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--fg-2); }
+.tipo-nums span { display: inline-flex; align-items: center; gap: 6px; }
+.tipo-nums i { width: 8px; height: 8px; border-radius: 50%; }
+.tipo-nums b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.exp { display: grid; gap: 10px; }
+.exp .meter { height: 8px; }
+.exp .meter > i { transition: width .5s ease; }
+
+@media (max-width: 1180px) { .cfg-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 900px) { .kpis.k4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) {
+  .form-grid { grid-template-columns: minmax(0, 1fr); }
+  .form-grid > * { grid-column: 1 / -1; }
+  .radio-cards, .range-inputs { grid-template-columns: minmax(0, 1fr); }
+  .q-row { grid-template-columns: auto minmax(0, 1fr); }
+  .q-row .row-actions { grid-column: 2; justify-content: flex-start; }
+  .alt-row { grid-template-columns: 28px minmax(0, 1fr) 64px 48px; gap: 8px; }
+  .cfg-row { flex-wrap: wrap; }
+}
+
+/* ---------- Modal e toast ---------- */
+.modal-back { position: fixed; inset: 0; background: rgba(8, 20, 26, .5); display: grid; place-items: center; padding: 24px 16px; z-index: 100; animation: fade .15s ease-out; }
+.modal { width: 100%; max-width: 560px; max-height: calc(100dvh - 48px); background: var(--surface); border-radius: 14px; border: 1px solid var(--line); box-shadow: 0 20px 60px rgba(0,0,0,.25); display: flex; flex-direction: column; animation: rise .18s ease-out; }
+.modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 20px 22px 14px; border-bottom: 1px solid var(--line); }
+.modal-head h3 { font-family: var(--font-display); font-size: 18px; font-weight: 600; }
+.modal-head p { margin: 2px 0 0; font-size: 13px; color: var(--fg-3); }
+.modal-body { padding: 20px 22px; overflow-y: auto; display: grid; gap: 16px; }
+.modal-foot { padding: 14px 22px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+.kv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; }
+.kv div { display: grid; gap: 2px; }
+.kv dt { font-size: 12px; color: var(--fg-3); }
+.kv dd { margin: 0; font-weight: 500; }
+.timeline { display: grid; gap: 0; border-left: 2px solid var(--line); margin-left: 6px; }
+.tl-item { position: relative; padding: 0 0 16px 20px; display: grid; gap: 4px; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-item::before { content: ""; position: absolute; left: -7px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 2px solid var(--fg-3); }
+.tl-item.apto::before { border-color: var(--ok); }
+.tl-item.atencao::before { border-color: var(--warn); }
+.tl-item.risco::before { border-color: var(--risk); }
+.tl-item .when { font-size: 12px; color: var(--fg-3); font-variant-numeric: tabular-nums; }
+.tl-item .what { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-weight: 500; }
+.lgpd-box { display: flex; gap: 10px; font-size: 12px; color: var(--fg-2); background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.lgpd-box svg.i { width: 16px; height: 16px; color: var(--accent); margin-top: 1px; }
+.toast { position: fixed; right: max(20px, env(safe-area-inset-right, 0px)); bottom: max(20px, env(safe-area-inset-bottom, 0px)); z-index: 120; background: var(--fg); color: var(--bg); padding: 12px 16px; border-radius: 10px; display: flex; gap: 10px; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,.2); font-weight: 500; animation: rise .2s ease-out; max-width: calc(100vw - 40px); }
+.toast svg.i { color: var(--ok); }
+@keyframes fade { from { opacity: 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 1360px) { .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 1180px) {
+  #app { grid-template-columns: 76px minmax(0, 1fr); }
+  .side { padding-inline: 12px; align-items: center; }
+  .side .brand span, .side-label, .nav a span, .nav .badge, .side-card, .side-user .who, .side-user button { display: none; }
+  .nav a { width: 48px; justify-content: center; padding: 0; }
+  .nav a[aria-current="page"]::before { left: -12px; }
+  .side-user { padding: 0; }
+  .grid-2 { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 860px) {
+  #login { grid-template-columns: minmax(0, 1fr); }
+  .login-brand { padding: 32px max(16px, env(safe-area-inset-right, 0px)) 32px max(16px, env(safe-area-inset-left, 0px)); gap: 24px; }
+  .login-brand .login-legend, .login-foot { display: none; }
+}
+@media (max-width: 760px) {
+  #app { grid-template-columns: minmax(0, 1fr); }
+  .side { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; height: auto; transform: translateX(-100%); transition: transform .2s; align-items: stretch; }
+  .side .brand span, .side-label, .nav a span, .nav .badge, .side-user .who, .side-user button { display: revert; }
+  .nav a { width: auto; justify-content: flex-start; padding: 0 12px; }
+  .side-user { padding: 8px; }
+  body.nav-open .side { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.4); }
+  .menu-btn { display: grid; }
+  .topbar, .content { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .env-tag { display: none; }
+  .kv { grid-template-columns: minmax(0, 1fr); }
+}
+.scrim { position: fixed; inset: 0; background: rgba(8,20,26,.45); z-index: 25; }
+</style>
+
+<!-- ================= LOGIN ================= -->
+<section id="login" hidden>
+  <div class="login-brand">
+    <canvas id="pulseCanvas" aria-hidden="true"></canvas>
+    <div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24"><path d="M2 12h4.5l2.5-6 4 12 2.5-6H22"/></svg></span><span class="brand-name">Pulse</span></div>
+    <div class="login-pitch">
+      <h1>Cada turno começa com uma equipe pronta.</h1>
+      <p>Avaliação diária de prontidão dos funcionários, com alerta imediato ao supervisor quando algo pede atenção.</p>
+    </div>
+    <div class="login-legend">
+      <span><i style="background:#55b984"></i>Apto</span>
+      <span><i style="background:#e0a84a"></i>Atenção · supervisor avisado</span>
+      <span><i style="background:#ec6a6a"></i>Risco · supervisor avisado</span>
+    </div>
+    <div class="login-foot">Dados de funcionários exibidos somente por código, em conformidade com a LGPD.</div>
+  </div>
+  <div class="login-form-wrap">
+    <form class="login-form" id="loginForm" novalidate>
+      <div>
+        <h2>Acesso Admin Master</h2>
+        <p class="sub">Entre para gerenciar empresas, perguntas e regras da plataforma.</p>
+      </div>
+      <div class="field">
+        <label for="loginEmail">E-mail</label>
+        <div class="input-icon"><svg class="i" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg><input class="input" id="loginEmail" type="email" autocomplete="username" placeholder="voce@empresa.com.br" value="admin@pulse.com.br"></div>
+      </div>
+      <div class="field">
+        <label for="loginPass">Senha</label>
+        <div class="input-icon"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><input class="input" id="loginPass" type="password" autocomplete="current-password" placeholder="Sua senha"></div>
+      </div>
+      <p class="form-error" id="loginError" hidden></p>
+      <div class="login-row">
+        <label for="loginRemember"><input type="checkbox" id="loginRemember" checked> Manter conectado</label>
+        <button type="button" class="link" id="forgotBtn">Esqueci minha senha</button>
+      </div>
+      <button class="btn btn-primary" type="submit">Entrar</button>
+      <div class="demo-note"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span>Ambiente de demonstração: qualquer e-mail e senha dão acesso. Nenhum dado é enviado.</span></div>
+      <div class="lgpd-line"><svg class="i" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Conexão protegida · bloqueio após 5 tentativas</div>
+    </form>
+  </div>
+</section>
+
+<!-- ================= APP ================= -->
+<div id="app" hidden>
+  <aside class="side" id="side">
+    <div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24"><path d="M2 12h4.5l2.5-6 4 12 2.5-6H22"/></svg></span><span class="brand-name">Pulse</span></div>
+    <div>
+      <div class="side-label">Gestão</div>
+      <nav class="nav" id="nav"></nav>
+    </div>
+    <div class="side-foot">
+      <div class="side-card">
+        <strong><i class="dot"></i>Disparo de hoje concluído</strong>
+        <span id="sideDisparo">06:00 · 12.486 funcionários convocados</span>
+      </div>
+      <div class="side-user">
+        <div class="avatar">AM</div>
+        <div class="who"><b>Admin Master</b><span>admin@pulse.com.br</span></div>
+        <button type="button" id="logoutBtn" title="Sair" aria-label="Sair"></button>
+      </div>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="Abrir menu"></button>
+      <div class="crumbs"><span>Pulse</span><span>/</span><b id="crumb">Dashboard</b></div>
+      <div class="spacer"></div>
+      <span class="env-tag">Demonstração</span>
+      <button class="icon-btn" id="bellBtn" type="button" aria-label="Alertas de hoje"><span class="count">87</span></button>
+    </header>
+    <main class="content" id="view"></main>
+  </div>
+</div>
+<div id="layer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script>
+/* ============ Utilidades ============ */
+const $ = (s, el = document) => el.querySelector(s);
+const fmt = n => n.toLocaleString('pt-BR');
+const pct = (n, d = 1) => n.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d }) + '%';
+const store = {
+  get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { sessionStorage.removeItem(k); } catch (e) {} }
+};
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+const ICONS = {
+  dashboard: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+  empresas: '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/>',
+  perguntas: '<path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"/>',
+  configuracoes: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+  relatorios: '<path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  send: '<path d="m22 2-7 20-4-9-9-4ZM22 2 11 13"/>',
+  percent: '<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+  warn: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3ZM12 9v4M12 17h.01"/>',
+  risk: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM12 8v4M12 16h.01"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  chev: '<path d="m9 18 6-6-6-6"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  tools: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  edit: '<path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  image: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
+  text: '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
+  eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+  key: '<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/>',
+  lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/>',
+  sheet: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>',
+  calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  layers: '<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/>',
+  shuffle: '<path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+  trash: '<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'
+};
+const icon = (n, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
+
+/* ============ Dados fictícios ============ */
+const HOJE = new Date(2026, 10, 6, 7, 42);
+const EMPRESAS = [
+  { nome: 'Transportadora Rota Sul', cidade: 'Porto Alegre/RS', func: 1240 },
+  { nome: 'Metalúrgica Vale do Aço', cidade: 'Ipatinga/MG', func: 1820 },
+  { nome: 'Construtora Horizonte', cidade: 'Belo Horizonte/MG', func: 960 },
+  { nome: 'Mineração Serra Azul', cidade: 'Itabira/MG', func: 2140 },
+  { nome: 'Logística Atlântico', cidade: 'Santos/SP', func: 780 },
+  { nome: 'Agroindustrial Cerrado Verde', cidade: 'Rio Verde/GO', func: 1310 },
+  { nome: 'Usina Bom Jesus', cidade: 'Ribeirão Preto/SP', func: 1050 },
+  { nome: 'Frigorífico Pampa', cidade: 'Chapecó/SC', func: 890 },
+  { nome: 'Petroquímica Litoral', cidade: 'Camaçari/BA', func: 1460 },
+  { nome: 'Vigilância Sentinela', cidade: 'Curitiba/PR', func: 836 }
+];
+const SETORES = ['Operação de máquinas', 'Motoristas', 'Manutenção', 'Expedição', 'Produção', 'Segurança patrimonial', 'Carga e descarga'];
+const CIDADES = [['São Paulo', 'SP'], ['Campinas', 'SP'], ['Sorocaba', 'SP'], ['Rio de Janeiro', 'RJ'], ['Volta Redonda', 'RJ'], ['Contagem', 'MG'], ['Uberlândia', 'MG'], ['Londrina', 'PR'], ['Joinville', 'SC'], ['Blumenau', 'SC'], ['Caxias do Sul', 'RS'], ['Canoas', 'RS'], ['Goiânia', 'GO'], ['Cuiabá', 'MT'], ['Salvador', 'BA'], ['Recife', 'PE'], ['Fortaleza', 'CE'], ['Manaus', 'AM'], ['Vitória', 'ES'], ['Campo Grande', 'MS']];
+const RUAS = ['Av. das Indústrias', 'Rua dos Expedicionários', 'Av. Brasil', 'Rua Sete de Setembro', 'Av. Getúlio Vargas', 'Rua XV de Novembro', 'Rodovia BR-116, km', 'Av. Perimetral'];
+const BAIRROS = ['Distrito Industrial', 'Centro', 'Jardim América', 'Vila Nova', 'Cidade Industrial', 'Parque Industrial'];
+
+// Todas as empresas clientes (as 10 primeiras são as maiores e aparecem nos alertas)
+const EMP = (() => {
+  const r = rng(2026), dig = n => Array.from({ length: n }, () => Math.floor(r() * 10)).join('');
+  const pick = a => a[Math.floor(r() * a.length)];
+  const slug = n => norm(n).replace(/[^a-z ]/g, '').split(' ').filter(w => w.length > 2).slice(0, 2).join('');
+  const extras = ['Cerâmica Terra Nobre', 'Têxtil Fio de Ouro', 'Laticínios Vale Verde', 'Papel e Celulose Ipê', 'Química Fluvial', 'Autopeças Torque', 'Fundição Ferro Forte', 'Transportes Via Norte',
+    'Engenharia Alicerce', 'Saneamento Águas Claras', 'Distribuidora Granel Brasil', 'Energia Ventos do Nordeste', 'Cimentos Pedra Branca', 'Embalagens Primavera', 'Siderúrgica Aço Leste', 'Portuária Baía Grande',
+    'Florestal Mata Nativa', 'Alimentos Sabor do Campo', 'Plásticos Polimax', 'Vidros Cristal Sul', 'Usinagem Precisão Total', 'Coleta Ambiental Reciclar', 'Tintas Arco-Íris', 'Armazéns Grãos do Oeste',
+    'Eletromecânica Faísca', 'Mineradora Rocha Viva', 'Construtora Pilar Forte', 'Aviação Agrícola Céu Limpo', 'Frota Expressa Cargas', 'Termelétrica Brasa Viva', 'Gráfica Prelo', 'Ferrovia Trilhos do Sul'];
+  const inativas = new Set([4, 11, 19, 27]);
+  const base = EMPRESAS.map(e => { const [cidade, uf] = e.cidade.split('/'); return { nome: e.nome, cidade, uf, func: e.func, status: 'ativa' }; });
+  const ext = extras.map((nome, i) => { const [cidade, uf] = pick(CIDADES); return { nome, cidade, uf, func: Math.round(80 + r() * 560), status: inativas.has(i) ? 'inativa' : 'ativa' }; });
+  return [...base, ...ext].map((e, i) => {
+    const c = dig(8);
+    return { id: i + 1, ...e, cnpj: `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5, 8)}/0001-${dig(2)}`, email: 'rh@' + slug(e.nome) + '.com.br',
+      cep: `${dig(5)}-${dig(3)}`, rua: `${pick(RUAS)} ${Math.floor(r() * 2400) + 10}`, bairro: pick(BAIRROS),
+      desde: new Date(2024 + Math.floor(r() * 2), Math.floor(r() * 12), 1 + Math.floor(r() * 27)).toLocaleDateString('pt-BR') };
+  });
+})();
+const ATIVAS = EMP.filter(e => e.status === 'ativa');
+const CAD = ATIVAS.reduce((s, e) => s + e.func, 0);
+
+// Regras gerais (tela Configurações)
+const CFG = { horario: '06:00', janela: 120, dias: [1, 2, 3, 4, 5, 6], lembrete: true, notifEmail: true, faixaRisco: 39, faixaAtencao: 69,
+  tempoMin: 60, tempoMax: 15, envioAval: 'imediato', envioAdic: 'imediato', avalQtd: 4, tentativas: 5, bloqueio: 30 };
+
+// Série diária dos últimos 90 dias (Apto / Atenção / Risco nas perguntas principais)
+const SERIE = (() => {
+  const r = rng(42), out = [];
+  for (let i = 89; i >= 0; i--) {
+    const d = new Date(2026, 10, 6 - i);
+    const dow = d.getDay();
+    const fimDeSemana = dow === 0 || dow === 6;
+    let total = CAD * (fimDeSemana ? 0.256 + r() * 0.072 : 0.745 + r() * 0.056);
+    if (i === 0) total = CAD * 0.786;
+    total = Math.round(total);
+    let risco = Math.round(total * (0.007 + r() * 0.005));
+    let atencao = Math.round(total * (0.035 + r() * 0.02));
+    if (i === 0) { risco = Math.round(total * 0.0089); atencao = Math.round(total * 0.042); }
+    out.push({ d, total, apto: total - atencao - risco, atencao, risco });
+  }
+  return out;
+})();
+
+const ALERTAS = (() => {
+  const r = rng(7), out = [];
+  const etapas = ['Principais', 'Avaliação', 'Adicionais'];
+  let min = 7 * 60 + 38;
+  for (let i = 0; i < 14; i++) {
+    const emp = EMPRESAS[Math.floor(r() * EMPRESAS.length)];
+    const etapa = etapas[r() < .55 ? 0 : r() < .7 ? 1 : 2];
+    const risco = r() < .38;
+    const pont = risco ? Math.round(22 + r() * 18) : Math.round(48 + r() * 16);
+    out.push({
+      codigo: 'FUNC-' + String(Math.floor(r() * 90000) + 1000).padStart(5, '0'),
+      empresa: emp.nome, setor: SETORES[Math.floor(r() * SETORES.length)],
+      hora: `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`,
+      etapa, pont, classe: risco ? 'risco' : 'atencao',
+      tempo: Math.round(95 + r() * 240)
+    });
+    min -= Math.round(2 + r() * 7);
+  }
+  return out;
+})();
+
+const ADESAO = (() => {
+  const r = rng(99);
+  return ATIVAS.map(e => {
+    const taxa = 0.62 + r() * 0.36;
+    return { ...e, taxa, resp: Math.round(e.func * taxa) };
+  }).sort((a, b) => a.taxa - b.taxa);
+})();
+
+/* ============ Componentes globais ============ */
+// Modais empilháveis: closeLayer fecha só o de cima
+function closeLayer() { const b = $('#layer').lastElementChild; if (b) b.remove(); if (!$('#layer').children.length) document.removeEventListener('keydown', escClose); }
+function closeAll() { $('#layer').innerHTML = ''; document.removeEventListener('keydown', escClose); }
+function escClose(e) { if (e.key === 'Escape') closeLayer(); }
+let modalSeq = 0;
+function openModal({ title, sub = '', body, foot = '', width, stack = false }) {
+  if (!stack) $('#layer').innerHTML = '';
+  const id = 'modalTitle' + (++modalSeq);
+  const back = document.createElement('div'); back.className = 'modal-back';
+  back.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-labelledby="${id}" ${width ? `style="max-width:${width}px"` : ''}>
+    <div class="modal-head"><div><h3 id="${id}">${title}</h3>${sub ? `<p>${sub}</p>` : ''}</div><button class="icon-btn" data-close aria-label="Fechar">${icon('x')}</button></div>
+    <div class="modal-body">${body}</div>${foot ? `<div class="modal-foot">${foot}</div>` : ''}</div>`;
+  $('#layer').appendChild(back);
+  back.addEventListener('click', e => { if (e.target === back || e.target.closest('[data-close]')) closeLayer(); });
+  document.removeEventListener('keydown', escClose); document.addEventListener('keydown', escClose);
+  const f = back.querySelector('input.input, select, textarea, .modal-foot .btn-primary'); if (f) f.focus();
+  return back.querySelector('.modal');
+}
+let toastTimer;
+function toast(msg) {
+  const old = $('.toast'); if (old) old.remove();
+  const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status');
+  t.innerHTML = icon('check') + `<span>${msg}</span>`;
+  document.body.appendChild(t); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.remove(), 3200);
+}
+const classeLabel = { apto: 'Apto', atencao: 'Atenção', risco: 'Risco' };
+const pill = c => `<span class="pill ${c}">${classeLabel[c]}</span>`;
+
+/* ============ Login ============ */
+function initLogin() {
+  $('#loginForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const em = $('#loginEmail').value.trim(), pw = $('#loginPass').value;
+    const err = $('#loginError');
+    if (!em || !pw) { err.textContent = 'Informe e-mail e senha para continuar.'; err.hidden = false; return; }
+    if (!/^\S+@\S+\.\S+$/.test(em)) { err.textContent = 'Digite um e-mail válido, como nome@empresa.com.br.'; err.hidden = false; return; }
+    err.hidden = true; store.set('pulse-auth', '1'); showApp();
+  });
+  $('#forgotBtn').addEventListener('click', () => {
+    const m = openModal({
+      title: 'Recuperar senha', sub: 'Enviaremos um link de redefinição para o e-mail cadastrado.',
+      body: `<div class="field"><label for="forgotEmail">E-mail</label><input class="input" id="forgotEmail" type="email" value="${$('#loginEmail').value}"></div>
+             <div class="lgpd-box">${icon('clock')}<span>O link expira em 30 minutos. Se não receber, confira a caixa de spam.</span></div>`,
+      foot: `<button class="btn" data-close>Cancelar</button><button class="btn btn-primary" id="forgotSend">Enviar link</button>`
+    });
+    $('#forgotSend', m).addEventListener('click', () => { closeLayer(); toast('Link de redefinição enviado (simulação).'); });
+  });
+  drawPulse();
+}
+function drawPulse() {
+  const c = $('#pulseCanvas'); if (!c) return;
+  const box = c.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  c.width = box.width * dpr; c.height = box.height * dpr;
+  const g = c.getContext('2d'); g.scale(dpr, dpr);
+  const w = box.width, h = box.height;
+  const linhas = [[.62, 'rgba(79,179,204,.55)', 2], [.7, 'rgba(85,185,132,.25)', 1.5], [.78, 'rgba(224,168,74,.2)', 1.2]];
+  linhas.forEach(([yy, cor, lw], k) => {
+    g.beginPath(); g.strokeStyle = cor; g.lineWidth = lw;
+    const y0 = h * yy;
+    for (let x = 0; x <= w; x += 2) {
+      const ph = (x + k * 90) % 220;
+      let y = y0 + Math.sin(x / 40 + k) * 3;
+      if (ph > 120 && ph < 135) y -= (ph - 120) * 3.2;
+      else if (ph >= 135 && ph < 150) y -= (150 - ph) * 3.2 - (ph - 135) * 2.4;
+      else if (ph >= 150 && ph < 160) y += (160 - ph) * 2;
+      x === 0 ? g.moveTo(x, y) : g.lineTo(x, y);
+    }
+    g.stroke();
+  });
+}
+
+/* ============ Navegação ============ */
+const ROUTES = {
+  dashboard: { label: 'Dashboard', render: renderDashboard },
+  empresas: { label: 'Empresas', render: renderEmpresas },
+  perguntas: { label: 'Banco de Perguntas', render: renderPerguntas },
+  configuracoes: { label: 'Configurações', render: renderConfig },
+  relatorios: { label: 'Relatórios', render: renderRelatorios }
+};
+let charts = [], rotaAtual = 'dashboard';
+function buildNav() {
+  $('#nav').innerHTML = Object.entries(ROUTES).map(([k, r]) =>
+    `<a href="#${k}" data-route="${k}">${icon(k)}<span>${r.label}</span>${k === 'dashboard' ? `<em class="badge">${SERIE[SERIE.length - 1].atencao + SERIE[SERIE.length - 1].risco}</em>` : ''}</a>`).join('');
+  $('#nav').querySelectorAll('.badge').forEach(b => b.title = 'Alertas de hoje');
+}
+function go(route) {
+  if (!ROUTES[route]) route = 'dashboard';
+  rotaAtual = route; closeAll();
+  charts.forEach(c => c.destroy()); charts = []; serieChart = relChart = null;
+  document.querySelectorAll('#nav a').forEach(a => a.dataset.route === route ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
+  $('#crumb').textContent = ROUTES[route].label;
+  ROUTES[route].render($('#view'));
+  document.body.classList.remove('nav-open'); const s = $('.scrim'); if (s) s.remove();
+  window.scrollTo(0, 0);
+}
+function showApp() {
+  $('#login').hidden = true; $('#app').hidden = false;
+  go((location.hash || '#dashboard').slice(1));
+}
+function showLogin() {
+  $('#app').hidden = true; $('#login').hidden = false; drawPulse();
+}
+
+/* ============ Dashboard ============ */
+let periodo = 30, serieModo = 'todos';
+function renderDashboard(v) {
+  const hoje = SERIE[SERIE.length - 1];
+  const cadastrados = CAD, adesao = hoje.total / cadastrados * 100;
+  const dataExt = HOJE.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  v.innerHTML = `
+  <div class="page-head">
+    <div><h1>Visão geral</h1><p>${dataExt.charAt(0).toUpperCase() + dataExt.slice(1)} · atualizado às 07:42</p></div>
+    <div class="page-actions">
+      <select class="input" id="dashEmpresa" style="height:38px;width:auto" aria-label="Filtrar por empresa">
+        <option>Todas as empresas (${ATIVAS.length})</option>${ATIVAS.map(e => e.nome).sort((a, b) => a.localeCompare(b, 'pt-BR')).map(n => `<option>${esc(n)}</option>`).join('')}
+      </select>
+      <button class="btn" id="dashExport">${icon('download')}Exportar resumo</button>
+    </div>
+  </div>
+
+  <section class="kpis" aria-label="Indicadores de hoje">
+    ${kpi('empresas', 'Empresas ativas', String(ATIVAS.length), `<small>/ ${EMP.length}</small>`, `<span>${EMP.length - ATIVAS.length} inativas</span>`)}
+    ${kpi('users', 'Funcionários participantes', fmt(cadastrados), '', `<span class="delta up">▲ 214</span><span>no mês</span>`)}
+    ${kpi('send', 'Respostas hoje', fmt(hoje.total), '', `<span class="delta up">▲ 2,1%</span><span>vs. sexta passada</span>`)}
+    ${kpi('percent', 'Adesão hoje', pct(adesao), '', `<div class="meter" style="width:100%"><i style="width:${adesao}%"></i></div><span>${fmt(hoje.total)} de ${fmt(cadastrados)} cadastrados</span>`)}
+    ${kpi('warn', 'Alertas de Atenção', fmt(hoje.atencao), '', `<span class="delta good-down">▼ 6%</span><span>vs. média de 30 dias</span>`, 'warn')}
+    ${kpi('risk', 'Alertas de Risco', fmt(hoje.risco), '', `<span class="delta bad-up">▲ 9%</span><span>vs. média de 30 dias</span>`, 'risk')}
+  </section>
+
+  <section class="grid-2">
+    <article class="card">
+      <div class="card-head">
+        <div><h2>Resultados por período</h2><p>Classificação nas perguntas principais, por dia</p></div>
+        <div class="page-actions">
+          <div class="seg" id="segModo" role="group" aria-label="Exibição">
+            <button type="button" data-v="todos">Todos</button><button type="button" data-v="alertas">Só alertas</button>
+          </div>
+          <div class="seg" id="segPeriodo" role="group" aria-label="Período">
+            <button type="button" data-v="7">7 dias</button><button type="button" data-v="30">30 dias</button><button type="button" data-v="90">90 dias</button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="legend" id="legendSerie" style="margin-bottom:12px"></div>
+        <div class="chart-box"><canvas id="chartSerie" aria-label="Gráfico de resultados por dia"></canvas></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><div><h2>Principais × Avaliação × Adicionais</h2><p id="funnelSub"></p></div></div>
+      <div class="card-body"><div class="funnel" id="funnel"></div></div>
+    </article>
+  </section>
+
+  <section class="grid-2">
+    <article class="card">
+      <div class="card-head">
+        <div><h2>Últimos alertas</h2><p>Supervisores notificados automaticamente · clique para ver o histórico</p></div>
+        <button class="btn btn-sm" id="verTodos">Ver todos ${icon('chev')}</button>
+      </div>
+      <div class="card-body" style="padding-inline:0;padding-bottom:4px">
+        <div class="table-wrap"><table>
+          <thead><tr><th>Funcionário</th><th>Empresa</th><th>Data/hora</th><th>Etapa</th><th>Pontuação</th><th>Classificação</th></tr></thead>
+          <tbody id="alertRows"></tbody>
+        </table></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><div><h2>Adesão por empresa hoje</h2><p>Menores taxas primeiro</p></div></div>
+      <div class="card-body"><div class="adh-list">
+        ${ADESAO.slice(0, 7).map(e => `<div class="adh-row"><div class="top"><span>${e.nome}</span><b>${pct(e.taxa * 100)}</b></div>
+          <div class="meter"><i class="${e.taxa < .75 ? 'low' : e.taxa < .88 ? 'mid' : 'high'}" style="width:${e.taxa * 100}%"></i></div></div>`).join('')}
+      </div></div>
+    </article>
+  </section>`;
+
+  $('#alertRows').innerHTML = ALERTAS.slice(0, 8).map((a, i) => `<tr data-i="${i}" tabindex="0">
+    <td><span class="code">${a.codigo}</span></td>
+    <td>${a.empresa}<span class="sub">${a.setor}</span></td>
+    <td class="num">06/11/2026 <span style="color:var(--fg-3)">${a.hora}</span></td>
+    <td>${a.etapa}</td>
+    <td class="num">${a.pont}%</td>
+    <td>${pill(a.classe)}</td></tr>`).join('');
+  $('#alertRows').addEventListener('click', e => { const tr = e.target.closest('tr'); if (tr) alertDetail(ALERTAS[tr.dataset.i]); });
+  $('#alertRows').addEventListener('keydown', e => { if (e.key === 'Enter') { const tr = e.target.closest('tr'); if (tr) alertDetail(ALERTAS[tr.dataset.i]); } });
+  $('#verTodos').addEventListener('click', () => {
+    const m = openModal({ title: 'Alertas de hoje', sub: `${ALERTAS.length} alertas mais recentes · supervisores notificados`, width: 780,
+      body: `<div class="table-wrap"><table><thead><tr><th>Funcionário</th><th>Empresa</th><th>Hora</th><th>Etapa</th><th>Pontuação</th><th>Classificação</th></tr></thead><tbody>
+        ${ALERTAS.map((a, i) => `<tr data-i="${i}" tabindex="0"><td><span class="code">${a.codigo}</span></td><td>${esc(a.empresa)}</td><td class="num">${a.hora}</td><td>${a.etapa}</td><td class="num">${a.pont}%</td><td>${pill(a.classe)}</td></tr>`).join('')}</tbody></table></div>`,
+      foot: `<button class="btn" data-close>Fechar</button>` });
+    m.querySelector('tbody').addEventListener('click', e => { const tr = e.target.closest('tr'); if (tr) alertDetail(ALERTAS[tr.dataset.i], true); });
+  });
+  $('#dashExport').addEventListener('click', () => toast('Resumo do dia exportado em PDF (simulação).'));
+  $('#dashEmpresa').addEventListener('change', e => toast(`Filtro aplicado: ${e.target.value}`));
+
+  const segP = $('#segPeriodo'), segM = $('#segModo');
+  const syncSeg = () => {
+    segP.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v == periodo));
+    segM.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === serieModo));
+  };
+  segP.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; periodo = +b.dataset.v; syncSeg(); drawSerie(); drawFunnel(); });
+  segM.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; serieModo = b.dataset.v; syncSeg(); drawSerie(); });
+  syncSeg(); drawSerie(); drawFunnel();
+}
+function kpi(ic, label, val, extra, foot, tone = '') {
+  return `<article class="card kpi ${tone}"><div class="kpi-top"><span>${label}</span><span class="kpi-ico">${icon(ic)}</span></div>
+    <div class="kpi-val">${val}${extra}</div><div class="kpi-foot">${foot}</div></article>`;
+}
+
+let serieChart;
+function drawSerie() {
+  if (serieChart) { serieChart.destroy(); charts = charts.filter(c => c !== serieChart); }
+  const dados = SERIE.slice(-periodo);
+  const cOk = cssVar('--ok'), cWarn = cssVar('--warn'), cRisk = cssVar('--risk');
+  const sets = [];
+  if (serieModo === 'todos') sets.push({ label: 'Apto', data: dados.map(d => d.apto), backgroundColor: cOk });
+  sets.push({ label: 'Atenção', data: dados.map(d => d.atencao), backgroundColor: cWarn });
+  sets.push({ label: 'Risco', data: dados.map(d => d.risco), backgroundColor: cRisk });
+  $('#legendSerie').innerHTML = sets.map(s => `<span><i style="background:${s.backgroundColor}"></i>${s.label}</span>`).join('');
+  const grid = cssVar('--chart-grid'), tick = cssVar('--fg-3');
+  serieChart = new Chart($('#chartSerie'), {
+    type: 'bar',
+    data: { labels: dados.map(d => d.d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })), datasets: sets },
+    options: {
+      maintainAspectRatio: false, animation: { duration: 300 },
+      datasets: { bar: { borderRadius: periodo > 30 ? 1 : 3, borderSkipped: false, categoryPercentage: periodo > 30 ? .92 : .78, barPercentage: .9 } },
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: {
+        backgroundColor: cssVar('--fg'), titleColor: cssVar('--bg'), bodyColor: cssVar('--bg'), footerColor: cssVar('--bg'), padding: 10, boxPadding: 4,
+        callbacks: { label: c => ` ${c.dataset.label}: ${fmt(c.raw)}`, footer: items => serieModo === 'todos' ? 'Total: ' + fmt(items.reduce((s, i) => s + i.raw, 0)) : '' } } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { color: tick, maxRotation: 0, autoSkipPadding: 14, font: { family: 'IBM Plex Sans', size: 11 } }, border: { color: grid } },
+        y: { stacked: true, grid: { color: grid }, border: { display: false }, ticks: { color: tick, font: { family: 'IBM Plex Sans', size: 11 }, callback: v => fmt(v) } }
+      }
+    }
+  });
+  charts.push(serieChart);
+}
+function drawFunnel() {
+  const { P, A, D, pt, aEnv, adEnv } = computeCiclo(SERIE.slice(-periodo));
+  $('#funnelSub').textContent = `Distribuição dos resultados · últimos ${periodo} dias`;
+  const stage = (nome, desc, o, tot) => {
+    const w = k => o[k] / tot * 100;
+    const lab = k => w(k) >= 9 ? pct(w(k), 0) : '';
+    return `<div class="stage"><div class="stage-head"><div><b>${nome}</b><br><span>${desc}</span></div><span class="vol">${fmt(tot)}</span></div>
+      <div class="stack" role="img" aria-label="${nome}: Apto ${pct(w('apto'))}, Atenção ${pct(w('atencao'))}, Risco ${pct(w('risco'))}">
+        <div class="a" style="width:${w('apto')}%">${lab('apto')}</div><div class="t" style="width:${w('atencao')}%">${lab('atencao')}</div><div class="r" style="width:${w('risco')}%">${lab('risco')}</div></div></div>`;
+  };
+  const arrow = t => `<div class="stage-arrow">${icon('chev')}${t}</div>`;
+  $('#funnel').innerHTML =
+    stage('Principais', 'Perguntas sorteadas dos grupos', P, pt) +
+    arrow(`${fmt(aEnv)} em Atenção ou Risco recebem a Avaliação`) +
+    stage('Avaliação', '4 perguntas de confirmação', A, aEnv) +
+    arrow(`${fmt(adEnv)} seguem negativos e recebem as Adicionais`) +
+    stage('Adicionais', 'Perguntas complementares', D, adEnv) +
+    `<div class="funnel-note"><b>${pct(A.apto / aEnv * 100, 0)}</b> dos alertas iniciais foram revertidos para Apto na Avaliação. Apenas <b>${pct((D.atencao + D.risco) / pt * 100, 2)}</b> do total terminou o ciclo em Atenção ou Risco.</div>` +
+    `<div class="legend"><span><i style="background:var(--ok)"></i>Apto</span><span><i style="background:var(--warn)"></i>Atenção</span><span><i style="background:var(--risk)"></i>Risco</span></div>`;
+}
+// Ciclo do período: Principais → Avaliação (quem deu Atenção/Risco) → Adicionais (quem continuou negativo)
+function computeCiclo(rows) {
+  const P = rows.reduce((a, d) => ({ apto: a.apto + d.apto, atencao: a.atencao + d.atencao, risco: a.risco + d.risco }), { apto: 0, atencao: 0, risco: 0 });
+  const aEnv = P.atencao + P.risco;
+  const A = { risco: Math.round(aEnv * .094), atencao: Math.round(aEnv * .243) }; A.apto = aEnv - A.risco - A.atencao;
+  const adEnv = A.atencao + A.risco;
+  const D = { risco: Math.round(adEnv * .137), atencao: Math.round(adEnv * .292) }; D.apto = adEnv - D.risco - D.atencao;
+  return { P, A, D, pt: P.apto + aEnv, aEnv, adEnv };
+}
+function alertDetail(a, stack = false) {
+  const etapas = ['Principais', 'Avaliação', 'Adicionais'];
+  const idx = etapas.indexOf(a.etapa);
+  const [h, m] = a.hora.split(':').map(Number);
+  const hm = off => { const t = h * 60 + m - off; return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`; };
+  const passos = [];
+  if (idx >= 1) passos.push({ when: hm(idx === 2 ? 14 : 7), etapa: 'Principais', pont: 58 + (a.pont % 5), classe: 'atencao' });
+  if (idx >= 2) passos.push({ when: hm(7), etapa: 'Avaliação', pont: 49 + (a.pont % 4), classe: 'atencao' });
+  passos.push({ when: a.hora, etapa: a.etapa, pont: a.pont, classe: a.classe });
+  const prox = a.etapa === 'Adicionais' ? 'Ciclo concluído · acompanhamento presencial do supervisor' : `Perguntas ${a.etapa === 'Principais' ? 'de Avaliação' : 'Adicionais'} enviadas imediatamente`;
+  openModal({
+    title: a.codigo, sub: `${a.empresa} · ${a.setor}`, stack,
+    body: `
+      <dl class="kv" style="margin:0">
+        <div><dt>Classificação final</dt><dd>${pill(a.classe)}</dd></div>
+        <div><dt>Pontuação</dt><dd class="num">${a.pont}% <span style="color:var(--fg-3);font-weight:400">(faixa ${a.classe === 'risco' ? `0–${CFG.faixaRisco}%` : `${CFG.faixaRisco + 1}–${CFG.faixaAtencao}%`})</span></dd></div>
+        <div><dt>Tempo de resposta</dt><dd class="num">${Math.floor(a.tempo / 60)} min ${a.tempo % 60} s</dd></div>
+        <div><dt>Supervisor</dt><dd><span class="notified">${icon('check')}Notificado às ${a.hora}</span></dd></div>
+      </dl>
+      <div><div style="font-size:12px;color:var(--fg-3);margin-bottom:10px">Histórico de hoje</div>
+        <div class="timeline">
+          ${passos.map(p => `<div class="tl-item ${p.classe}"><span class="when">${p.when}</span><span class="what">${p.etapa} · ${p.pont}% ${pill(p.classe)}</span></div>`).join('')}
+          <div class="tl-item"><span class="when">Próximo passo</span><span class="what" style="font-weight:400;color:var(--fg-2)">${prox}</span></div>
+        </div></div>
+      <div class="lgpd-box">${icon('shield')}<span>Por LGPD, o Admin Master vê apenas o código do funcionário. Nome e contato ficam visíveis somente para o supervisor da empresa.</span></div>`,
+    foot: `<button class="btn btn-primary" data-close>Fechar</button>`
+  });
+}
+
+/* ============ Empresas ============ */
+let empQ = '', empSt = 'todas', empUF = 'todas', empPage = 1;
+const EMP_POR_PAG = 10;
+const UFS = 'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');
+const maskCnpj = v => v.replace(/\D/g, '').slice(0, 14).replace(/^(\d{2})(\d)/, '$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d)/, '.$1/$2').replace(/(\d{4})(\d)/, '$1-$2');
+const maskCep = v => v.replace(/\D/g, '').slice(0, 8).replace(/^(\d{5})(\d)/, '$1-$2');
+
+function renderEmpresas(v) {
+  const ufs = [...new Set(EMP.map(e => e.uf))].sort();
+  const ativas = EMP.filter(e => e.status === 'ativa');
+  v.innerHTML = `
+  <div class="page-head">
+    <div><h1>Empresas</h1><p>${ativas.length} ativas de ${EMP.length} cadastradas · ${fmt(ativas.reduce((s, e) => s + e.func, 0))} funcionários nas empresas ativas</p></div>
+    <div class="page-actions"><button class="btn btn-primary" id="empNova">${icon('plus')}Nova empresa</button></div>
+  </div>
+  <article class="card">
+    <div class="toolbar">
+      <div class="input-icon grow">${icon('search')}<input class="input" id="empBusca" placeholder="Buscar por nome, CNPJ ou e-mail" value="${esc(empQ)}" aria-label="Buscar empresa"></div>
+      <select class="input" id="empStatus" aria-label="Filtrar por status"><option value="todas">Todos os status</option><option value="ativa">Ativas</option><option value="inativa">Inativas</option></select>
+      <select class="input" id="empUF" aria-label="Filtrar por UF"><option value="todas">Todas as UFs</option>${ufs.map(u => `<option>${u}</option>`).join('')}</select>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Status</th><th>Empresa</th><th>CNPJ</th><th>E-mail</th><th>Cidade/UF</th><th style="text-align:right">Funcionários</th><th></th></tr></thead>
+      <tbody id="empRows"></tbody>
+    </table></div>
+    <div class="pager" id="empPager"></div>
+  </article>`;
+  $('#empStatus').value = empSt; $('#empUF').value = empUF;
+  $('#empNova').addEventListener('click', () => empModal());
+  $('#empBusca').addEventListener('input', e => { empQ = e.target.value; empPage = 1; drawEmpRows(); });
+  $('#empStatus').addEventListener('change', e => { empSt = e.target.value; empPage = 1; drawEmpRows(); });
+  $('#empUF').addEventListener('change', e => { empUF = e.target.value; empPage = 1; drawEmpRows(); });
+  const abrir = e => { const tr = e.target.closest('tr[data-id]'); if (tr) empModal(EMP.find(x => x.id === +tr.dataset.id)); };
+  $('#empRows').addEventListener('click', abrir);
+  $('#empRows').addEventListener('keydown', e => { if (e.key === 'Enter') abrir(e); });
+  $('#empPager').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (b) { empPage = +b.dataset.p; drawEmpRows(); } });
+  drawEmpRows();
+}
+function drawEmpRows() {
+  const q = norm(empQ.trim()), qd = empQ.replace(/\D/g, '');
+  const lista = EMP.filter(e => (empSt === 'todas' || e.status === empSt) && (empUF === 'todas' || e.uf === empUF)
+    && (!q || norm(e.nome + ' ' + e.email).includes(q) || (qd && e.cnpj.replace(/\D/g, '').includes(qd))))
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  const pages = Math.max(1, Math.ceil(lista.length / EMP_POR_PAG));
+  empPage = Math.min(empPage, pages);
+  const vis = lista.slice((empPage - 1) * EMP_POR_PAG, empPage * EMP_POR_PAG);
+  $('#empRows').innerHTML = vis.length ? vis.map(e => `<tr data-id="${e.id}" tabindex="0">
+      <td><span class="pill ${e.status === 'ativa' ? 'on' : 'off'}">${e.status === 'ativa' ? 'Ativa' : 'Inativa'}</span></td>
+      <td><span style="font-weight:500">${esc(e.nome)}</span><span class="sub">Cliente desde ${e.desde}</span></td>
+      <td class="mono">${e.cnpj}</td>
+      <td>${esc(e.email)}</td>
+      <td>${esc(e.cidade)}/${e.uf}</td>
+      <td class="num" style="text-align:right">${fmt(e.func)}</td>
+      <td><div class="row-actions"><button class="icon-btn sm" type="button" title="Editar" aria-label="Editar ${esc(e.nome)}">${icon('edit')}</button></div></td></tr>`).join('')
+    : `<tr><td colspan="7" class="empty">Nenhuma empresa encontrada com esses filtros.</td></tr>`;
+  $('#empPager').innerHTML = `<span>Mostrando ${lista.length ? (empPage - 1) * EMP_POR_PAG + 1 : 0}–${Math.min(empPage * EMP_POR_PAG, lista.length)} de ${lista.length} empresas</span>
+    <div class="btns">${pages > 1 ? Array.from({ length: pages }, (_, i) => `<button class="btn btn-sm" type="button" data-p="${i + 1}" ${i + 1 === empPage ? 'aria-current="page"' : ''}>${i + 1}</button>`).join('') : ''}</div>`;
+}
+function empModal(emp) {
+  const novo = !emp;
+  const d = emp || { status: 'ativa', nome: '', cnpj: '', email: '', cep: '', rua: '', bairro: '', cidade: '', uf: 'SP' };
+  openModal({
+    title: novo ? 'Nova empresa' : 'Editar empresa', sub: novo ? 'Cadastre uma nova empresa cliente na plataforma.' : esc(d.nome), width: 680,
+    body: `<div class="form-grid">
+      <div class="span-6" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <label class="switch"><input type="checkbox" id="fStatus" ${d.status === 'ativa' ? 'checked' : ''}><span id="fStatusTxt">${d.status === 'ativa' ? 'Empresa ativa' : 'Empresa inativa'}</span></label>
+        ${novo ? '' : `<span class="hint">Cliente desde ${d.desde} · ${fmt(d.func)} funcionários</span>`}
+      </div>
+      <div class="field span-4"><label for="fNome">Nome / Razão social</label><input class="input" id="fNome" value="${esc(d.nome)}" placeholder="Ex.: Transportadora Rota Sul"></div>
+      <div class="field span-2"><label for="fCnpj">CNPJ</label><input class="input mono" id="fCnpj" value="${d.cnpj}" placeholder="00.000.000/0000-00" inputmode="numeric"></div>
+      <div class="field span-6"><label for="fEmail">E-mail de acesso</label><input class="input" id="fEmail" type="email" value="${esc(d.email)}" placeholder="rh@empresa.com.br"><span class="hint">A empresa usa este e-mail para entrar no painel do cliente.</span></div>
+      <div class="form-section">Endereço</div>
+      <div class="field span-2"><label for="fCep">CEP</label><input class="input mono" id="fCep" value="${d.cep}" placeholder="00000-000" inputmode="numeric"></div>
+      <div class="field span-4"><label for="fRua">Logradouro e número</label><input class="input" id="fRua" value="${esc(d.rua)}"></div>
+      <div class="field span-2"><label for="fBairro">Bairro</label><input class="input" id="fBairro" value="${esc(d.bairro)}"></div>
+      <div class="field span-3"><label for="fCidade">Cidade</label><input class="input" id="fCidade" value="${esc(d.cidade)}"></div>
+      <div class="field span-1"><label for="fUF">UF</label><select class="input" id="fUF">${UFS.map(u => `<option ${u === d.uf ? 'selected' : ''}>${u}</option>`).join('')}</select></div>
+      <div class="form-section">Acesso</div>
+      <div class="field span-6"><label for="fSenha">${novo ? 'Senha inicial' : 'Nova senha'}</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><div class="input-icon" style="flex:1 1 220px;min-width:0">${icon('lock')}<input class="input" id="fSenha" type="password" autocomplete="new-password" placeholder="${novo ? 'Mínimo de 8 caracteres' : 'Deixe em branco para manter a atual'}"></div>
+        <button type="button" class="btn" id="fVer" aria-label="Mostrar ou ocultar senha">${icon('eye')}</button><button type="button" class="btn" id="fGerar">${icon('key')}Gerar senha</button></div>
+        <span class="hint">A empresa troca a senha no primeiro acesso.</span></div>
+      <p class="form-error span-6" id="fErro" hidden></p>
+    </div>`,
+    foot: `<button class="btn" data-close>Cancelar</button><button class="btn btn-primary" id="fSalvar">${novo ? 'Cadastrar empresa' : 'Salvar alterações'}</button>`
+  });
+  $('#fStatus').addEventListener('change', e => { $('#fStatusTxt').textContent = e.target.checked ? 'Empresa ativa' : 'Empresa inativa'; });
+  $('#fCnpj').addEventListener('input', e => { e.target.value = maskCnpj(e.target.value); });
+  $('#fCep').addEventListener('input', e => { e.target.value = maskCep(e.target.value); });
+  $('#fVer').addEventListener('click', () => { const s = $('#fSenha'); s.type = s.type === 'password' ? 'text' : 'password'; });
+  $('#fGerar').addEventListener('click', () => {
+    const c = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789@#$';
+    $('#fSenha').value = Array.from({ length: 12 }, () => c[Math.floor(Math.random() * c.length)]).join(''); $('#fSenha').type = 'text';
+  });
+  $('#fSalvar').addEventListener('click', () => {
+    const val = id => $('#' + id).value.trim();
+    const regras = {
+      fNome: [val('fNome').length >= 3, 'nome com pelo menos 3 letras'],
+      fCnpj: [val('fCnpj').replace(/\D/g, '').length === 14, 'CNPJ com 14 dígitos'],
+      fEmail: [/^\S+@\S+\.\S+$/.test(val('fEmail')), 'e-mail válido'],
+      fSenha: [novo ? val('fSenha').length >= 8 : (!val('fSenha') || val('fSenha').length >= 8), 'senha com no mínimo 8 caracteres']
+    };
+    const erros = Object.keys(regras).filter(k => !regras[k][0]);
+    Object.keys(regras).forEach(k => $('#' + k).classList.toggle('invalid', erros.includes(k)));
+    if (erros.length) { const err = $('#fErro'); err.textContent = 'Confira: ' + erros.map(k => regras[k][1]).join(', ') + '.'; err.hidden = false; $('#' + erros[0]).focus(); return; }
+    const dados = { status: $('#fStatus').checked ? 'ativa' : 'inativa', nome: val('fNome'), cnpj: val('fCnpj'), email: val('fEmail'), cep: val('fCep'), rua: val('fRua'), bairro: val('fBairro'), cidade: val('fCidade') || '—', uf: $('#fUF').value };
+    if (novo) EMP.push({ id: Math.max(...EMP.map(x => x.id)) + 1, func: 0, desde: HOJE.toLocaleDateString('pt-BR'), ...dados });
+    else Object.assign(emp, dados);
+    closeLayer(); renderEmpresas($('#view'));
+    toast(novo ? `${dados.nome} cadastrada. O acesso foi enviado para ${dados.email}.` : `Alterações em ${dados.nome} salvas.`);
+  });
+}
+
+/* ============ Banco de Perguntas ============ */
+// Imagens de exemplo desenhadas em SVG (em produção viriam do upload)
+const IMGS = {
+  triangulos: `<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="100" fill="#f4f8f9"/>
+    <polygon points="20,82 40,46 60,82" fill="#155e75"/><circle cx="82" cy="28" r="12" fill="#e0a84a"/><polygon points="70,88 88,56 106,88" fill="#2f855a"/>
+    <rect x="114" y="14" width="24" height="24" fill="#c53030"/><polygon points="118,90 132,64 146,90" fill="#155e75"/><polygon points="34,32 46,10 58,32" fill="#c53030"/>
+    <rect x="62" y="42" width="15" height="15" fill="#155e75" transform="rotate(20 70 50)"/><polygon points="96,44 106,24 116,44" fill="#e0a84a"/>
+    <polygon points="6,42 14,26 22,42" fill="#2f855a"/><circle cx="142" cy="52" r="7" fill="#2f855a"/></svg>`,
+  sequencia: `<svg viewBox="0 0 224 60" xmlns="http://www.w3.org/2000/svg"><rect width="224" height="60" fill="#f4f8f9"/>
+    <circle cx="22" cy="30" r="11" fill="#155e75"/><rect x="47" y="19" width="22" height="22" fill="#e0a84a"/><polygon points="83,41 94,19 105,41" fill="#2f855a"/>
+    <circle cx="130" cy="30" r="11" fill="#155e75"/><rect x="155" y="19" width="22" height="22" fill="#e0a84a"/>
+    <rect x="189" y="17" width="26" height="26" rx="4" fill="none" stroke="#7a8b93" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="202" y="36" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="700" fill="#7a8b93">?</text></svg>`,
+  circulo: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="#f4f8f9"/><circle cx="30" cy="30" r="14" fill="#155e75"/></svg>`,
+  quadrado: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="#f4f8f9"/><rect x="16" y="16" width="28" height="28" fill="#e0a84a"/></svg>`,
+  triangulo: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="#f4f8f9"/><polygon points="15,44 30,16 45,44" fill="#2f855a"/></svg>`,
+  losango: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="#f4f8f9"/><polygon points="30,13 47,30 30,47 13,30" fill="#c53030"/></svg>`,
+  estrela: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="#f4f8f9"/><polygon points="30,12 35,25 49,25 38,33 42,47 30,39 18,47 22,33 11,25 25,25" fill="#155e75"/></svg>`
+};
+const face = n => {
+  const cor = ['#eba3a3', '#f1c48f', '#f2db8f', '#bfe0a6', '#94d4ad'][n], c = [-10, -5, 0, 5, 10][n];
+  return `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="#f4f8f9"/><circle cx="30" cy="30" r="20" fill="${cor}" stroke="#15242b" stroke-width="1.5"/>
+    <circle cx="23" cy="26" r="2.2" fill="#15242b"/><circle cx="37" cy="26" r="2.2" fill="#15242b"/>
+    <path d="M21 ${38 - c / 4} Q30 ${38 + c} 39 ${38 - c / 4}" fill="none" stroke="#15242b" stroke-width="2" stroke-linecap="round"/></svg>`;
+};
+const renderImg = k => !k ? '' : k.startsWith('data:') ? `<img src="${k}" alt="">` : k.startsWith('face') ? face(+k.slice(4)) : (IMGS[k] || '');
+
+const GRUPOS = [
+  { id: 'sono', titulo: 'Sono e descanso', tipo: 'Texto', desc: 'Duração e qualidade do sono antes do turno.', sorteio: 2, status: 'ativo' },
+  { id: 'emocional', titulo: 'Bem-estar emocional', tipo: 'Imagem', desc: 'Humor, estresse e preocupações do dia.', sorteio: 1, status: 'ativo' },
+  { id: 'atencao', titulo: 'Atenção e concentração', tipo: 'Imagem', desc: 'Testes rápidos de percepção e foco.', sorteio: 1, status: 'ativo' },
+  { id: 'fisica', titulo: 'Condição física', tipo: 'Texto', desc: 'Dores, disposição e alimentação.', sorteio: 1, status: 'ativo' },
+  { id: 'substancias', titulo: 'Medicamentos e substâncias', tipo: 'Texto', desc: 'Álcool e medicamentos que afetam o reflexo.', sorteio: 1, status: 'ativo' },
+  { id: 'seguranca', titulo: 'Percepção de segurança', tipo: 'Texto', desc: 'Confiança para executar as tarefas do dia.', sorteio: 1, status: 'ativo' }
+];
+const ESCALAS = {
+  horas: [['Menos de 4 horas', 0], ['Entre 4 e 5 horas', 3], ['Entre 5 e 6 horas', 5], ['Entre 6 e 7 horas', 8], ['Mais de 7 horas', 10]],
+  qualidade: [['Muito ruim', 0], ['Ruim', 3], ['Regular', 5], ['Boa', 8], ['Muito boa', 10]],
+  freqNeg: [['Sempre', 0], ['Frequentemente', 3], ['Às vezes', 5], ['Raramente', 8], ['Nunca', 10]],
+  concordo: [['Discordo totalmente', 0], ['Discordo', 3], ['Não sei dizer', 5], ['Concordo', 8], ['Concordo totalmente', 10]],
+  intensNeg: [['Muito forte', 0], ['Forte', 3], ['Moderado', 5], ['Leve', 8], ['Nenhum', 10]]
+};
+const FACES = [['Muito mal', 0, 'face0'], ['Mal', 3, 'face1'], ['Neutro', 5, 'face2'], ['Bem', 8, 'face3'], ['Muito bem', 10, 'face4']];
+let qid = 0;
+const Q = (tipo, grupo, titulo, desc, alts, extra = {}) => ({ id: ++qid, tipo, grupo, titulo, desc, status: 'ativa', img: null,
+  alts: (typeof alts === 'string' ? ESCALAS[alts] : alts).map(([t, p, img]) => ({ t, p, img: img || null })), ...extra });
+const PERGUNTAS = [
+  Q('principal', 'sono', 'Quantas horas você dormiu na última noite?', 'Considere apenas o sono contínuo, sem cochilos durante o dia.', 'horas'),
+  Q('principal', 'sono', 'Como você avalia a qualidade do seu sono?', 'Pense em como você acordou hoje.', 'qualidade'),
+  Q('principal', 'sono', 'Você acordou durante a noite?', '', [['Praticamente não dormi', 0], ['Acordei várias vezes', 3], ['Acordei algumas vezes', 5], ['Acordei uma vez e voltei a dormir', 8], ['Não, dormi a noite toda', 10]]),
+  Q('principal', 'sono', 'Você se sente descansado para começar o turno?', '', 'concordo'),
+  Q('principal', 'emocional', 'Qual destas imagens representa melhor como você se sente agora?', 'Escolha a expressão mais próxima do seu estado atual.', FACES),
+  Q('principal', 'emocional', 'Nos últimos dias, alguma preocupação atrapalhou seu trabalho?', '', 'freqNeg'),
+  Q('principal', 'emocional', 'Como está o seu nível de estresse hoje?', '', 'intensNeg'),
+  Q('principal', 'atencao', 'Quantos triângulos aparecem na imagem?', 'Observe com atenção antes de responder.', [['4', 0], ['5', 5], ['6', 10], ['7', 5], ['8', 0]], { img: 'triangulos' }),
+  Q('principal', 'atencao', 'Qual figura completa a sequência?', 'Observe o padrão que se repete.', [['Círculo', 0, 'circulo'], ['Quadrado', 0, 'quadrado'], ['Triângulo', 10, 'triangulo'], ['Losango', 0, 'losango'], ['Estrela', 0, 'estrela']], { img: 'sequencia' }),
+  Q('principal', 'atencao', 'Ontem, com que frequência você se distraiu em tarefas simples?', '', 'freqNeg'),
+  Q('principal', 'fisica', 'Você sente alguma dor que possa atrapalhar suas atividades?', 'Considere dores musculares, de cabeça ou nas costas.', 'intensNeg'),
+  Q('principal', 'fisica', 'Como você avalia sua disposição física agora?', '', 'qualidade'),
+  Q('principal', 'fisica', 'Você se alimentou antes de iniciar o turno?', '', [['Não comi nada desde ontem', 0], ['Só tomei café ou outra bebida', 3], ['Fiz um lanche rápido', 5], ['Fiz uma refeição leve', 8], ['Fiz uma refeição completa', 10]]),
+  Q('principal', 'substancias', 'Nas últimas 12 horas, você consumiu bebida alcoólica?', 'As respostas são confidenciais e identificadas apenas por código.', [['Sim, e ainda sinto os efeitos', 0], ['Sim, em grande quantidade', 0], ['Sim, em pequena quantidade', 5], ['Sim, há mais de 10 horas', 8], ['Não consumi', 10]]),
+  Q('principal', 'substancias', 'Você tomou algum medicamento que pode causar sonolência?', 'Por exemplo: antialérgicos, relaxantes musculares ou calmantes.', [['Sim, e estou com sono', 0], ['Sim, sem saber os efeitos', 3], ['Sim, mas sem efeitos até agora', 5], ['Sim, com liberação médica', 8], ['Não tomei', 10]]),
+  Q('principal', 'seguranca', 'Você se sente seguro para executar as atividades de hoje?', '', 'concordo'),
+  Q('principal', 'seguranca', 'Você recebeu as orientações necessárias para as tarefas do dia?', '', 'concordo', { status: 'inativa' }),
+  Q('avaliacao', null, 'Neste momento, você sente sono ou cansaço excessivo?', '', 'intensNeg'),
+  Q('avaliacao', null, 'Você conseguiria operar máquinas ou dirigir com segurança agora?', '', 'concordo'),
+  Q('avaliacao', null, 'Há algo acontecendo hoje que possa afetar sua segurança no trabalho?', '', [['Sim, algo grave', 0], ['Sim, e está me preocupando', 3], ['Talvez', 5], ['Algo pequeno, sob controle', 8], ['Não', 10]]),
+  Q('avaliacao', null, 'Como você descreveria seu foco agora?', '', 'qualidade'),
+  Q('avaliacao', null, 'Como você se sente depois de responder às primeiras perguntas?', 'Escolha a expressão mais próxima.', FACES),
+  Q('avaliacao', null, 'Você gostaria de conversar com seu supervisor antes de começar?', '', [['Sim, com urgência', 0], ['Sim, assim que possível', 3], ['Talvez mais tarde', 5], ['Não é necessário', 8], ['Não, estou bem', 10]]),
+  Q('adicional', null, 'Desde quando você está se sentindo assim?', '', [['Há mais de uma semana', 0], ['Há alguns dias', 3], ['Desde ontem', 5], ['Desde hoje cedo', 8], ['Foi algo pontual', 10]]),
+  Q('adicional', null, 'Você já procurou atendimento médico por esse motivo?', '', [['Não, e preciso de ajuda', 0], ['Não, mas pretendo', 3], ['Estou em acompanhamento', 5], ['Sim, fui liberado', 8], ['Não é necessário', 10]]),
+  Q('adicional', null, 'Você precisa de apoio do RH ou da saúde ocupacional?', '', [['Sim, hoje', 0], ['Sim, nesta semana', 3], ['Talvez', 5], ['Acho que não', 8], ['Não preciso', 10]]),
+  Q('adicional', null, 'Você está em condições de cumprir a jornada completa hoje?', '', 'concordo'),
+  Q('adicional', null, 'Qual a chance de você precisar parar durante o turno?', '', [['Muito alta', 0], ['Alta', 3], ['Média', 5], ['Baixa', 8], ['Nenhuma', 10]], { status: 'inativa' })
+];
+const TIPO_NOME = { principal: 'Pergunta principal', avaliacao: 'Pergunta de Avaliação', adicional: 'Pergunta Adicional' };
+let bpTab = 'grupos', bpGrupo = 'todos', bpQ = '', bpSt = 'todas';
+
+function renderPerguntas(v) {
+  const cnt = t => PERGUNTAS.filter(p => p.tipo === t).length;
+  const abas = [['grupos', 'Grupos de análise', GRUPOS.length], ['principal', 'Perguntas', cnt('principal')], ['avaliacao', 'Perguntas de Avaliação', cnt('avaliacao')], ['adicional', 'Perguntas Adicionais', cnt('adicional')]];
+  v.innerHTML = `
+  <div class="page-head">
+    <div><h1>Banco de Perguntas</h1><p>Perguntas usadas por todas as empresas. Cada uma tem 5 alternativas com pontuação de 0 a 10.</p></div>
+    <div class="page-actions"><button class="btn btn-primary" id="bpNovo">${icon('plus')}${bpTab === 'grupos' ? 'Novo grupo' : 'Nova pergunta'}</button></div>
+  </div>
+  <article class="card">
+    <div class="tabs" role="tablist" id="bpTabs">${abas.map(([k, l, n]) => `<button type="button" role="tab" data-t="${k}" aria-selected="${bpTab === k}">${l}<span class="n">${n}</span></button>`).join('')}</div>
+    <div id="bpBody"></div>
+  </article>`;
+  $('#bpTabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (b) { bpTab = b.dataset.t; bpQ = ''; renderPerguntas(v); } });
+  $('#bpNovo').addEventListener('click', () => bpTab === 'grupos' ? grupoModal() : qModal());
+  bpTab === 'grupos' ? drawGrupos() : drawQuestoes();
+}
+function drawGrupos() {
+  const total = GRUPOS.filter(g => g.status === 'ativo').reduce((s, g) => s + g.sorteio, 0);
+  $('#bpBody').innerHTML = `<div class="info-banner">${icon('shuffle')}<span>Todo dia, cada funcionário recebe perguntas sorteadas de cada grupo ativo, na quantidade definida em Configurações.</span></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Grupo</th><th>Tipo</th><th style="text-align:right">Perguntas</th><th style="text-align:right">Sorteadas por dia</th><th>Status</th><th></th></tr></thead>
+    <tbody id="gRows">${GRUPOS.map(g => {
+      const qs = PERGUNTAS.filter(p => p.grupo === g.id), at = qs.filter(p => p.status === 'ativa').length;
+      return `<tr data-g="${g.id}" tabindex="0">
+        <td><span style="font-weight:500">${esc(g.titulo)}</span><span class="sub">${esc(g.desc)}</span></td>
+        <td><span class="chip ${g.tipo === 'Imagem' ? 'accent' : ''}">${icon(g.tipo === 'Imagem' ? 'image' : 'text')}${g.tipo}</span></td>
+        <td class="num" style="text-align:right">${qs.length}<span class="sub">${at} ativas</span></td>
+        <td class="num" style="text-align:right">${g.sorteio}</td>
+        <td><span class="pill ${g.status === 'ativo' ? 'on' : 'off'}">${g.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
+        <td><div class="row-actions"><button class="btn btn-sm" type="button" data-ver="${g.id}">Ver perguntas</button><button class="icon-btn sm" type="button" title="Editar" aria-label="Editar ${esc(g.titulo)}">${icon('edit')}</button></div></td></tr>`;
+    }).join('')}</tbody>
+  </table></div>
+  <div class="pager"><span>Total sorteado por funcionário: <b style="color:var(--fg)">${total} perguntas por dia</b></span><a class="link" href="#configuracoes">Ajustar em Configurações</a></div>`;
+  const abrir = e => {
+    const ver = e.target.closest('[data-ver]');
+    if (ver) { bpTab = 'principal'; bpGrupo = ver.dataset.ver; renderPerguntas($('#view')); return; }
+    const tr = e.target.closest('tr[data-g]'); if (tr) grupoModal(GRUPOS.find(g => g.id === tr.dataset.g));
+  };
+  $('#gRows').addEventListener('click', abrir);
+  $('#gRows').addEventListener('keydown', e => { if (e.key === 'Enter') abrir(e); });
+}
+function grupoModal(g) {
+  const novo = !g;
+  const d = g || { titulo: '', tipo: 'Texto', desc: '', status: 'ativo' };
+  openModal({
+    title: novo ? 'Novo grupo de análise' : 'Editar grupo', sub: novo ? 'Os grupos organizam o sorteio diário das perguntas.' : esc(d.titulo), width: 560,
+    body: `<label class="switch"><input type="checkbox" id="gSt" ${d.status === 'ativo' ? 'checked' : ''}><span>Grupo ativo</span></label>
+      <div class="field"><label for="gTit">Título</label><input class="input" id="gTit" value="${esc(d.titulo)}" placeholder="Ex.: Sono e descanso"></div>
+      <div class="field"><span class="flabel">Tipo</span><div class="radio-cards">
+        <label class="radio-card"><input type="radio" name="gTipo" value="Texto" ${d.tipo === 'Texto' ? 'checked' : ''}><span><b>Texto</b><small>Perguntas e alternativas escritas</small></span></label>
+        <label class="radio-card"><input type="radio" name="gTipo" value="Imagem" ${d.tipo === 'Imagem' ? 'checked' : ''}><span><b>Imagem</b><small>Permite imagem na pergunta e nas alternativas</small></span></label>
+      </div></div>
+      <div class="field"><label for="gDesc">Descrição</label><textarea class="input" id="gDesc" rows="2">${esc(d.desc)}</textarea></div>
+      <p class="form-error" id="gErro" hidden>Informe um título com pelo menos 3 letras.</p>`,
+    foot: `<button class="btn" data-close>Cancelar</button><button class="btn btn-primary" id="gSalvar">${novo ? 'Criar grupo' : 'Salvar alterações'}</button>`
+  });
+  $('#gSalvar').addEventListener('click', () => {
+    const tit = $('#gTit').value.trim();
+    if (tit.length < 3) { $('#gErro').hidden = false; $('#gTit').classList.add('invalid'); $('#gTit').focus(); return; }
+    const dados = { titulo: tit, tipo: $('input[name=gTipo]:checked').value, desc: $('#gDesc').value.trim(), status: $('#gSt').checked ? 'ativo' : 'inativo' };
+    if (novo) GRUPOS.push({ id: 'g' + Date.now(), sorteio: 1, ...dados }); else Object.assign(g, dados);
+    closeLayer(); renderPerguntas($('#view')); toast(novo ? `Grupo "${tit}" criado.` : 'Grupo atualizado.');
+  });
+}
+function drawQuestoes() {
+  const banner = {
+    principal: `Sorteadas todos os dias para cada funcionário, de acordo com a quantidade definida para cada grupo.`,
+    avaliacao: `Enviadas ${CFG.envioAval === 'imediato' ? 'imediatamente' : 'no dia seguinte'} quando o resultado das perguntas principais é <b>Atenção</b> ou <b>Risco</b>. São sorteadas ${CFG.avalQtd} perguntas deste banco.`,
+    adicional: `Enviadas ${CFG.envioAdic === 'imediato' ? 'imediatamente' : 'no dia seguinte'} quando o resultado da Avaliação continua em <b>Atenção</b> ou <b>Risco</b>.`
+  }[bpTab];
+  $('#bpBody').innerHTML = `<div class="info-banner">${icon(bpTab === 'principal' ? 'shuffle' : 'layers')}<span>${banner}</span></div>
+    <div class="toolbar">
+      <div class="input-icon grow">${icon('search')}<input class="input" id="bpBusca" placeholder="Buscar pergunta" value="${esc(bpQ)}" aria-label="Buscar pergunta"></div>
+      ${bpTab === 'principal' ? `<select class="input" id="bpGrupo" aria-label="Filtrar por grupo"><option value="todos">Todos os grupos</option>${GRUPOS.map(g => `<option value="${g.id}">${esc(g.titulo)}</option>`).join('')}</select>` : ''}
+      <select class="input" id="bpSt" aria-label="Filtrar por status"><option value="todas">Todos os status</option><option value="ativa">Ativas</option><option value="inativa">Inativas</option></select>
+    </div>
+    <div id="qList"></div>`;
+  if ($('#bpGrupo')) { $('#bpGrupo').value = bpGrupo; $('#bpGrupo').addEventListener('change', e => { bpGrupo = e.target.value; drawQList(); }); }
+  $('#bpSt').value = bpSt;
+  $('#bpSt').addEventListener('change', e => { bpSt = e.target.value; drawQList(); });
+  $('#bpBusca').addEventListener('input', e => { bpQ = e.target.value; drawQList(); });
+  const abrir = e => {
+    const pv = e.target.closest('[data-prev]');
+    if (pv) { e.stopPropagation(); preview(PERGUNTAS.find(p => p.id === +pv.dataset.prev)); return; }
+    const row = e.target.closest('[data-q]'); if (row) qModal(PERGUNTAS.find(p => p.id === +row.dataset.q));
+  };
+  $('#qList').addEventListener('click', abrir);
+  $('#qList').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('[data-q]')) abrir(e); });
+  drawQList();
+}
+function drawQList() {
+  const q = norm(bpQ.trim());
+  const lista = PERGUNTAS.filter(p => p.tipo === bpTab && (bpTab !== 'principal' || bpGrupo === 'todos' || p.grupo === bpGrupo)
+    && (bpSt === 'todas' || p.status === bpSt) && (!q || norm(p.titulo + ' ' + p.desc).includes(q)));
+  $('#qList').innerHTML = lista.length ? lista.map(p => {
+    const altImg = p.alts.find(a => a.img), g = GRUPOS.find(x => x.id === p.grupo);
+    const pts = p.alts.map(a => a.p);
+    return `<div class="q-row" data-q="${p.id}" tabindex="0">
+      <div class="q-thumb">${p.img ? renderImg(p.img) : altImg ? renderImg(altImg.img) : icon('text')}</div>
+      <div style="min-width:0">
+        <div class="q-title">${esc(p.titulo)}</div>${p.desc ? `<div class="q-desc">${esc(p.desc)}</div>` : ''}
+        <div class="q-meta">${g ? `<span class="chip">${esc(g.titulo)}</span>` : ''}
+          ${p.img ? `<span class="chip accent">${icon('image')}Imagem na pergunta</span>` : ''}
+          ${altImg ? `<span class="chip accent">${icon('image')}Alternativas em imagem</span>` : ''}
+          ${!p.img && !altImg ? `<span class="chip">${icon('text')}Somente texto</span>` : ''}
+          <span class="chip">5 alternativas · ${Math.min(...pts)} a ${Math.max(...pts)} pts</span></div>
+      </div>
+      <div class="row-actions"><span class="pill ${p.status === 'ativa' ? 'on' : 'off'}">${p.status === 'ativa' ? 'Ativa' : 'Inativa'}</span>
+        <button class="icon-btn sm" type="button" data-prev="${p.id}" title="Pré-visualizar" aria-label="Pré-visualizar no celular">${icon('eye')}</button></div>
+    </div>`;
+  }).join('') : `<div class="empty">Nenhuma pergunta encontrada com esses filtros.</div>`;
+}
+function qModal(p) {
+  const novo = !p, L = 'ABCDE';
+  const d = JSON.parse(JSON.stringify(p || { tipo: bpTab, grupo: bpTab === 'principal' ? (bpGrupo !== 'todos' ? bpGrupo : GRUPOS[0].id) : null,
+    titulo: '', desc: '', status: 'ativa', img: null, alts: [0, 3, 5, 8, 10].map(pt => ({ t: '', p: pt, img: null })) }));
+  const altImgHtml = (a, i) => `<div class="alt-img-wrap"><button type="button" class="alt-img ${a.img ? 'has' : ''}" data-ai="${i}" title="${a.img ? 'Trocar imagem' : 'Adicionar imagem'}" aria-label="Imagem da alternativa ${L[i]}">${a.img ? renderImg(a.img) : icon('image')}</button>${a.img ? `<button type="button" class="alt-x" data-ax="${i}" aria-label="Remover imagem da alternativa ${L[i]}">${icon('x')}</button>` : ''}</div>`;
+  openModal({
+    title: novo ? 'Nova pergunta' : 'Editar pergunta', sub: TIPO_NOME[d.tipo], width: 760,
+    body: `<div class="form-grid">
+      <div class="span-6"><label class="switch"><input type="checkbox" id="qSt" ${d.status === 'ativa' ? 'checked' : ''}><span>Pergunta ativa</span></label></div>
+      ${d.tipo === 'principal' ? `<div class="field span-6"><label for="qGrupo">Grupo de análise</label><select class="input" id="qGrupo">${GRUPOS.map(g => `<option value="${g.id}" ${g.id === d.grupo ? 'selected' : ''}>${esc(g.titulo)} (${g.tipo})</option>`).join('')}</select></div>` : ''}
+      <div class="field span-6"><label for="qTit">Título da pergunta</label><input class="input" id="qTit" value="${esc(d.titulo)}" placeholder="Ex.: Quantas horas você dormiu na última noite?"></div>
+      <div class="field span-6"><label for="qDesc">Descrição <span class="hint">(opcional)</span></label><textarea class="input" id="qDesc" rows="2" placeholder="Orientação curta exibida abaixo do título">${esc(d.desc)}</textarea></div>
+      <div class="field span-6"><span class="flabel">Imagem da pergunta <span class="hint">(opcional)</span></span>
+        <div class="upload"><div class="prev" id="qImgPrev">${d.img ? renderImg(d.img) : icon('image')}</div>
+          <div style="display:grid;gap:8px;min-width:0"><span class="hint">PNG, JPG ou SVG de até 2 MB. Aparece acima das alternativas.</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><label class="btn btn-sm" for="qImgFile">${icon('upload')}Enviar imagem</label><input type="file" id="qImgFile" accept="image/*" hidden>
+            <button type="button" class="btn btn-sm btn-ghost" id="qImgDel" ${d.img ? '' : 'hidden'}>${icon('trash')}Remover</button></div></div></div></div>
+      <div class="form-section">Alternativas e pontuação</div>
+      <div class="span-6" style="display:grid;gap:10px" id="qAlts">
+        <div class="alt-row alt-head"><span></span><span>Descrição</span><span>Pontos (0–10)</span><span>Imagem</span></div>
+        ${d.alts.map((a, i) => `<div class="alt-row"><span class="alt-letter">${L[i]}</span>
+          <input class="input" id="qAlt${i}" value="${esc(a.t)}" placeholder="Texto da alternativa ${L[i]}" aria-label="Descrição da alternativa ${L[i]}">
+          <input class="input num" id="qPts${i}" type="number" min="0" max="10" step="1" value="${a.p}" aria-label="Pontuação da alternativa ${L[i]}">
+          <span data-slot="${i}">${altImgHtml(a, i)}</span></div>`).join('')}
+        <input type="file" id="qAltFile" accept="image/*" hidden>
+        <span class="hint">O resultado é a soma dos pontos dividida pela pontuação máxima. Faixas atuais: Risco até ${CFG.faixaRisco}%, Atenção até ${CFG.faixaAtencao}%, Apto acima disso.</span>
+      </div>
+      <p class="form-error span-6" id="qErro" hidden></p>
+    </div>`,
+    foot: `<button class="btn" id="qPrev" style="margin-right:auto">${icon('eye')}Pré-visualizar</button><button class="btn" data-close>Cancelar</button><button class="btn btn-primary" id="qSalvar">${novo ? 'Criar pergunta' : 'Salvar pergunta'}</button>`
+  });
+  const ler = () => {
+    d.status = $('#qSt').checked ? 'ativa' : 'inativa'; if ($('#qGrupo')) d.grupo = $('#qGrupo').value;
+    d.titulo = $('#qTit').value.trim(); d.desc = $('#qDesc').value.trim();
+    d.alts.forEach((a, i) => { a.t = $('#qAlt' + i).value.trim(); a.p = Number($('#qPts' + i).value); });
+  };
+  const drawQImg = () => { $('#qImgPrev').innerHTML = d.img ? renderImg(d.img) : icon('image'); $('#qImgDel').hidden = !d.img; };
+  const redrawAlt = i => { $(`#qAlts [data-slot="${i}"]`).innerHTML = altImgHtml(d.alts[i], i); };
+  const lerArquivo = (file, cb) => {
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { const e = $('#qErro'); e.textContent = 'A imagem passa de 2 MB. Escolha um arquivo menor.'; e.hidden = false; return; }
+    const fr = new FileReader(); fr.onload = () => cb(fr.result); fr.readAsDataURL(file);
+  };
+  let altAlvo = 0;
+  $('#qImgFile').addEventListener('change', e => lerArquivo(e.target.files[0], url => { d.img = url; drawQImg(); e.target.value = ''; }));
+  $('#qImgDel').addEventListener('click', () => { d.img = null; drawQImg(); });
+  $('#qAlts').addEventListener('click', e => {
+    const x = e.target.closest('[data-ax]'); if (x) { d.alts[+x.dataset.ax].img = null; redrawAlt(+x.dataset.ax); return; }
+    const b = e.target.closest('[data-ai]'); if (b) { altAlvo = +b.dataset.ai; $('#qAltFile').click(); }
+  });
+  $('#qAltFile').addEventListener('change', e => lerArquivo(e.target.files[0], url => { d.alts[altAlvo].img = url; redrawAlt(altAlvo); e.target.value = ''; }));
+  $('#qPrev').addEventListener('click', () => { ler(); preview(d, true); });
+  $('#qSalvar').addEventListener('click', () => {
+    ler();
+    const err = $('#qErro');
+    const semTexto = d.alts.map((a, i) => a.t ? null : L[i]).filter(Boolean);
+    const ptsRuins = d.alts.some(a => !Number.isInteger(a.p) || a.p < 0 || a.p > 10);
+    const msg = d.titulo.length < 5 ? 'Escreva o título da pergunta.'
+      : semTexto.length ? `Preencha a descrição das alternativas ${semTexto.join(', ')}.`
+      : ptsRuins ? 'A pontuação de cada alternativa deve ser um número inteiro de 0 a 10.'
+      : Math.max(...d.alts.map(a => a.p)) === 0 ? 'Pelo menos uma alternativa precisa ter pontuação maior que zero.' : '';
+    $('#qTit').classList.toggle('invalid', d.titulo.length < 5);
+    d.alts.forEach((a, i) => $('#qAlt' + i).classList.toggle('invalid', !a.t));
+    if (msg) { err.textContent = msg; err.hidden = false; return; }
+    if (novo) PERGUNTAS.push({ ...d, id: ++qid }); else Object.assign(p, d);
+    closeLayer(); renderPerguntas($('#view')); toast(novo ? 'Pergunta criada.' : 'Pergunta salva.');
+  });
+}
+function preview(p, stack = false) {
+  const altImg = p.alts.some(a => a.img);
+  const total = p.tipo === 'principal' ? GRUPOS.filter(g => g.status === 'ativo').reduce((s, g) => s + g.sorteio, 0) : p.tipo === 'avaliacao' ? CFG.avalQtd : PERGUNTAS.filter(x => x.tipo === 'adicional' && x.status === 'ativa').length;
+  const atual = Math.min(3, total);
+  const m = openModal({
+    title: 'Pré-visualização', sub: 'Como o funcionário vê esta pergunta no celular', width: 420, stack,
+    body: `<div class="phone">
+      <div class="ph-top"><span>${p.tipo === 'principal' ? 'Avaliação diária' : p.tipo === 'avaliacao' ? 'Perguntas de Avaliação' : 'Perguntas Adicionais'} · ${atual} de ${total}</span><span>${icon('clock')}00:42</span></div>
+      <div class="ph-prog"><i style="width:${atual / total * 100}%"></i></div>
+      <div class="ph-q">${esc(p.titulo) || 'Título da pergunta'}</div>${p.desc ? `<div class="ph-d">${esc(p.desc)}</div>` : ''}
+      ${p.img ? `<div class="ph-img">${renderImg(p.img)}</div>` : ''}
+      <div class="ph-alts ${altImg ? 'img' : ''}">${p.alts.map((a, i) => `<button type="button" class="ph-alt">${a.img ? `<span class="ph-alt-img">${renderImg(a.img)}</span>` : `<span class="ph-l">${'ABCDE'[i]}</span>`}<span>${esc(a.t) || 'Alternativa ' + 'ABCDE'[i]}</span></button>`).join('')}</div>
+      <div class="ph-btn">Confirmar resposta</div>
+    </div>
+    <p class="hint" style="text-align:center;margin:0">A pontuação nunca é mostrada ao funcionário.</p>`,
+    foot: `<button class="btn btn-primary" data-close>Fechar</button>`
+  });
+  m.querySelector('.ph-alts').addEventListener('click', e => { const b = e.target.closest('.ph-alt'); if (!b) return; m.querySelectorAll('.ph-alt').forEach(x => x.classList.toggle('sel', x === b)); });
+}
+
+/* ============ Configurações ============ */
+function renderConfig(v) {
+  const d = JSON.parse(JSON.stringify({ ...CFG, sorteio: Object.fromEntries(GRUPOS.map(g => [g.id, g.sorteio])) }));
+  const DIAS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const numero = (id, val, unit, min, max) => `<div class="num-input"><input class="input" type="number" id="${id}" min="${min}" max="${max}" value="${val}"><span class="unit">${unit}</span></div>`;
+  const etapa = (key, titulo, desc) => `<div style="display:grid;gap:10px;align-content:start"><div class="lbl"><b>${titulo}</b><span>${desc}</span></div>
+    <div class="radio-cards">
+      <label class="radio-card"><input type="radio" name="${key}" value="imediato" ${d[key] === 'imediato' ? 'checked' : ''}><span><b>Imediatamente</b><small>Logo após o resultado negativo</small></span></label>
+      <label class="radio-card"><input type="radio" name="${key}" value="seguinte" ${d[key] === 'seguinte' ? 'checked' : ''}><span><b>No dia seguinte</b><small>Junto com o próximo disparo</small></span></label>
+    </div></div>`;
+  v.innerHTML = `
+  <div class="page-head"><div><h1>Configurações</h1><p>Regras gerais aplicadas a todas as empresas clientes.</p></div></div>
+  <div class="cfg-grid" id="cfgGrid">
+    <article class="card"><div class="card-head"><div><h2>Sorteio de perguntas</h2><p>Quantas perguntas de cada grupo o funcionário recebe por dia</p></div></div>
+      <div class="card-body">
+        ${GRUPOS.map(g => `<div class="cfg-row"><div class="lbl"><b>${esc(g.titulo)}</b><span>${PERGUNTAS.filter(p => p.grupo === g.id && p.status === 'ativa').length} perguntas ativas no grupo</span></div>${numero('s_' + g.id, d.sorteio[g.id], 'perguntas', 0, 10)}</div>`).join('')}
+        <div class="cfg-total">Total por funcionário: <b id="sTotal"></b> perguntas por dia</div>
+      </div></article>
+
+    <article class="card"><div class="card-head"><div><h2>Disparo diário</h2><p>Quando as perguntas chegam aos funcionários</p></div></div>
+      <div class="card-body">
+        <div class="cfg-row"><div class="lbl"><b>Horário do disparo</b><span>Horário de Brasília</span></div><input class="input" type="time" id="cHora" value="${d.horario}" style="width:130px;height:36px"></div>
+        <div class="cfg-row"><div class="lbl"><b>Prazo para responder</b><span>Contado a partir do disparo</span></div>${numero('cJanela', d.janela, 'min', 15, 600)}</div>
+        <div class="cfg-row" style="flex-direction:column;align-items:flex-start;gap:10px"><div class="lbl"><b>Dias da semana</b><span>Dias com disparo</span></div><div class="days" id="cDias">${DIAS.map((n, i) => `<button type="button" data-d="${i}" aria-pressed="${d.dias.includes(i)}">${n}</button>`).join('')}</div></div>
+        <div class="cfg-row"><div class="lbl"><b>Lembrete de pendência</b><span>Enviado 30 min antes do fim do prazo</span></div><label class="switch"><input type="checkbox" id="cLemb" ${d.lembrete ? 'checked' : ''}><span class="sr">Enviar lembrete</span></label></div>
+        <div class="cfg-row"><div class="lbl"><b>Alerta ao supervisor por e-mail</b><span>Além da notificação no aplicativo</span></div><label class="switch"><input type="checkbox" id="cMail" ${d.notifEmail ? 'checked' : ''}><span class="sr">Enviar e-mail ao supervisor</span></label></div>
+      </div></article>
+
+    <article class="card span-all"><div class="card-head"><div><h2>Faixas de classificação</h2><p>Percentual da pontuação máxima obtida nas respostas</p></div></div>
+      <div class="card-body" style="display:grid;gap:16px">
+        <div class="range-bar" id="rBar" aria-hidden="true"></div>
+        <div class="range-inputs">
+          <div class="field"><label for="cRisco"><span class="pill risco">Risco</span></label><div class="num-input"><span class="unit">de 0% até</span><input class="input" type="number" id="cRisco" min="1" max="97" value="${d.faixaRisco}"><span class="unit">%</span></div></div>
+          <div class="field"><label for="cAtencao"><span class="pill atencao">Atenção</span></label><div class="num-input"><span class="unit" id="atDe"></span><input class="input" type="number" id="cAtencao" min="2" max="98" value="${d.faixaAtencao}"><span class="unit">%</span></div></div>
+          <div class="field"><span class="flabel"><span class="pill apto">Apto</span></span><div class="num-input" style="height:36px"><span class="unit" id="apDe"></span></div></div>
+        </div>
+        <p class="form-error" id="rErro" hidden>Os limites precisam seguir a ordem Risco &lt; Atenção &lt; 100%.</p>
+        <div class="lgpd-box">${icon('bell')}<span>Resultados em Atenção ou Risco avisam o supervisor na hora e liberam as Perguntas de Avaliação para o funcionário.</span></div>
+      </div></article>
+
+    <article class="card"><div class="card-head"><div><h2>Tempo de resposta</h2><p>Respostas fora desses limites aparecem nos relatórios</p></div></div>
+      <div class="card-body">
+        <div class="cfg-row"><div class="lbl"><b>Tempo mínimo</b><span>Abaixo disso, a resposta é sinalizada como rápida demais</span></div>${numero('cTMin', d.tempoMin, 'seg', 5, 600)}</div>
+        <div class="cfg-row"><div class="lbl"><b>Tempo máximo</b><span>Acima disso, a resposta é sinalizada como demorada</span></div>${numero('cTMax', d.tempoMax, 'min', 1, 120)}</div>
+      </div></article>
+
+    <article class="card"><div class="card-head"><div><h2>Segurança de acesso</h2><p>Vale para o painel das empresas e para o aplicativo</p></div></div>
+      <div class="card-body">
+        <div class="cfg-row"><div class="lbl"><b>Tentativas de login</b><span>Antes de bloquear o acesso</span></div>${numero('cTent', d.tentativas, 'tentativas', 1, 10)}</div>
+        <div class="cfg-row"><div class="lbl"><b>Tempo de bloqueio</b><span>Depois disso, o acesso é liberado de novo</span></div>${numero('cBloq', d.bloqueio, 'min', 5, 1440)}</div>
+      </div></article>
+
+    <article class="card span-all"><div class="card-head"><div><h2>Envio das etapas seguintes</h2><p>Quando o funcionário recebe as perguntas extras depois de um resultado negativo</p></div></div>
+      <div class="card-body cfg-grid" style="gap:20px">
+        ${etapa('envioAval', 'Perguntas de Avaliação', `Após Atenção ou Risco nas perguntas principais · ${d.avalQtd} perguntas`)}
+        ${etapa('envioAdic', 'Perguntas Adicionais', 'Se o resultado da Avaliação continuar negativo')}
+      </div></article>
+  </div>
+  <div class="savebar" id="saveBar" hidden><span id="saveMsg">${icon('clock')}Você tem alterações não salvas</span>
+    <div style="display:flex;gap:8px"><button class="btn" type="button" id="cDesc">Descartar</button><button class="btn btn-primary" type="button" id="cSalvar">Salvar configurações</button></div></div>`;
+
+  const ler = () => {
+    GRUPOS.forEach(g => { d.sorteio[g.id] = Math.max(0, parseInt($('#s_' + g.id).value, 10) || 0); });
+    d.horario = $('#cHora').value; d.janela = +$('#cJanela').value;
+    d.faixaRisco = +$('#cRisco').value; d.faixaAtencao = +$('#cAtencao').value;
+    d.tempoMin = +$('#cTMin').value; d.tempoMax = +$('#cTMax').value; d.tentativas = +$('#cTent').value; d.bloqueio = +$('#cBloq').value;
+    d.lembrete = $('#cLemb').checked; d.notifEmail = $('#cMail').checked;
+    d.envioAval = $('input[name=envioAval]:checked').value; d.envioAdic = $('input[name=envioAdic]:checked').value;
+  };
+  const drawRange = () => {
+    const r = d.faixaRisco, a = d.faixaAtencao, ok = r >= 1 && a > r && a < 100;
+    $('#rErro').hidden = ok;
+    if (!ok) return;
+    $('#rBar').innerHTML = `<div class="r" style="flex:${r}">0–${r}%</div><div class="t" style="flex:${a - r}">${r + 1}–${a}%</div><div class="a" style="flex:${100 - a}">${a + 1}–100%</div>`;
+    $('#atDe').textContent = `de ${r + 1}% até`; $('#apDe').textContent = `de ${a + 1}% até 100%`;
+  };
+  const atualizar = () => { $('#sTotal').textContent = Object.values(d.sorteio).reduce((s, n) => s + n, 0); drawRange(); };
+  const sujo = () => { $('#saveMsg').innerHTML = icon('clock') + 'Você tem alterações não salvas'; $('#saveBar').hidden = false; };
+  $('#cfgGrid').addEventListener('input', () => { ler(); atualizar(); sujo(); });
+  $('#cDias').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const i = +b.dataset.d;
+    d.dias = d.dias.includes(i) ? d.dias.filter(x => x !== i) : [...d.dias, i].sort();
+    b.setAttribute('aria-pressed', d.dias.includes(i)); sujo();
+  });
+  $('#cDesc').addEventListener('click', () => { renderConfig(v); toast('Alterações descartadas.'); });
+  $('#cSalvar').addEventListener('click', () => {
+    ler();
+    const erro = d.faixaRisco < 1 || d.faixaAtencao <= d.faixaRisco || d.faixaAtencao >= 100 ? 'As faixas precisam seguir a ordem Risco < Atenção < 100%.'
+      : !d.horario ? 'Informe o horário do disparo.'
+      : !d.dias.length ? 'Selecione pelo menos um dia de disparo.'
+      : !Object.values(d.sorteio).some(n => n > 0) ? 'Defina pelo menos uma pergunta sorteada por dia.'
+      : !(d.tempoMin > 0 && d.tempoMax > 0) || d.tempoMin >= d.tempoMax * 60 ? 'O tempo mínimo precisa ser menor que o tempo máximo.'
+      : !(d.tentativas >= 1) ? 'Informe pelo menos 1 tentativa de login.' : '';
+    if (erro) { $('#saveMsg').innerHTML = icon('warn') + erro; return; }
+    const { sorteio, ...resto } = d;
+    Object.assign(CFG, resto);
+    GRUPOS.forEach(g => { g.sorteio = sorteio[g.id]; });
+    $('#saveBar').hidden = true;
+    $('#sideDisparo').textContent = `${CFG.horario} · ${fmt(CAD)} funcionários convocados`;
+    toast('Configurações salvas. Valem a partir do próximo disparo.');
+  });
+  atualizar();
+}
+
+/* ============ Relatórios ============ */
+const toISO = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const fromISO = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const MIN_DATA = toISO(SERIE[0].d), MAX_DATA = toISO(SERIE[SERIE.length - 1].d);
+let relIni = toISO(SERIE[SERIE.length - 30].d), relFim = MAX_DATA, relEmp = 'todas', relGran = 'diario', relFora = 'abaixo', relTodas = false, relChart = null;
+const mix = (total, r) => { const risco = Math.round(total * (0.008 + r() * 0.003)), atencao = Math.round(total * (0.04 + r() * 0.012)); return { total, apto: total - atencao - risco, atencao, risco }; };
+const somaRows = rows => rows.reduce((a, s) => ({ total: a.total + s.total, apto: a.apto + s.apto, atencao: a.atencao + s.atencao, risco: a.risco + s.risco }), { total: 0, apto: 0, atencao: 0, risco: 0 });
+// Últimos 12 meses: setembro a novembro vêm da série diária; os anteriores são estimados
+const MESES = (() => {
+  const r = rng(5), out = [];
+  const doMes = (y, m) => somaRows(SERIE.filter(s => s.d.getFullYear() === y && s.d.getMonth() === m));
+  const ref = (doMes(2026, 8).total + doMes(2026, 9).total) / 2;
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(2026, 10 - i, 1);
+    out.push({ d, ...(i <= 2 ? doMes(d.getFullYear(), d.getMonth()) : mix(Math.round(ref * (1 - 0.02 * (i - 2)) * (0.96 + r() * 0.06)), r)) });
+  }
+  return out;
+})();
+const ANOS = (() => {
+  const r = rng(8), a26 = MESES.filter(m => m.d.getFullYear() === 2026).reduce((s, m) => s + m.total, 0), media = MESES.reduce((s, m) => s + m.total, 0) / 12;
+  return [{ ano: 2024, ...mix(Math.round(media * 12 * 0.58), r) }, { ano: 2025, ...mix(Math.round(media * 12 * 0.84), r) }, { ano: 2026, ...mix(a26, r) }];
+})();
+const FORA = (() => {
+  const r = rng(13), out = [];
+  for (let i = 0; i < 70; i++) {
+    const e = ATIVAS[Math.floor(r() * ATIVAS.length)], dia = SERIE[Math.floor(r() * SERIE.length)].d;
+    const abaixo = r() < .58, min = 6 * 60 + Math.floor(r() * 110);
+    out.push({ codigo: 'FUNC-' + String(Math.floor(r() * 90000) + 1000).padStart(5, '0'), empresa: e.nome,
+      data: new Date(dia.getFullYear(), dia.getMonth(), dia.getDate(), Math.floor(min / 60), min % 60),
+      tempo: abaixo ? Math.round(14 + r() * 42) : Math.round((16 + r() * 26) * 60), etapa: r() < .8 ? 'Principais' : 'Avaliação',
+      classe: r() < .78 ? 'apto' : r() < .7 ? 'atencao' : 'risco' });
+  }
+  return out.sort((a, b) => b.data - a.data);
+})();
+const fmtTempo = s => s < 60 ? `${s} s` : `${Math.floor(s / 60)} min ${String(s % 60).padStart(2, '0')} s`;
+
+function stackedChart(canvas, labels, rows, thin) {
+  const grid = cssVar('--chart-grid'), tick = cssVar('--fg-3');
+  const eixo = v => v >= 1e6 ? (v / 1e6).toLocaleString('pt-BR') + ' mi' : v >= 1e4 ? (v / 1e3).toLocaleString('pt-BR') + ' mil' : fmt(v);
+  const ch = new Chart(canvas, {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Apto', data: rows.map(r => r.apto), backgroundColor: cssVar('--ok') },
+      { label: 'Atenção', data: rows.map(r => r.atencao), backgroundColor: cssVar('--warn') },
+      { label: 'Risco', data: rows.map(r => r.risco), backgroundColor: cssVar('--risk') }] },
+    options: {
+      maintainAspectRatio: false, animation: { duration: 300 }, interaction: { mode: 'index', intersect: false },
+      datasets: { bar: { borderRadius: thin ? 1 : 3, borderSkipped: false, categoryPercentage: thin ? .92 : .7, barPercentage: .9, maxBarThickness: 64 } },
+      plugins: { legend: { display: false }, tooltip: {
+        backgroundColor: cssVar('--fg'), titleColor: cssVar('--bg'), bodyColor: cssVar('--bg'), footerColor: cssVar('--bg'), padding: 10, boxPadding: 4,
+        callbacks: { label: c => ` ${c.dataset.label}: ${fmt(c.raw)}`, footer: it => 'Total: ' + fmt(it.reduce((s, i) => s + i.raw, 0)) } } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, border: { color: grid }, ticks: { color: tick, maxRotation: 0, autoSkipPadding: 14, font: { size: 11 } } },
+        y: { stacked: true, grid: { color: grid }, border: { display: false }, ticks: { color: tick, font: { size: 11 }, callback: eixo } }
+      }
+    }
+  });
+  charts.push(ch);
+  return ch;
+}
+function renderRelatorios(v) {
+  if (relChart) { relChart.destroy(); charts = charts.filter(c => c !== relChart); relChart = null; }
+  const ini = fromISO(relIni), fim = fromISO(relFim), fimExcl = new Date(fim.getFullYear(), fim.getMonth(), fim.getDate() + 1);
+  const emp = ADESAO.find(e => e.nome === relEmp);
+  const f = emp ? (emp.func / CAD) * (emp.taxa / 0.786) : 1;
+  const scale = s => { const apto = Math.round(s.apto * f), atencao = Math.round(s.atencao * f), risco = Math.round(s.risco * f); return { ...s, apto, atencao, risco, total: apto + atencao + risco }; };
+  const dias = SERIE.filter(s => s.d >= ini && s.d <= fim).map(scale);
+  const tot = dias.reduce((a, s) => a + s.total, 0), media = dias.length ? Math.round(tot / dias.length) : 0;
+  const noMes = SERIE.filter(s => s.d.getMonth() === 10).map(scale).reduce((a, s) => a + s.total, 0);
+  const noAno = Math.round(ANOS[2].total * f);
+  const cad = emp ? emp.func : CAD;
+  const uteis = dias.filter(s => s.d.getDay() % 6 !== 0);
+  const adesao = uteis.length ? uteis.reduce((a, s) => a + s.total, 0) / uteis.length / cad * 100 : 0;
+  const ciclo = computeCiclo(dias);
+  const fora = FORA.filter(x => x.data >= ini && x.data < fimExcl && (!emp || x.empresa === emp.nome));
+  const abaixo = fora.filter(x => x.tempo < CFG.tempoMin), acima = fora.filter(x => x.tempo > CFG.tempoMax * 60);
+  const listaFora = relFora === 'abaixo' ? abaixo : acima;
+  const adh = emp ? [emp] : [...ADESAO].sort((a, b) => b.taxa - a.taxa);
+  const peso = ADESAO.reduce((s, e) => s + e.func * e.taxa, 0), alertasPer = ciclo.P.atencao + ciclo.P.risco;
+  const dif = Math.round((fim - ini) / 864e5) + 1;
+  const preset = relFim !== MAX_DATA ? '' : relIni === '2026-11-01' ? 'mes' : [7, 30, 90].includes(dif) ? String(dif) : '';
+  const tipoBloco = (nome, o, total) => {
+    const w = k => total ? o[k] / total * 100 : 0, lab = k => w(k) >= 9 ? pct(w(k), 0) : '';
+    return `<div class="stage"><div class="stage-head"><b>${nome}</b><span class="vol">${fmt(total)}</span></div>
+      <div class="stack"><div class="a" style="width:${w('apto')}%">${lab('apto')}</div><div class="t" style="width:${w('atencao')}%">${lab('atencao')}</div><div class="r" style="width:${w('risco')}%">${lab('risco')}</div></div>
+      <div class="tipo-nums"><span><i style="background:var(--ok)"></i>Apto <b>${fmt(o.apto)}</b></span><span><i style="background:var(--warn)"></i>Atenção <b>${fmt(o.atencao)}</b></span><span><i style="background:var(--risk)"></i>Risco <b>${fmt(o.risco)}</b></span></div></div>`;
+  };
+  const legenda = `<div class="legend" style="margin-bottom:12px"><span><i style="background:var(--ok)"></i>Apto</span><span><i style="background:var(--warn)"></i>Atenção</span><span><i style="background:var(--risk)"></i>Risco</span></div>`;
+  v.innerHTML = `
+  <div class="page-head">
+    <div><h1>Relatórios</h1><p>${ini.toLocaleDateString('pt-BR')} a ${fim.toLocaleDateString('pt-BR')} · ${emp ? esc(emp.nome) : 'todas as empresas ativas'}</p></div>
+    <div class="page-actions"><button class="btn" id="expPdf">${icon('file')}Exportar PDF</button><button class="btn" id="expXls">${icon('sheet')}Exportar Excel</button></div>
+  </div>
+  <article class="card"><div class="filters">
+    <div class="field"><label for="rIni">De</label><input class="input" type="date" id="rIni" min="${MIN_DATA}" max="${MAX_DATA}" value="${relIni}"></div>
+    <div class="field"><label for="rFim">Até</label><input class="input" type="date" id="rFim" min="${MIN_DATA}" max="${MAX_DATA}" value="${relFim}"></div>
+    <div class="field grow"><label for="rEmp">Empresa</label><select class="input" id="rEmp"><option value="todas">Todas as empresas ativas (${ADESAO.length})</option>${[...ADESAO].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(e => `<option ${e.nome === relEmp ? 'selected' : ''}>${esc(e.nome)}</option>`).join('')}</select></div>
+    <div class="field"><span class="flabel">Período rápido</span><div class="seg" id="rPre">${[['7', '7 dias'], ['30', '30 dias'], ['mes', 'Este mês'], ['90', '90 dias']].map(([k, l]) => `<button type="button" data-p="${k}" aria-pressed="${preset === k}">${l}</button>`).join('')}</div></div>
+  </div></article>
+
+  <section class="kpis k4" aria-label="Indicadores do período">
+    ${kpi('send', 'Respostas no período', fmt(tot), '', `<span>${dias.length} dias · média de ${fmt(media)} por dia</span>`)}
+    ${kpi('calendar', 'Respostas no mês', fmt(noMes), '', `<span>novembro de 2026, até hoje</span>`)}
+    ${kpi('relatorios', 'Respostas no ano', fmt(noAno), '', `<span>janeiro a novembro de 2026</span>`)}
+    ${kpi('percent', 'Adesão média', pct(adesao), '', `<div class="meter" style="width:100%"><i style="width:${Math.min(adesao, 100)}%"></i></div><span>dias úteis do período</span>`)}
+  </section>
+
+  <section class="grid-2">
+    <article class="card">
+      <div class="card-head"><div><h2>Volume de respostas</h2><p>${relGran === 'diario' ? 'Por dia, no período filtrado' : relGran === 'mensal' ? 'Por mês, últimos 12 meses' : 'Por ano'}</p></div>
+        <div class="seg" id="rGran" role="group" aria-label="Agrupamento">${[['diario', 'Diário'], ['mensal', 'Mensal'], ['anual', 'Anual']].map(([k, l]) => `<button type="button" data-v="${k}" aria-pressed="${relGran === k}">${l}</button>`).join('')}</div></div>
+      <div class="card-body">${legenda}<div class="chart-box"><canvas id="relChart" aria-label="Gráfico de volume de respostas"></canvas></div></div>
+    </article>
+    <article class="card">
+      <div class="card-head"><div><h2>Resultados por tipo</h2><p>Principais, Avaliação e Adicionais no período</p></div></div>
+      <div class="card-body"><div class="funnel">${tipoBloco('Principais', ciclo.P, ciclo.pt)}${tipoBloco('Avaliação', ciclo.A, ciclo.aEnv)}${tipoBloco('Adicionais', ciclo.D, ciclo.adEnv)}</div></div>
+    </article>
+  </section>
+
+  <article class="card">
+    <div class="card-head"><div><h2>Adesão por empresa</h2><p>Respostas recebidas em relação aos funcionários cadastrados</p></div></div>
+    <div class="card-body" style="padding-inline:0;padding-bottom:0"><div class="table-wrap"><table>
+      <thead><tr><th>Empresa</th><th>Cidade/UF</th><th style="text-align:right">Cadastrados</th><th style="text-align:right">Média diária</th><th style="min-width:200px">Adesão</th><th style="text-align:right">Alertas no período</th></tr></thead>
+      <tbody class="static">${(relTodas || emp ? adh : adh.slice(0, 8)).map(e => `<tr>
+        <td style="font-weight:500">${esc(e.nome)}</td><td>${esc(e.cidade)}/${e.uf}</td>
+        <td class="num" style="text-align:right">${fmt(e.func)}</td><td class="num" style="text-align:right">${fmt(Math.round(e.func * e.taxa))}</td>
+        <td><div class="adh-cell"><div class="meter"><i class="${e.taxa < .75 ? 'low' : e.taxa < .88 ? 'mid' : 'high'}" style="width:${e.taxa * 100}%"></i></div><b class="num">${pct(e.taxa * 100)}</b></div></td>
+        <td class="num" style="text-align:right">${fmt(emp ? alertasPer : Math.round(alertasPer * e.func * e.taxa / peso))}</td></tr>`).join('')}</tbody>
+    </table></div>
+    ${emp ? '' : `<div class="pager"><span>${relTodas ? `Mostrando as ${adh.length} empresas` : `Mostrando 8 de ${adh.length} empresas, da maior para a menor adesão`}</span><button class="btn btn-sm" type="button" id="rTodas">${relTodas ? 'Mostrar menos' : 'Mostrar todas'}</button></div>`}</div>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><div><h2>Respostas fora do tempo limite</h2><p>Limites atuais: mínimo de ${CFG.tempoMin} s e máximo de ${CFG.tempoMax} min por questionário</p></div>
+      <div class="seg" id="rFora" role="group" aria-label="Tipo de desvio"><button type="button" data-v="abaixo" aria-pressed="${relFora === 'abaixo'}">Abaixo do mínimo (${abaixo.length})</button><button type="button" data-v="acima" aria-pressed="${relFora === 'acima'}">Acima do máximo (${acima.length})</button></div></div>
+    <div class="card-body" style="padding-inline:0;padding-bottom:0"><div class="table-wrap"><table>
+      <thead><tr><th>Funcionário</th><th>Empresa</th><th>Data/hora</th><th>Etapa</th><th style="text-align:right">Tempo de resposta</th><th style="text-align:right">${relFora === 'abaixo' ? 'Abaixo do mínimo' : 'Acima do máximo'}</th><th>Classificação</th></tr></thead>
+      <tbody class="static">${listaFora.length ? listaFora.slice(0, 12).map(x => `<tr>
+        <td><span class="code">${x.codigo}</span></td><td>${esc(x.empresa)}</td>
+        <td class="num">${x.data.toLocaleDateString('pt-BR')} <span style="color:var(--fg-3)">${x.data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span></td>
+        <td>${x.etapa}</td><td class="num" style="text-align:right">${fmtTempo(x.tempo)}</td>
+        <td class="num" style="text-align:right;color:var(--${relFora === 'abaixo' ? 'warn' : 'risk'});font-weight:600">${relFora === 'abaixo' ? '−' + fmtTempo(CFG.tempoMin - x.tempo) : '+' + fmtTempo(x.tempo - CFG.tempoMax * 60)}</td>
+        <td>${pill(x.classe)}</td></tr>`).join('')
+        : `<tr><td colspan="7" class="empty">Nenhuma resposta ${relFora === 'abaixo' ? 'abaixo do tempo mínimo' : 'acima do tempo máximo'} neste período.</td></tr>`}</tbody>
+    </table></div>
+    ${listaFora.length > 12 ? `<div class="pager"><span>Mostrando 12 de ${listaFora.length} · a lista completa sai na exportação em Excel</span></div>` : ''}</div>
+  </article>`;
+
+  let labels, rows;
+  if (relGran === 'diario') { labels = dias.map(s => s.d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })); rows = dias; }
+  else if (relGran === 'mensal') { labels = MESES.map(m => m.d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }).replace('.', '')); rows = MESES.map(scale); }
+  else { labels = ANOS.map(a => a.ano === 2026 ? '2026 (até nov.)' : String(a.ano)); rows = ANOS.map(scale); }
+  relChart = stackedChart($('#relChart'), labels, rows, rows.length > 40);
+
+  const setData = () => {
+    let a = $('#rIni').value || relIni, b = $('#rFim').value || relFim;
+    if (a < MIN_DATA) a = MIN_DATA; if (b > MAX_DATA) b = MAX_DATA; if (a > b) [a, b] = [b, a];
+    relIni = a; relFim = b; renderRelatorios(v);
+  };
+  $('#rIni').addEventListener('change', setData);
+  $('#rFim').addEventListener('change', setData);
+  $('#rEmp').addEventListener('change', e => { relEmp = e.target.value; renderRelatorios(v); });
+  $('#rPre').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; relFim = MAX_DATA; relIni = b.dataset.p === 'mes' ? '2026-11-01' : toISO(SERIE[SERIE.length - Number(b.dataset.p)].d); renderRelatorios(v); });
+  $('#rGran').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { relGran = b.dataset.v; renderRelatorios(v); } });
+  $('#rFora').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { relFora = b.dataset.v; renderRelatorios(v); } });
+  if ($('#rTodas')) $('#rTodas').addEventListener('click', () => { relTodas = !relTodas; renderRelatorios(v); });
+  $('#expPdf').addEventListener('click', () => exportar('PDF'));
+  $('#expXls').addEventListener('click', () => exportar('Excel'));
+}
+function exportar(tipo) {
+  const nome = `Relatorio_Pulse_${relIni}_a_${relFim}.${tipo === 'PDF' ? 'pdf' : 'xlsx'}`;
+  const m = openModal({ title: `Exportar ${tipo}`, sub: nome, width: 460,
+    body: `<div class="exp"><div class="meter"><i id="expBar" style="width:4%"></i></div><span class="hint" id="expTxt">Reunindo indicadores do período…</span></div>`,
+    foot: `<button class="btn" data-close>Cancelar</button>` });
+  const passos = [[45, tipo === 'PDF' ? 'Montando gráficos e tabelas…' : 'Organizando as planilhas por indicador…'], [85, 'Gerando o arquivo…'], [100, 'Pronto.']];
+  passos.forEach(([w, txt], i) => setTimeout(() => {
+    if (!m.isConnected) return;
+    $('#expBar').style.width = w + '%'; $('#expTxt').textContent = txt;
+    if (w === 100) setTimeout(() => { if (m.isConnected) { closeLayer(); toast(`${nome} gerado (simulação).`); } }, 400);
+  }, 500 * (i + 1)));
+}
+
+/* ============ Inicialização ============ */
+function boot() {
+  buildNav();
+  $('#logoutBtn').innerHTML = icon('logout');
+  $('#menuBtn').innerHTML = icon('menu');
+  $('#bellBtn').insertAdjacentHTML('afterbegin', icon('bell'));
+  $('#bellBtn .count').textContent = SERIE[SERIE.length - 1].risco;
+  $('#sideDisparo').textContent = `${CFG.horario} · ${fmt(CAD)} funcionários convocados`;
+  $('#bellBtn').addEventListener('click', () => { location.hash = 'dashboard'; if ((location.hash || '#dashboard') === '#dashboard') go('dashboard'); setTimeout(() => { const t = $('#alertRows'); if (t) t.closest('.card').scrollIntoView({ behavior: 'smooth' }); }, 50); });
+  $('#logoutBtn').addEventListener('click', () => { store.del('pulse-auth'); closeAll(); showLogin(); });
+  $('#menuBtn').addEventListener('click', () => {
+    document.body.classList.add('nav-open');
+    const s = document.createElement('div'); s.className = 'scrim'; s.addEventListener('click', () => { document.body.classList.remove('nav-open'); s.remove(); });
+    document.body.appendChild(s);
+  });
+  window.addEventListener('hashchange', () => { if (!$('#app').hidden) go(location.hash.slice(1)); });
+  window.addEventListener('resize', () => { if (!$('#login').hidden) drawPulse(); });
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  // Gráficos leem as cores do tema; ao trocar de tema, redesenha a tela atual
+  const redraw = () => {
+    if ($('#app').hidden || !['dashboard', 'relatorios'].includes(rotaAtual)) return;
+    charts.forEach(c => c.destroy()); charts = []; serieChart = relChart = null;
+    ROUTES[rotaAtual].render($('#view'));
+  };
+  mq.addEventListener && mq.addEventListener('change', redraw);
+  new MutationObserver(redraw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  initLogin();
+  store.get('pulse-auth') ? showApp() : showLogin();
+}
+if (window.Chart) Chart.defaults.font.family = '"IBM Plex Sans", system-ui, sans-serif';
+boot();
+</script>
