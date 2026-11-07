@@ -112,7 +112,8 @@ select.input { padding-right: 32px; }
 .login-legend span { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); font-size: 13px; color: #d4e5ea; }
 .login-legend i { width: 8px; height: 8px; border-radius: 50%; }
 .login-foot { font-size: 12px; color: #7f9ea8; }
-.login-form-wrap { display: grid; place-items: center; padding-block: 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: var(--surface); }
+.icon-btn.theme-login { position: absolute; top: 16px; right: max(16px, env(safe-area-inset-right, 0px)); }
+.login-form-wrap { position: relative; display: grid; place-items: center; padding-block: 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: var(--surface); }
 .login-form { width: 100%; max-width: 380px; display: grid; gap: 20px; }
 .login-form h2 { font-family: var(--font-display); font-size: 24px; font-weight: 600; letter-spacing: -.01em; }
 .login-form .sub { color: var(--fg-2); margin: 6px 0 0; }
@@ -396,6 +397,19 @@ textarea.input { height: auto; min-height: 72px; padding: 10px 12px; resize: ver
 .hist i.apto { background: var(--ok); } .hist i.atencao { background: var(--warn); } .hist i.risco { background: var(--risk); }
 .hist i.nao { background: var(--surface-2); border: 1px dashed var(--line-strong); }
 .hist-lbl { display: flex; justify-content: space-between; font-size: 11px; color: var(--fg-3); margin-top: 4px; }
+.hist.d30 { grid-template-columns: repeat(30, minmax(0, 1fr)); gap: 3px; }
+.hist.d30 i { border-radius: 3px; }
+.trend { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 6px; }
+.trend.down { background: var(--risk-soft); color: var(--risk); }
+.trend.flat { background: var(--surface-2); color: var(--fg-2); border: 1px solid var(--line); }
+.trend.up { background: var(--ok-soft); color: var(--ok); }
+.mini-chart { position: relative; height: 170px; }
+.acao-box { border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 12px; }
+.acao-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.acao-log { display: grid; gap: 6px; font-size: 12px; color: var(--fg-2); border-top: 1px solid var(--line); padding-top: 10px; }
+.acao-log div { display: flex; gap: 10px; }
+.acao-log span:first-child { color: var(--fg-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.row-btns { display: flex; gap: 6px; flex-wrap: wrap; }
 td.trunc { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
 
 /* ---------- Modal e toast ---------- */
@@ -477,6 +491,7 @@ td.trunc { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
     <div class="login-foot">Dados de funcionários exibidos somente por código, em conformidade com a LGPD.</div>
   </div>
   <div class="login-form-wrap">
+    <button class="icon-btn theme-btn theme-login" type="button"></button>
     <form class="login-form" id="loginForm" novalidate>
       <div>
         <h2>Acesso Admin Master</h2>
@@ -528,6 +543,7 @@ td.trunc { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
       <div class="crumbs"><span>Pulse</span><span>/</span><b id="crumb">Dashboard</b></div>
       <div class="spacer"></div>
       <span class="env-tag">Demonstração</span>
+      <button class="icon-btn theme-btn" type="button"></button>
       <button class="icon-btn" id="bellBtn" type="button" aria-label="Alertas de hoje"><span class="count">87</span></button>
     </header>
     <main class="content" id="view"></main>
@@ -587,6 +603,9 @@ const ICONS = {
   layers: '<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/>',
   shuffle: '<path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>',
   upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+  auditoria: '<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
   trash: '<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'
 };
 const icon = (n, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
@@ -634,7 +653,8 @@ const CAD = ATIVAS.reduce((s, e) => s + e.func, 0);
 
 // Regras gerais (tela Configurações)
 const CFG = { horario: '06:00', janela: 120, dias: [1, 2, 3, 4, 5, 6], lembrete: true, notifEmail: true, faixaRisco: 39, faixaAtencao: 69,
-  tempoMin: 3, tempoMax: 60, alertaTempo: true, envioAval: 'imediato', envioAdic: 'imediato', avalQtd: 4, tentativas: 5, bloqueio: 10 };
+  tempoMin: 3, tempoMax: 60, alertaTempo: true, envioAval: 'imediato', envioAdic: 'imediato', avalQtd: 4, tentativas: 5, bloqueio: 10,
+  alertaRiscoEmails: 'seguranca@pulse.com.br', whatsapp: false, prazoAcao: 24, suspeitas: true, suspeitaAcao: 'marcar' };
 
 // Série diária dos últimos 90 dias (Apto / Atenção / Risco nas perguntas principais)
 const SERIE = (() => {
@@ -683,6 +703,75 @@ const ADESAO = (() => {
   }).sort((a, b) => a.taxa - b.taxa);
 })();
 
+const hhmm = t => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+const somaMin = (hm, n) => { const [h, m] = hm.split(':').map(Number); return hhmm(h * 60 + m + n); };
+
+// Plano de ação de cada alerta (chave = posição em ALERTAS). Os mais recentes ainda aguardam ação.
+const ACAO_TIPOS = ['Conversa com o supervisor', 'Remanejado para outra função', 'Afastado das atividades no dia', 'Encaminhado à saúde ocupacional', 'Liberado após reavaliação'];
+const ACAO_ST = { pendente: 'Pendente', andamento: 'Em acompanhamento', concluido: 'Concluído' };
+const RESPONSAVEIS = ['Supervisor da equipe', 'RH da empresa', 'Segurança do trabalho (SESMT)'];
+const ACOES = {};
+ALERTAS.forEach((a, i) => {
+  if (i < 5 || i % 3 === 0) return;
+  const tipo = ACAO_TIPOS[i % ACAO_TIPOS.length], status = i % 2 ? 'concluido' : 'andamento', resp = RESPONSAVEIS[i % 3];
+  ACOES[i] = { status, tipo, resp, obs: '', registros: [{ hora: somaMin(a.hora, 6), texto: `${tipo} · ${ACAO_ST[status]}`, usuario: resp }] };
+});
+const acaoTag = i => {
+  const st = (ACOES[i] || {}).status || 'pendente';
+  return st === 'concluido' ? `<span class="notified">${icon('check')}Concluído</span>`
+    : st === 'andamento' ? '<span class="chip accent">Em acompanhamento</span>' : `<span class="chip">${icon('clock')}Pendente</span>`;
+};
+
+// Respostas suspeitas de hoje: padrões que indicam que o funcionário respondeu sem ler
+const SUSPEITAS = (() => {
+  const r = rng(313), out = [];
+  let min = 7 * 60 + 36;
+  for (let i = 0; i < 11; i++) {
+    const emp = EMPRESAS[Math.floor(r() * EMPRESAS.length)], k = r(), n = 8 + Math.floor(r() * 5);
+    const [motivo, detalhe] = k < .4 ? ['Todas as respostas iguais', `${n} de ${n} perguntas na mesma alternativa`]
+      : k < .75 ? ['Rápida demais', `média de ${(0.8 + r() * 1.6).toFixed(1).replace('.', ',')} s por pergunta`]
+      : ['Padrão alternado', 'alternativas em sequência repetida (1-5-1-5...)'];
+    out.push({ codigo: 'FUNC-' + String(Math.floor(r() * 90000) + 1000).padStart(5, '0'), empresa: emp.nome, hora: hhmm(min), motivo, detalhe, status: i > 7 ? 'reenviada' : 'revisar' });
+    min -= Math.round(3 + r() * 9);
+  }
+  return out;
+})();
+
+// Auditoria: quem fez o quê e quando. As ações desta sessão entram no topo.
+const AUDIT_TIPOS = { acesso: 'Acesso', empresas: 'Empresas', perguntas: 'Perguntas', configuracoes: 'Configurações', alertas: 'Alertas', exportacao: 'Exportação' };
+const usuarioAtual = () => store.get('pulse-user') || 'admin@pulse.com.br';
+const AUDIT = [
+  [0, '07:31', 'admin@pulse.com.br', 'acesso', 'Login no painel', 'Acesso pelo navegador'],
+  [0, '07:12', 'ana.ribeiro@pulse.com.br', 'alertas', 'Plano de ação registrado', `${ALERTAS[7].codigo} · ${ACAO_TIPOS[2]} · Concluído`],
+  [0, '06:58', 'ana.ribeiro@pulse.com.br', 'acesso', 'Login no painel', 'Acesso pelo navegador'],
+  [0, '06:00', 'sistema', 'alertas', 'Disparo diário executado', 'Perguntas enviadas a todas as empresas ativas'],
+  [1, '17:46', 'admin@pulse.com.br', 'exportacao', 'Relatório exportado (Excel)', 'Relatorio_Pulse_2026-10-06_a_2026-11-05.xlsx'],
+  [1, '16:20', 'admin@pulse.com.br', 'configuracoes', 'Configurações salvas', 'Alterado: faixa de Risco (35% para 39%)'],
+  [1, '16:02', 'admin@pulse.com.br', 'perguntas', 'Pergunta editada', 'Sono e descanso · "Quantas horas você dormiu na última noite?"'],
+  [1, '15:58', 'admin@pulse.com.br', 'perguntas', 'Senha master confirmada', 'Edição do Banco de Perguntas liberada'],
+  [1, '15:55', 'admin@pulse.com.br', 'acesso', 'Login no painel', 'Acesso pelo navegador'],
+  [1, '06:00', 'sistema', 'alertas', 'Disparo diário executado', 'Perguntas enviadas a todas as empresas ativas'],
+  [2, '14:37', 'ana.ribeiro@pulse.com.br', 'empresas', 'Empresa editada', 'Logística Atlântico · e-mail de acesso alterado'],
+  [2, '11:05', 'admin@pulse.com.br', 'empresas', 'Empresa cadastrada', 'Ferrovia Trilhos do Sul'],
+  [2, '10:41', 'admin@pulse.com.br', 'acesso', 'Tentativa de login recusada', 'Senha incorreta (1 de 5 tentativas)'],
+  [2, '06:00', 'sistema', 'alertas', 'Disparo diário executado', 'Perguntas enviadas a todas as empresas ativas'],
+  [3, '18:12', 'ana.ribeiro@pulse.com.br', 'perguntas', 'Pergunta criada', 'Saúde e condição física · "Você se alimentou antes de iniciar o turno?"'],
+  [3, '09:30', 'admin@pulse.com.br', 'configuracoes', 'Configurações salvas', 'Alterado: tempo mínimo (2 s para 3 s)'],
+  [3, '06:00', 'sistema', 'alertas', 'Disparo diário executado', 'Perguntas enviadas a todas as empresas ativas'],
+  [4, '16:44', 'admin@pulse.com.br', 'exportacao', 'Resumo do Dashboard exportado (PDF)', 'Todas as empresas · últimos 30 dias'],
+  [4, '08:15', 'ana.ribeiro@pulse.com.br', 'empresas', 'Empresa inativada', 'Têxtil Fio de Ouro'],
+  [5, '13:22', 'suporte@pulse.com.br', 'acesso', 'Acesso bloqueado', '5 tentativas erradas · liberado após 10 min'],
+  [6, '10:03', 'admin@pulse.com.br', 'perguntas', 'Grupo editado', 'Percepção visual · descrição atualizada']
+].map(([dias, hora, usuario, tipo, acao, detalhe]) => {
+  const [h, m] = hora.split(':').map(Number);
+  return { data: new Date(2026, 10, 6 - dias, h, m), usuario, tipo, acao, detalhe };
+});
+let auditMin = 7 * 60 + 42;
+function audit(tipo, acao, detalhe = '') {
+  auditMin++; // o relógio do protótipo avança 1 minuto por ação registrada
+  AUDIT.unshift({ data: new Date(2026, 10, 6, Math.floor(auditMin / 60), auditMin % 60), usuario: usuarioAtual(), tipo, acao, detalhe });
+}
+
 /* ============ Componentes globais ============ */
 // Modais empilháveis: closeLayer fecha só o de cima
 function closeLayer() { const b = $('#layer').lastElementChild; if (b) b.remove(); if (!$('#layer').children.length) document.removeEventListener('keydown', escClose); }
@@ -720,7 +809,8 @@ function initLogin() {
     const err = $('#loginError');
     if (!em || !pw) { err.textContent = 'Informe e-mail e senha para continuar.'; err.hidden = false; return; }
     if (!/^\S+@\S+\.\S+$/.test(em)) { err.textContent = 'Digite um e-mail válido, como nome@empresa.com.br.'; err.hidden = false; return; }
-    err.hidden = true; store.set('pulse-auth', '1'); showApp();
+    err.hidden = true; store.set('pulse-auth', '1'); store.set('pulse-user', em.toLowerCase());
+    audit('acesso', 'Login no painel', 'Acesso pelo navegador'); showApp();
   });
   $('#forgotBtn').addEventListener('click', () => {
     const m = openModal({
@@ -763,7 +853,8 @@ const ROUTES = {
   funcionarios: { label: 'Funcionários', render: renderFuncionarios },
   perguntas: { label: 'Banco de Perguntas', render: renderPerguntas },
   configuracoes: { label: 'Configurações', render: renderConfig },
-  relatorios: { label: 'Relatórios', render: renderRelatorios }
+  relatorios: { label: 'Relatórios', render: renderRelatorios },
+  auditoria: { label: 'Auditoria', render: renderAuditoria }
 };
 let charts = [], rotaAtual = 'dashboard';
 function buildNav() {
@@ -809,7 +900,11 @@ function renderDashboard(v) {
   const delta = (a, b) => b ? Math.round((a / b - 1) * 100) : 0;
   const seta = (d, ruimSubir) => `<span class="delta ${(d >= 0) === !ruimSubir ? 'up' : 'down'}">${d >= 0 ? '▲' : '▼'} ${Math.abs(d)}%</span>`;
   const dataExt = HOJE.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const vazio = txt => `<tr><td colspan="6" class="empty">${txt}</td></tr>`;
+  const vazio = txt => `<tr><td colspan="7" class="empty">${txt}</td></tr>`;
+  const semPlano = alertas.filter(a => !ACOES[ALERTAS.indexOf(a)] || ACOES[ALERTAS.indexOf(a)].status === 'pendente').length;
+  const susp = SUSPEITAS.filter(x => !emp || x.empresa === emp.nome), suspRevisar = susp.filter(x => x.status === 'revisar').length;
+  const subAlerta = { resultado: `Supervisores notificados na hora · ${semPlano} sem plano de ação`, tempo: `Respostas fora do limite de ${CFG.tempoMin} s a ${CFG.tempoMax} s por pergunta`,
+    suspeitas: 'Padrões que indicam resposta sem leitura · revise ou reenvie a avaliação' };
   v.innerHTML = `
   <div class="page-head">
     <div><h1>Visão geral</h1><p>${dataExt.charAt(0).toUpperCase() + dataExt.slice(1)} · atualizado às 07:42${emp ? ' · ' + esc(emp.nome) : ''}</p></div>
@@ -856,17 +951,23 @@ function renderDashboard(v) {
   <section class="grid-2">
     <article class="card">
       <div class="card-head">
-        <div><h2>Últimos alertas</h2><p>${alertaModo === 'resultado' ? 'Supervisores notificados na hora · clique para ver o histórico' : `Respostas fora do limite de ${CFG.tempoMin} s a ${CFG.tempoMax} s por pergunta`}</p></div>
+        <div><h2>Últimos alertas</h2><p>${subAlerta[alertaModo]}</p></div>
         <div class="page-actions">
-          <div class="seg" id="segAlerta" role="group" aria-label="Tipo de alerta"><button type="button" data-v="resultado" aria-pressed="${alertaModo === 'resultado'}">Resultado (${alertas.length})</button><button type="button" data-v="tempo" aria-pressed="${alertaModo === 'tempo'}">Tempo de resposta (${tempoHoje.length})</button></div>
+          <div class="seg" id="segAlerta" role="group" aria-label="Tipo de alerta"><button type="button" data-v="resultado" aria-pressed="${alertaModo === 'resultado'}">Resultado (${alertas.length})</button><button type="button" data-v="tempo" aria-pressed="${alertaModo === 'tempo'}">Tempo (${tempoHoje.length})</button><button type="button" data-v="suspeitas" aria-pressed="${alertaModo === 'suspeitas'}">Suspeitas (${CFG.suspeitas ? suspRevisar : 0})</button></div>
           ${alertaModo === 'resultado' && alertas.length ? `<button class="btn btn-sm" id="verTodos">Ver todos ${icon('chev')}</button>` : ''}
         </div>
       </div>
       <div class="card-body" style="padding-inline:0;padding-bottom:4px"><div class="table-wrap"><table>
-        ${alertaModo === 'resultado' ? `<thead><tr><th>Funcionário</th><th>Empresa</th><th>Data/hora</th><th>Etapa</th><th>Pontuação</th><th>Classificação</th></tr></thead>
+        ${alertaModo === 'resultado' ? `<thead><tr><th>Funcionário</th><th>Empresa</th><th>Data/hora</th><th>Etapa</th><th>Pontuação</th><th>Classificação</th><th>Plano de ação</th></tr></thead>
           <tbody id="alertRows">${alertas.length ? alertas.slice(0, 8).map(a => `<tr data-i="${ALERTAS.indexOf(a)}" tabindex="0">
             <td><span class="code">${a.codigo}</span></td><td>${esc(a.empresa)}<span class="sub">${a.setor}</span></td>
-            <td class="num">06/11/2026 <span style="color:var(--fg-3)">${a.hora}</span></td><td>${a.etapa}</td><td class="num">${a.pont}%</td><td>${pill(a.classe)}</td></tr>`).join('') : vazio('Nenhum alerta de resultado hoje para esta empresa.')}</tbody>`
+            <td class="num">06/11/2026 <span style="color:var(--fg-3)">${a.hora}</span></td><td>${a.etapa}</td><td class="num">${a.pont}%</td><td>${pill(a.classe)}</td><td>${acaoTag(ALERTAS.indexOf(a))}</td></tr>`).join('') : vazio('Nenhum alerta de resultado hoje para esta empresa.')}</tbody>`
+        : alertaModo === 'suspeitas' ? `<thead><tr><th>Funcionário</th><th>Empresa</th><th>Hora</th><th>Motivo</th><th>Detalhe</th><th>Situação</th></tr></thead>
+          <tbody class="static" id="suspRows">${!CFG.suspeitas ? vazio('A detecção de respostas suspeitas está desligada nas Configurações.') : susp.length ? susp.slice(0, 8).map(x => `<tr>
+            <td><span class="code">${x.codigo}</span></td><td>${esc(x.empresa)}</td><td class="num">${x.hora}</td><td><span class="pill atencao">${x.motivo}</span></td>
+            <td class="trunc" title="${esc(x.detalhe)}">${esc(x.detalhe)}</td>
+            <td>${x.status === 'reenviada' ? `<span class="notified">${icon('check')}Avaliação reenviada</span>` : x.status === 'valida' ? '<span class="chip">Mantida como válida</span>'
+              : `<div class="row-btns"><button class="btn btn-sm" type="button" data-s="${SUSPEITAS.indexOf(x)}" data-a="reenviar">Reenviar</button><button class="btn btn-sm" type="button" data-s="${SUSPEITAS.indexOf(x)}" data-a="valida">Manter</button></div>`}</td></tr>`).join('') : vazio('Nenhuma resposta suspeita hoje.')}</tbody>`
         : `<thead><tr><th>Funcionário</th><th>Empresa</th><th>Hora</th><th>Pergunta</th><th style="text-align:right">Tempo</th><th>Desvio</th></tr></thead>
           <tbody class="static">${tempoHoje.length ? tempoHoje.slice(0, 8).map(x => `<tr>
             <td><span class="code">${x.codigo}</span></td><td>${esc(x.empresa)}</td><td class="num">${x.data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
@@ -888,14 +989,22 @@ function renderDashboard(v) {
     $('#alertRows').addEventListener('click', abrirAlerta);
     $('#alertRows').addEventListener('keydown', e => { if (e.key === 'Enter') abrirAlerta(e); });
   }
+  if ($('#suspRows')) $('#suspRows').addEventListener('click', e => {
+    const b = e.target.closest('button[data-s]'); if (!b) return;
+    const x = SUSPEITAS[b.dataset.s], reenviar = b.dataset.a === 'reenviar';
+    x.status = reenviar ? 'reenviada' : 'valida';
+    audit('alertas', reenviar ? 'Avaliação reenviada (resposta suspeita)' : 'Resposta suspeita mantida como válida', `${x.codigo} · ${x.motivo}`);
+    renderDashboard(v);
+    toast(reenviar ? `Avaliação reenviada para ${x.codigo}.` : `Resposta de ${x.codigo} mantida como válida.`);
+  });
   if ($('#verTodos')) $('#verTodos').addEventListener('click', () => {
     const m = openModal({ title: 'Alertas de hoje', sub: `${alertas.length} alertas mais recentes · supervisores notificados`, width: 780,
-      body: `<div class="table-wrap"><table><thead><tr><th>Funcionário</th><th>Empresa</th><th>Hora</th><th>Etapa</th><th>Pontuação</th><th>Classificação</th></tr></thead><tbody>
-        ${alertas.map(a => `<tr data-i="${ALERTAS.indexOf(a)}" tabindex="0"><td><span class="code">${a.codigo}</span></td><td>${esc(a.empresa)}</td><td class="num">${a.hora}</td><td>${a.etapa}</td><td class="num">${a.pont}%</td><td>${pill(a.classe)}</td></tr>`).join('')}</tbody></table></div>`,
+      body: `<div class="table-wrap"><table><thead><tr><th>Funcionário</th><th>Empresa</th><th>Hora</th><th>Etapa</th><th>Pontuação</th><th>Classificação</th><th>Plano de ação</th></tr></thead><tbody>
+        ${alertas.map(a => `<tr data-i="${ALERTAS.indexOf(a)}" tabindex="0"><td><span class="code">${a.codigo}</span></td><td>${esc(a.empresa)}</td><td class="num">${a.hora}</td><td>${a.etapa}</td><td class="num">${a.pont}%</td><td>${pill(a.classe)}</td><td>${acaoTag(ALERTAS.indexOf(a))}</td></tr>`).join('')}</tbody></table></div>`,
       foot: `<button class="btn" data-close>Fechar</button>` });
     m.querySelector('tbody').addEventListener('click', e => { const tr = e.target.closest('tr'); if (tr) alertDetail(ALERTAS[tr.dataset.i], true); });
   });
-  $('#dashExport').addEventListener('click', () => toast('Resumo exportado em PDF (simulação).'));
+  $('#dashExport').addEventListener('click', () => { audit('exportacao', 'Resumo do Dashboard exportado (PDF)', `${emp ? emp.nome : 'Todas as empresas'} · últimos ${periodo} dias`); toast('Resumo exportado em PDF (simulação).'); });
   $('#dashEmpresa').addEventListener('change', e => { dashEmp = e.target.value; renderDashboard(v); });
   $('#segPeriodo').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { periodo = +b.dataset.v; renderDashboard(v); } });
   $('#segAlerta').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { alertaModo = b.dataset.v; renderDashboard(v); } });
@@ -977,9 +1086,10 @@ function alertDetail(a, stack = false) {
   if (idx >= 1) passos.push({ when: hm(idx === 2 ? 14 : 7), etapa: 'Principais', pont: 58 + (a.pont % 5), classe: 'atencao' });
   if (idx >= 2) passos.push({ when: hm(7), etapa: 'Avaliação', pont: 49 + (a.pont % 4), classe: 'atencao' });
   passos.push({ when: a.hora, etapa: a.etapa, pont: a.pont, classe: a.classe });
+  const i = ALERTAS.indexOf(a), plano = ACOES[i] || { status: 'pendente', tipo: '', resp: RESPONSAVEIS[0], obs: '', registros: [] };
   const prox = a.etapa === 'Adicionais' ? 'Ciclo concluído · acompanhamento presencial do supervisor' : `Perguntas ${a.etapa === 'Principais' ? 'de Avaliação' : 'Adicionais'} enviadas imediatamente`;
-  openModal({
-    title: a.codigo, sub: `${a.empresa} · ${a.setor}`, stack,
+  const md = openModal({
+    title: a.codigo, sub: `${a.empresa} · ${a.setor}`, stack, width: 620,
     body: `
       <dl class="kv" style="margin:0">
         <div><dt>Classificação final</dt><dd>${pill(a.classe)}</dd></div>
@@ -992,8 +1102,31 @@ function alertDetail(a, stack = false) {
           ${passos.map(p => `<div class="tl-item ${p.classe}"><span class="when">${p.when}</span><span class="what">${p.etapa} · ${p.pont}% ${pill(p.classe)}</span></div>`).join('')}
           <div class="tl-item"><span class="when">Próximo passo</span><span class="what" style="font-weight:400;color:var(--fg-2)">${prox}</span></div>
         </div></div>
+      <div class="acao-box">
+        <div class="acao-head"><b>Plano de ação</b>${acaoTag(i)}</div>
+        <div class="form-grid">
+          <div class="field span-3"><label for="aTipo">Ação tomada</label><select class="input" id="aTipo"><option value="">Selecione…</option>${ACAO_TIPOS.map(t => `<option ${t === plano.tipo ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+          <div class="field span-3"><label for="aResp">Responsável</label><select class="input" id="aResp">${RESPONSAVEIS.map(t => `<option ${t === plano.resp ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+          <div class="field span-6"><span class="flabel">Situação</span><div class="seg" id="aSt" role="group" aria-label="Situação do plano de ação">${Object.entries(ACAO_ST).map(([k, l]) => `<button type="button" data-v="${k}" aria-pressed="${k === plano.status}">${l}</button>`).join('')}</div></div>
+          <div class="field span-6"><label for="aObs">Observação <span class="hint">(opcional, sem dados pessoais)</span></label><textarea class="input" id="aObs" rows="2" placeholder="Ex.: conversa feita no início do turno, funcionário remanejado para a expedição">${esc(plano.obs)}</textarea></div>
+        </div>
+        <p class="form-error" id="aErro" hidden>Escolha a ação tomada para marcar o plano como em acompanhamento ou concluído.</p>
+        ${plano.registros.length ? `<div class="acao-log">${plano.registros.map(r => `<div><span>${r.hora}</span><span>${esc(r.texto)} · ${esc(r.usuario)}</span></div>`).join('')}</div>`
+          : `<span class="hint">Registre a ação em até ${CFG.prazoAcao} h após o alerta. Fica no histórico do código e na auditoria.</span>`}
+      </div>
       <div class="lgpd-box">${icon('shield')}<span>Por LGPD, o Admin Master vê apenas o código do funcionário. Nome e contato ficam visíveis somente para o supervisor da empresa.</span></div>`,
-    foot: `<button class="btn btn-primary" data-close>Fechar</button>`
+    foot: `<button class="btn" type="button" id="aHist">${icon('calendar')}Histórico de 30 dias</button><button class="btn" data-close>Fechar</button><button class="btn btn-primary" type="button" id="aSalvar">Salvar plano de ação</button>`
+  });
+  $('#aSt', md).addEventListener('click', e => { const b = e.target.closest('button'); if (b) $('#aSt', md).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+  $('#aHist', md).addEventListener('click', () => funcDetail(FUNCS.find(x => x.codigo === a.codigo)
+    || { codigo: a.codigo, seed: +a.codigo.slice(5), empresa: a.empresa, equipe: a.setor, tipo: 'Normal', status: 'ativo', lgpd: 'aceito', hoje: a.classe, hora: a.hora }, true));
+  $('#aSalvar', md).addEventListener('click', () => {
+    const status = $('#aSt [aria-pressed="true"]', md).dataset.v, tipo = $('#aTipo', md).value, resp = $('#aResp', md).value, obs = $('#aObs', md).value.trim();
+    if (status !== 'pendente' && !tipo) { $('#aErro', md).hidden = false; $('#aTipo', md).classList.add('invalid'); $('#aTipo', md).focus(); return; }
+    audit('alertas', 'Plano de ação registrado', `${a.codigo} · ${tipo || 'sem ação definida'} · ${ACAO_ST[status]}`);
+    ACOES[i] = { status, tipo, resp, obs, registros: [...plano.registros, { hora: hhmm(auditMin), texto: `${tipo || 'Sem ação definida'} · ${ACAO_ST[status]}${obs ? ' · ' + obs : ''}`, usuario: usuarioAtual() }] };
+    closeAll(); if (rotaAtual === 'dashboard') renderDashboard($('#view'));
+    toast(`Plano de ação de ${a.codigo} salvo.`);
   });
 }
 
@@ -1105,6 +1238,7 @@ function empModal(emp) {
     const dados = { status: $('#fStatus').checked ? 'ativa' : 'inativa', nome: val('fNome'), cnpj: val('fCnpj'), email: val('fEmail'), cep: val('fCep'), rua: val('fRua'), bairro: val('fBairro'), cidade: val('fCidade') || '—', uf: $('#fUF').value };
     if (novo) EMP.push({ id: Math.max(...EMP.map(x => x.id)) + 1, func: 0, desde: HOJE.toLocaleDateString('pt-BR'), ...dados });
     else Object.assign(emp, dados);
+    audit('empresas', novo ? 'Empresa cadastrada' : 'Empresa editada', dados.nome);
     closeLayer(); renderEmpresas($('#view'));
     toast(novo ? `${dados.nome} cadastrada. O acesso foi enviado para ${dados.email}.` : `Alterações em ${dados.nome} salvas.`);
   });
@@ -1187,31 +1321,61 @@ function drawFRows() {
   $('#fPager').innerHTML = `<span>${fmt(lista.length)} funcionários · página ${fPage} de ${fmt(pages)}</span>
     <div class="btns"><button class="btn btn-sm" type="button" data-p="${fPage - 1}" ${fPage === 1 ? 'disabled' : ''}>Anterior</button><button class="btn btn-sm" type="button" data-p="${fPage + 1}" ${fPage === pages ? 'disabled' : ''}>Próxima</button></div>`;
 }
-function funcDetail(x) {
-  const r = rng(x.seed);
-  const dias = SERIE.slice(-14).map((s, i) => {
-    if (i === 13) return { d: s.d, res: x.hoje };
-    if (x.status !== 'ativo' || (s.d.getDay() % 6 === 0 && r() < .6)) return { d: s.d, res: 'nao' };
-    const y = r(); return { d: s.d, res: y < .08 ? 'nao' : y < .14 ? 'atencao' : y < .16 ? 'risco' : 'apto' };
+function funcDetail(x, stack = false) {
+  const r = rng(x.seed), N = 30, negativo = x.hoje === 'atencao' || x.hoje === 'risco';
+  const classe = p => p <= CFG.faixaRisco ? 'risco' : p <= CFG.faixaAtencao ? 'atencao' : 'apto';
+  const dias = SERIE.slice(-N).map((s, i) => {
+    if (i === N - 1) return { d: s.d, res: x.hoje, pont: x.hoje === 'nao' ? null : { apto: 82, atencao: 58, risco: 31 }[x.hoje] + Math.floor(r() * 8) };
+    if (x.status !== 'ativo' || (s.d.getDay() % 6 === 0 && r() < .6) || r() < .06) return { d: s.d, res: 'nao', pont: null };
+    // quem está em alerta hoje costuma vir caindo nos dias anteriores
+    const queda = negativo && i >= N - 8 ? (i - (N - 8)) * 3.4 : 0;
+    const pont = Math.max(12, Math.min(98, Math.round(80 + (r() - .5) * 24 - queda - (r() < .05 ? 28 : 0))));
+    return { d: s.d, res: classe(pont), pont };
   });
+  const media = l => { const v = l.filter(d => d.pont != null).map(d => d.pont); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+  const m7 = media(dias.slice(-7)), mAnt = media(dias.slice(0, -7)), dif = m7 != null && mAnt != null ? m7 - mAnt : 0;
+  const [tCls, tTxt] = dif <= -5 ? ['down', '▼ Tendência de piora'] : dif >= 5 ? ['up', '▲ Melhorando'] : ['flat', 'Estável'];
   const resp = dias.filter(d => d.res !== 'nao').length, tMed = (5 + r() * 9).toFixed(1).replace('.', ','), desvios = Math.floor(r() * 3);
   const rot = { apto: 'Apto', atencao: 'Atenção', risco: 'Risco', nao: 'Não respondeu' };
-  openModal({
-    title: x.codigo, sub: `${esc(x.empresa)} · ${x.equipe}`, width: 580,
+  const m = openModal({
+    title: x.codigo, sub: `${esc(x.empresa)} · ${x.equipe}`, width: 620, stack,
     body: `<dl class="kv" style="margin:0">
         <div><dt>Tipo</dt><dd>${x.tipo}</dd></div>
         <div><dt>Status</dt><dd><span class="pill ${x.status === 'ativo' ? 'on' : 'off'}">${x.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></dd></div>
         <div><dt>Termo LGPD e consentimento</dt><dd>${x.lgpd === 'aceito' ? 'Aceitos no 1º acesso' : 'Pendente (ainda não acessou o app)'}</dd></div>
         <div><dt>Tempo médio por resposta</dt><dd class="num">${tMed} s · ${desvios} desvio${desvios === 1 ? '' : 's'} no mês</dd></div>
       </dl>
-      <div><div class="hint" style="margin-bottom:8px">Últimos 14 dias · respondeu em ${resp} de 14 dias</div>
-        <div class="hist">${dias.map(d => `<i class="${d.res}" title="${d.d.toLocaleDateString('pt-BR')}: ${rot[d.res]}"></i>`).join('')}</div>
+      <div><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+          <span class="hint">Pontuação nos últimos 30 dias · respondeu em ${resp} de 30</span>
+          ${m7 != null ? `<span class="trend ${tCls}" title="Média dos últimos 7 dias comparada com os 23 anteriores">${tTxt} · ${Math.round(m7)}% na semana${mAnt != null ? ` (antes ${Math.round(mAnt)}%)` : ''}</span>` : ''}</div>
+        <div class="mini-chart"><canvas aria-label="Pontuação diária do funcionário nos últimos 30 dias"></canvas></div></div>
+      <div><div class="hint" style="margin-bottom:8px">Resultado por dia</div>
+        <div class="hist d30">${dias.map(d => `<i class="${d.res}" title="${d.d.toLocaleDateString('pt-BR')}: ${rot[d.res]}"></i>`).join('')}</div>
         <div class="hist-lbl"><span>${dias[0].d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</span><span>Hoje</span></div>
         <div class="legend" style="margin-top:10px"><span><i style="background:var(--ok)"></i>Apto</span><span><i style="background:var(--warn)"></i>Atenção</span><span><i style="background:var(--risk)"></i>Risco</span><span><i style="background:var(--surface-2);border:1px dashed var(--line-strong)"></i>Não respondeu</span></div>
       </div>
       <div class="lgpd-box">${icon('shield')}<span>A pontuação numérica nunca é mostrada ao funcionário. O supervisor vê apenas a classificação, sem as respostas.</span></div>`,
     foot: `<button class="btn btn-primary" data-close>Fechar</button>`
   });
+  if (!window.Chart) return;
+  const cor = { apto: cssVar('--ok'), atencao: cssVar('--warn'), risco: cssVar('--risk') }, grid = cssVar('--chart-grid'), tick = cssVar('--fg-3');
+  const faixa = (v, c) => ({ data: dias.map(() => v), borderColor: c, borderWidth: 1, borderDash: [4, 4], pointRadius: 0, pointHoverRadius: 0, fill: false });
+  charts.push(new Chart(m.querySelector('canvas'), {
+    type: 'line',
+    data: { labels: dias.map(d => d.d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })), datasets: [
+      { data: dias.map(d => d.pont), borderColor: cssVar('--fg-3'), borderWidth: 1.5, spanGaps: true, tension: .25,
+        pointRadius: 3.5, pointBackgroundColor: dias.map(d => cor[d.res] || 'transparent'), pointBorderWidth: 0 },
+      faixa(CFG.faixaAtencao, cor.atencao), faixa(CFG.faixaRisco, cor.risco)] },
+    options: {
+      maintainAspectRatio: false, animation: { duration: 250 },
+      plugins: { legend: { display: false }, tooltip: { filter: c => c.datasetIndex === 0, backgroundColor: cssVar('--fg'), titleColor: cssVar('--bg'), bodyColor: cssVar('--bg'),
+        callbacks: { label: c => ` ${c.raw}% · ${classeLabel[classe(c.raw)]}` } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tick, maxRotation: 0, autoSkipPadding: 12, font: { size: 10 } }, border: { color: grid } },
+        y: { min: 0, max: 100, grid: { color: grid }, border: { display: false }, ticks: { color: tick, stepSize: 25, font: { size: 10 }, callback: v => v + '%' } }
+      }
+    }
+  }));
 }
 
 /* ============ Banco de Perguntas ============ */
@@ -1365,7 +1529,7 @@ function comMaster(fn) {
     foot: `<button class="btn" data-close>Cancelar</button><button class="btn btn-primary" id="mOk">Liberar edição</button>` });
   const ok = () => {
     if (!$('#mPass').value) { $('#mErro').hidden = false; $('#mPass').classList.add('invalid'); return; }
-    masterOk = true; closeLayer(); renderPerguntas($('#view')); fn();
+    masterOk = true; audit('perguntas', 'Senha master confirmada', 'Edição do Banco de Perguntas liberada'); closeLayer(); renderPerguntas($('#view')); fn();
   };
   $('#mOk').addEventListener('click', ok);
   $('#mPass').addEventListener('keydown', e => { if (e.key === 'Enter') ok(); });
@@ -1431,6 +1595,7 @@ function grupoModal(g) {
     if (tit.length < 3) { $('#gErro').hidden = false; $('#gTit').classList.add('invalid'); $('#gTit').focus(); return; }
     const dados = { titulo: tit, tipo: $('input[name=gTipo]:checked').value, desc: $('#gDesc').value.trim(), status: $('#gSt').checked ? 'ativo' : 'inativo' };
     if (novo) GRUPOS.push({ id: 'g' + Date.now(), sorteio: 1, ...dados }); else Object.assign(g, dados);
+    audit('perguntas', novo ? 'Grupo criado' : 'Grupo editado', tit);
     closeLayer(); renderPerguntas($('#view')); toast(novo ? `Grupo "${tit}" criado.` : 'Grupo atualizado.');
   });
 }
@@ -1548,6 +1713,7 @@ function qModal(p) {
     d.alts.forEach((a, i) => $('#qAlt' + i).classList.toggle('invalid', !a.t));
     if (msg) { err.textContent = msg; err.hidden = false; return; }
     if (novo) PERGUNTAS.push({ ...d, id: ++qid }); else Object.assign(p, d);
+    audit('perguntas', novo ? 'Pergunta criada' : 'Pergunta editada', `${(GRUPOS.find(g => g.id === d.grupo) || {}).titulo || TIPO_NOME[d.tipo]} · "${d.titulo}"`);
     closeLayer(); renderPerguntas($('#view')); toast(novo ? 'Pergunta criada.' : 'Pergunta salva.');
   });
 }
@@ -1572,6 +1738,10 @@ function preview(p, stack = false) {
 }
 
 /* ============ Configurações ============ */
+const ROT_CFG = { horario: 'horário do disparo', janela: 'prazo para responder', dias: 'dias da semana', lembrete: 'lembrete', notifEmail: 'e-mail ao supervisor',
+  faixaRisco: 'faixa de Risco', faixaAtencao: 'faixa de Atenção', tempoMin: 'tempo mínimo', tempoMax: 'tempo máximo', alertaTempo: 'alerta de desvio de tempo',
+  envioAval: 'envio da Avaliação', envioAdic: 'envio das Adicionais', tentativas: 'tentativas de login', bloqueio: 'tempo de bloqueio',
+  alertaRiscoEmails: 'cópia dos alertas de Risco', whatsapp: 'alertas por WhatsApp', prazoAcao: 'prazo do plano de ação', suspeitas: 'detecção de respostas suspeitas', suspeitaAcao: 'ação para respostas suspeitas' };
 function renderConfig(v) {
   const d = JSON.parse(JSON.stringify({ ...CFG, sorteio: Object.fromEntries(GRUPOS.map(g => [g.id, g.sorteio])) }));
   const DIAS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -1624,6 +1794,16 @@ function renderConfig(v) {
         <div class="cfg-row"><div class="lbl"><b>Tempo de bloqueio</b><span>Depois disso, o acesso é liberado de novo</span></div>${numero('cBloq', d.bloqueio, 'min', 5, 1440)}</div>
       </div></article>
 
+    <article class="card span-all"><div class="card-head"><div><h2>Alertas e respostas suspeitas</h2><p>Quem é avisado de um Risco e como o sistema trata respostas dadas sem leitura</p></div></div>
+      <div class="card-body">
+          <div class="cfg-row" style="flex-direction:column;align-items:stretch;gap:8px"><div class="lbl"><b>Cópia dos alertas de Risco</b><span>Além do supervisor. Separe vários e-mails por vírgula</span></div><input class="input" id="cEmails" value="${esc(d.alertaRiscoEmails)}" placeholder="seguranca@empresa.com.br"></div>
+          <div class="cfg-row"><div class="lbl"><b>Enviar alertas também por WhatsApp</b><span>Opcional · requer a contratação da API do WhatsApp</span></div><label class="switch"><input type="checkbox" id="cWhats" ${d.whatsapp ? 'checked' : ''}><span class="sr">Enviar alertas por WhatsApp</span></label></div>
+          <div class="cfg-row"><div class="lbl"><b>Prazo para o plano de ação</b><span>Depois de um alerta de Atenção ou Risco</span></div>${numero('cPrazo', d.prazoAcao, 'horas', 1, 72)}</div>
+          <div class="cfg-row"><div class="lbl"><b>Detectar respostas suspeitas</b><span>Todas iguais, padrão alternado ou média abaixo do tempo mínimo</span></div><label class="switch"><input type="checkbox" id="cSusp" ${d.suspeitas ? 'checked' : ''}><span class="sr">Detectar respostas suspeitas</span></label></div>
+          <div class="cfg-row" style="flex-direction:column;align-items:stretch;gap:8px"><div class="lbl"><b>Ao detectar</b><span>O que acontece com a avaliação suspeita</span></div>
+            <select class="input" id="cSuspAcao"><option value="marcar" ${d.suspeitaAcao === 'marcar' ? 'selected' : ''}>Marcar para revisão no Dashboard</option><option value="reenviar" ${d.suspeitaAcao === 'reenviar' ? 'selected' : ''}>Reenviar a avaliação automaticamente</option></select></div>
+      </div></article>
+
     <article class="card span-all"><div class="card-head"><div><h2>Envio das etapas seguintes</h2><p>Quando o funcionário recebe as perguntas extras depois de um resultado negativo</p></div></div>
       <div class="card-body cfg-grid" style="gap:20px">
         ${etapa('envioAval', 'Perguntas de Avaliação', 'Após Atenção ou Risco nas perguntas principais · 4 perguntas fixas')}
@@ -1640,6 +1820,8 @@ function renderConfig(v) {
     d.tempoMin = +$('#cTMin').value; d.tempoMax = +$('#cTMax').value; d.tentativas = +$('#cTent').value; d.bloqueio = +$('#cBloq').value;
     d.lembrete = $('#cLemb').checked; d.notifEmail = $('#cMail').checked; d.alertaTempo = $('#cAlertT').checked;
     d.envioAval = $('input[name=envioAval]:checked').value; d.envioAdic = $('input[name=envioAdic]:checked').value;
+    d.alertaRiscoEmails = $('#cEmails').value.trim(); d.whatsapp = $('#cWhats').checked; d.prazoAcao = +$('#cPrazo').value;
+    d.suspeitas = $('#cSusp').checked; d.suspeitaAcao = $('#cSuspAcao').value;
   };
   const drawRange = () => {
     const r = d.faixaRisco, a = d.faixaAtencao, ok = r >= 1 && a > r && a < 100;
@@ -1665,9 +1847,14 @@ function renderConfig(v) {
       : !d.dias.length ? 'Selecione pelo menos um dia de disparo.'
       : (t => t < 8 || t > 12)(Object.values(d.sorteio).reduce((a, n) => a + n, 0)) ? 'O total sorteado precisa ficar entre 8 e 12 perguntas por dia.'
       : !(d.tempoMin > 0 && d.tempoMax > 0) || d.tempoMin >= d.tempoMax ? 'O tempo mínimo precisa ser menor que o tempo máximo.'
-      : !(d.tentativas >= 1) ? 'Informe pelo menos 1 tentativa de login.' : '';
+      : !(d.tentativas >= 1) ? 'Informe pelo menos 1 tentativa de login.'
+      : d.alertaRiscoEmails && d.alertaRiscoEmails.split(',').some(x => !/^\S+@\S+\.\S+$/.test(x.trim())) ? 'Confira os e-mails que recebem cópia dos alertas de Risco.'
+      : !(d.prazoAcao >= 1 && d.prazoAcao <= 72) ? 'O prazo do plano de ação precisa ficar entre 1 e 72 horas.' : '';
     if (erro) { $('#saveMsg').innerHTML = icon('warn') + erro; return; }
     const { sorteio, ...resto } = d;
+    const mud = Object.keys(resto).filter(k => JSON.stringify(resto[k]) !== JSON.stringify(CFG[k])).map(k => ROT_CFG[k] || k);
+    if (GRUPOS.some(g => g.sorteio !== sorteio[g.id])) mud.unshift('sorteio de perguntas');
+    audit('configuracoes', 'Configurações salvas', mud.length ? 'Alterado: ' + mud.join(', ') : 'Sem mudança de valores');
     Object.assign(CFG, resto);
     GRUPOS.forEach(g => { g.sorteio = sorteio[g.id]; });
     $('#saveBar').hidden = true;
@@ -1870,12 +2057,82 @@ function exportar(tipo) {
   passos.forEach(([w, txt], i) => setTimeout(() => {
     if (!m.isConnected) return;
     $('#expBar').style.width = w + '%'; $('#expTxt').textContent = txt;
-    if (w === 100) setTimeout(() => { if (m.isConnected) { closeLayer(); toast(`${nome} gerado (simulação).`); } }, 400);
+    if (w === 100) setTimeout(() => { if (m.isConnected) { audit('exportacao', `Relatório exportado (${tipo})`, nome); closeLayer(); toast(`${nome} gerado (simulação).`); } }, 400);
   }, 500 * (i + 1)));
+}
+
+/* ============ Auditoria ============ */
+let auQ = '', auTipo = 'todos', auUser = 'todos', auPage = 1;
+const AU_POR_PAG = 15;
+function renderAuditoria(v) {
+  const usuarios = [...new Set(AUDIT.map(a => a.usuario))].filter(u => u !== 'sistema').sort();
+  const hoje = AUDIT.filter(a => toISO(a.data) === MAX_DATA).length, regras = AUDIT.filter(a => a.tipo === 'configuracoes' || a.tipo === 'perguntas').length;
+  const opt = (val, lista) => lista.map(([k, l]) => `<option value="${esc(k)}" ${k === val ? 'selected' : ''}>${esc(l)}</option>`).join('');
+  v.innerHTML = `
+  <div class="page-head"><div><h1>Auditoria</h1><p>Quem fez o quê e quando no painel. O registro não pode ser editado nem apagado.</p></div>
+    <div class="page-actions"><button class="btn" id="auExp">${icon('download')}Exportar registro</button></div></div>
+  <section class="kpis k4">
+    ${kpi('auditoria', 'Ações registradas', fmt(AUDIT.length), '', '<span>últimos 7 dias</span>')}
+    ${kpi('calendar', 'Ações hoje', fmt(hoje), '', '<span>06/11/2026</span>')}
+    ${kpi('users', 'Usuários do painel', fmt(usuarios.length), '', '<span>com acesso ao Admin Master</span>')}
+    ${kpi('configuracoes', 'Mudanças de regras', fmt(regras), '', '<span>configurações e perguntas</span>')}
+  </section>
+  <article class="card">
+    <div class="info-banner">${icon('shield')}<span>O registro guarda apenas códigos de funcionários, nunca nomes, e serve de comprovação em auditorias de LGPD e de segurança do trabalho.</span></div>
+    <div class="toolbar">
+      <div class="input-icon grow">${icon('search')}<input class="input" id="auBusca" placeholder="Buscar por ação, detalhe ou código" value="${esc(auQ)}" aria-label="Buscar no registro"></div>
+      <select class="input" id="auTipo" aria-label="Área">${opt(auTipo, [['todos', 'Todas as áreas'], ...Object.entries(AUDIT_TIPOS)])}</select>
+      <select class="input" id="auUser" aria-label="Usuário">${opt(auUser, [['todos', 'Todos os usuários'], ...usuarios.map(u => [u, u]), ['sistema', 'Sistema (automático)']])}</select>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Data e hora</th><th>Usuário</th><th>Área</th><th>Ação</th><th>Detalhe</th></tr></thead>
+      <tbody id="auRows" class="static"></tbody>
+    </table></div>
+    <div class="pager" id="auPager"></div>
+  </article>`;
+  const set = fn => e => { fn(e.target.value); auPage = 1; drawAuRows(); };
+  $('#auBusca').addEventListener('input', set(x => { auQ = x; }));
+  $('#auTipo').addEventListener('change', set(x => { auTipo = x; }));
+  $('#auUser').addEventListener('change', set(x => { auUser = x; }));
+  $('#auPager').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (b && !b.disabled) { auPage = +b.dataset.p; drawAuRows(); } });
+  $('#auExp').addEventListener('click', () => { audit('exportacao', 'Registro de auditoria exportado', 'auditoria_pulse.csv'); renderAuditoria(v); toast('auditoria_pulse.csv gerado (simulação).'); });
+  drawAuRows();
+}
+function drawAuRows() {
+  const q = norm(auQ.trim());
+  const lista = AUDIT.filter(a => (auTipo === 'todos' || a.tipo === auTipo) && (auUser === 'todos' || a.usuario === auUser) && (!q || norm(`${a.acao} ${a.detalhe} ${a.usuario}`).includes(q)));
+  const pages = Math.max(1, Math.ceil(lista.length / AU_POR_PAG));
+  auPage = Math.min(auPage, pages);
+  $('#auRows').innerHTML = lista.slice((auPage - 1) * AU_POR_PAG, auPage * AU_POR_PAG).map(a => `<tr>
+      <td class="num">${a.data.toLocaleDateString('pt-BR')} <span style="color:var(--fg-3)">${a.data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span></td>
+      <td>${a.usuario === 'sistema' ? '<span class="chip">Sistema</span>' : esc(a.usuario)}</td><td><span class="chip">${AUDIT_TIPOS[a.tipo]}</span></td>
+      <td>${esc(a.acao)}</td><td class="trunc" title="${esc(a.detalhe)}">${esc(a.detalhe) || '—'}</td></tr>`).join('')
+    || '<tr><td colspan="5" class="empty">Nenhum registro encontrado com esses filtros.</td></tr>';
+  $('#auPager').innerHTML = `<span>${fmt(lista.length)} registros · página ${auPage} de ${pages}</span>
+    <div class="btns"><button class="btn btn-sm" type="button" data-p="${auPage - 1}" ${auPage === 1 ? 'disabled' : ''}>Anterior</button><button class="btn btn-sm" type="button" data-p="${auPage + 1}" ${auPage === pages ? 'disabled' : ''}>Próxima</button></div>`;
+}
+
+/* ============ Tema claro/escuro ============ */
+// Sem escolha salva, segue o tema do sistema. A escolha fica salva só neste navegador.
+const temaSalvo = () => { try { return localStorage.getItem('pulse-tema'); } catch (e) { return null; } };
+const temaAtual = () => document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+function pintaBotoesTema() {
+  const escuro = temaAtual() === 'dark', txt = escuro ? 'Usar tema claro' : 'Usar tema escuro';
+  document.querySelectorAll('.theme-btn').forEach(b => { b.innerHTML = icon(escuro ? 'sun' : 'moon'); b.title = txt; b.setAttribute('aria-label', txt); });
+}
+function trocaTema() {
+  const novo = temaAtual() === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = novo;
+  try { localStorage.setItem('pulse-tema', novo); } catch (e) {}
+  pintaBotoesTema();
 }
 
 /* ============ Inicialização ============ */
 function boot() {
+  const tema = temaSalvo();
+  if (tema === 'dark' || tema === 'light') document.documentElement.dataset.theme = tema;
+  pintaBotoesTema();
+  document.querySelectorAll('.theme-btn').forEach(b => b.addEventListener('click', trocaTema));
   buildNav();
   $('#logoutBtn').innerHTML = icon('logout');
   $('#menuBtn').innerHTML = icon('menu');
@@ -1883,7 +2140,7 @@ function boot() {
   $('#bellBtn .count').textContent = SERIE[SERIE.length - 1].risco;
   $('#sideDisparo').textContent = `${CFG.horario} · ${fmt(CAD)} funcionários convocados`;
   $('#bellBtn').addEventListener('click', () => { location.hash = 'dashboard'; if ((location.hash || '#dashboard') === '#dashboard') go('dashboard'); setTimeout(() => { const t = $('#alertRows'); if (t) t.closest('.card').scrollIntoView({ behavior: 'smooth' }); }, 50); });
-  $('#logoutBtn').addEventListener('click', () => { store.del('pulse-auth'); masterOk = false; closeAll(); showLogin(); });
+  $('#logoutBtn').addEventListener('click', () => { audit('acesso', 'Saída do painel'); store.del('pulse-auth'); masterOk = false; closeAll(); showLogin(); });
   $('#menuBtn').addEventListener('click', () => {
     document.body.classList.add('nav-open');
     const s = document.createElement('div'); s.className = 'scrim'; s.addEventListener('click', () => { document.body.classList.remove('nav-open'); s.remove(); });
@@ -1898,7 +2155,7 @@ function boot() {
     charts.forEach(c => c.destroy()); charts = []; serieChart = relChart = null;
     ROUTES[rotaAtual].render($('#view'));
   };
-  mq.addEventListener && mq.addEventListener('change', redraw);
+  mq.addEventListener && mq.addEventListener('change', () => { pintaBotoesTema(); redraw(); });
   new MutationObserver(redraw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   initLogin();
   store.get('pulse-auth') ? showApp() : showLogin();

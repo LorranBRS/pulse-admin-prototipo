@@ -9,14 +9,16 @@ Protótipo navegável do painel administrativo da plataforma **Pulse**, de avali
 ## Telas
 
 - **Login**: acesso simulado e "Esqueci minha senha".
-- **Dashboard**: indicadores do dia, resultados por período, funil Principais → Avaliação → Adicionais e últimos alertas.
+- **Tema claro e escuro**: botão no topo (e na tela de login) para alternar; a escolha fica salva no navegador.
+- **Dashboard**: indicadores do dia, resultados por período, funil Principais → Avaliação → Adicionais e últimos alertas, com **plano de ação** em cada alerta e aba de **respostas suspeitas** (todas iguais, padrão alternado ou rápidas demais), que podem ser reenviadas.
 - **Empresas**: listagem com busca e filtros, cadastro e edição.
-- **Funcionários**: listagem somente por código (LGPD), com tipo, equipe, termo LGPD e resultado do dia.
+- **Funcionários**: listagem somente por código (LGPD), com tipo, equipe, termo LGPD, resultado do dia e histórico de 30 dias com gráfico de pontuação e indicador de tendência de piora.
 - **Banco de Perguntas**: 4 grupos de análise com 20+ perguntas cada (texto, imagem na pergunta e alternativas em imagem), 4 perguntas fixas de Avaliação e 4+ Adicionais, edição protegida por senha master e pré-visualização no celular.
-- **Configurações**: sorteio por grupo (total de 8 a 12), disparo diário, faixas Apto/Atenção/Risco, tempo mínimo e máximo por resposta, envio das etapas e bloqueio de login.
+- **Configurações**: sorteio por grupo (total de 8 a 12), disparo diário, faixas Apto/Atenção/Risco, tempo mínimo e máximo por resposta, envio das etapas, bloqueio de login, cópia dos alertas de Risco, WhatsApp (opcional), prazo do plano de ação e detecção de respostas suspeitas.
 
 A estrutura segue o documento "Resumo funcionalidades – Aplicativo Pesquisa – LAD" (seção Painel Web – Acesso do Admin).
 - **Relatórios**: filtros por período e empresa, volumes diário/mensal/anual, adesão por empresa, respostas fora do tempo limite e exportação simulada.
+- **Auditoria**: registro de quem fez o quê e quando (logins, empresas, perguntas, configurações, planos de ação, exportações), com busca e filtros.
 
 Por LGPD, funcionários aparecem só por código (ex.: `FUNC-00123`).
 
