@@ -11,8 +11,11 @@ Protótipo navegável do painel administrativo da plataforma **Pulse**, de avali
 - **Login**: acesso simulado e "Esqueci minha senha".
 - **Dashboard**: indicadores do dia, resultados por período, funil Principais → Avaliação → Adicionais e últimos alertas.
 - **Empresas**: listagem com busca e filtros, cadastro e edição.
-- **Banco de Perguntas**: grupos de análise, perguntas (texto, imagem na pergunta e alternativas em imagem), Avaliação e Adicionais, com pré-visualização no celular.
-- **Configurações**: sorteio por grupo, disparo diário, faixas Apto/Atenção/Risco, tempos de resposta, envio das etapas e bloqueio de login.
+- **Funcionários**: listagem somente por código (LGPD), com tipo, equipe, termo LGPD e resultado do dia.
+- **Banco de Perguntas**: 4 grupos de análise com 20+ perguntas cada (texto, imagem na pergunta e alternativas em imagem), 4 perguntas fixas de Avaliação e 4+ Adicionais, edição protegida por senha master e pré-visualização no celular.
+- **Configurações**: sorteio por grupo (total de 8 a 12), disparo diário, faixas Apto/Atenção/Risco, tempo mínimo e máximo por resposta, envio das etapas e bloqueio de login.
+
+A estrutura segue o documento "Resumo funcionalidades – Aplicativo Pesquisa – LAD" (seção Painel Web – Acesso do Admin).
 - **Relatórios**: filtros por período e empresa, volumes diário/mensal/anual, adesão por empresa, respostas fora do tempo limite e exportação simulada.
 
 Por LGPD, funcionários aparecem só por código (ex.: `FUNC-00123`).

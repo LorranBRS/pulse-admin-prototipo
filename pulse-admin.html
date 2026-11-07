@@ -382,6 +382,16 @@ textarea.input { height: auto; min-height: 72px; padding: 10px 12px; resize: ver
   .cfg-row { flex-wrap: wrap; }
 }
 
+/* Grupos de indicadores e histórico do funcionário */
+.kpi-group { display: grid; gap: 10px; }
+.sec-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-3); }
+.hist { display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: 4px; }
+.hist i { aspect-ratio: 1; border-radius: 4px; }
+.hist i.apto { background: var(--ok); } .hist i.atencao { background: var(--warn); } .hist i.risco { background: var(--risk); }
+.hist i.nao { background: var(--surface-2); border: 1px dashed var(--line-strong); }
+.hist-lbl { display: flex; justify-content: space-between; font-size: 11px; color: var(--fg-3); margin-top: 4px; }
+td.trunc { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
+
 /* ---------- Modal e toast ---------- */
 .modal-back { position: fixed; inset: 0; background: rgba(8, 20, 26, .5); display: grid; place-items: center; padding: 24px 16px; z-index: 100; animation: fade .15s ease-out; }
 .modal { width: 100%; max-width: 560px; max-height: calc(100dvh - 48px); background: var(--surface); border-radius: 14px; border: 1px solid var(--line); box-shadow: 0 20px 60px rgba(0,0,0,.25); display: flex; flex-direction: column; animation: rise .18s ease-out; }
@@ -537,6 +547,7 @@ const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase
 const ICONS = {
   dashboard: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
   empresas: '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/>',
+  funcionarios: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
   perguntas: '<path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"/>',
   configuracoes: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
   relatorios: '<path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3"/>',
@@ -616,7 +627,7 @@ const CAD = ATIVAS.reduce((s, e) => s + e.func, 0);
 
 // Regras gerais (tela Configurações)
 const CFG = { horario: '06:00', janela: 120, dias: [1, 2, 3, 4, 5, 6], lembrete: true, notifEmail: true, faixaRisco: 39, faixaAtencao: 69,
-  tempoMin: 60, tempoMax: 15, envioAval: 'imediato', envioAdic: 'imediato', avalQtd: 4, tentativas: 5, bloqueio: 30 };
+  tempoMin: 3, tempoMax: 60, alertaTempo: true, envioAval: 'imediato', envioAdic: 'imediato', avalQtd: 4, tentativas: 5, bloqueio: 10 };
 
 // Série diária dos últimos 90 dias (Apto / Atenção / Risco nas perguntas principais)
 const SERIE = (() => {
@@ -742,6 +753,7 @@ function drawPulse() {
 const ROUTES = {
   dashboard: { label: 'Dashboard', render: renderDashboard },
   empresas: { label: 'Empresas', render: renderEmpresas },
+  funcionarios: { label: 'Funcionários', render: renderFuncionarios },
   perguntas: { label: 'Banco de Perguntas', render: renderPerguntas },
   configuracoes: { label: 'Configurações', render: renderConfig },
   relatorios: { label: 'Relatórios', render: renderRelatorios }
@@ -771,50 +783,63 @@ function showLogin() {
 }
 
 /* ============ Dashboard ============ */
-let periodo = 30, serieModo = 'todos';
+let periodo = 30, serieModo = 'todos', dashEmp = 'todas', alertaModo = 'resultado';
+// Filtro por empresa: escala os números gerais pelo peso da empresa (funcionários x adesão)
+const fatorEmp = nome => { const emp = ADESAO.find(e => e.nome === nome); return { emp, f: emp ? (emp.func / CAD) * (emp.taxa / 0.786) : 1 }; };
+const escalar = (s, f) => { const apto = Math.round(s.apto * f), atencao = Math.round(s.atencao * f), risco = Math.round(s.risco * f); return { ...s, apto, atencao, risco, total: apto + atencao + risco }; };
+const serieDash = () => SERIE.slice(-periodo).map(s => escalar(s, fatorEmp(dashEmp).f));
 function renderDashboard(v) {
-  const hoje = SERIE[SERIE.length - 1];
-  const cadastrados = CAD, adesao = hoje.total / cadastrados * 100;
+  const { emp, f } = fatorEmp(dashEmp);
+  const hoje = escalar(SERIE[SERIE.length - 1], f), semPassada = escalar(SERIE[SERIE.length - 8], f);
+  const media30 = escalar(somaRows(SERIE.slice(-31, -1)), f / 30);
+  const cad = emp ? emp.func : CAD, adesao = hoje.total / cad * 100;
+  const doPeriodo = serieDash().reduce((s, d) => s + d.total, 0);
+  const totalGeral = Math.round(ANOS.reduce((s, a) => s + a.total, 0) * f);
+  const equipe = FUNCS.filter(x => x.status === 'ativo' && (!emp || x.empresa === emp.nome));
+  const sup = equipe.filter(x => x.tipo === 'Supervisor').length, restr = equipe.filter(x => x.tipo === 'Acesso restrito').length;
+  const alertas = ALERTAS.filter(a => !emp || a.empresa === emp.nome);
+  const tempoHoje = FORA.filter(x => toISO(x.data) === MAX_DATA && (!emp || x.empresa === emp.nome) && (x.tempo < CFG.tempoMin || x.tempo > CFG.tempoMax));
+  const delta = (a, b) => b ? Math.round((a / b - 1) * 100) : 0;
+  const seta = (d, ruimSubir) => `<span class="delta ${(d >= 0) === !ruimSubir ? 'up' : 'down'}">${d >= 0 ? '▲' : '▼'} ${Math.abs(d)}%</span>`;
   const dataExt = HOJE.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const vazio = txt => `<tr><td colspan="6" class="empty">${txt}</td></tr>`;
   v.innerHTML = `
   <div class="page-head">
-    <div><h1>Visão geral</h1><p>${dataExt.charAt(0).toUpperCase() + dataExt.slice(1)} · atualizado às 07:42</p></div>
+    <div><h1>Visão geral</h1><p>${dataExt.charAt(0).toUpperCase() + dataExt.slice(1)} · atualizado às 07:42${emp ? ' · ' + esc(emp.nome) : ''}</p></div>
     <div class="page-actions">
-      <select class="input" id="dashEmpresa" style="height:38px;width:auto" aria-label="Filtrar por empresa">
-        <option>Todas as empresas (${ATIVAS.length})</option>${ATIVAS.map(e => e.nome).sort((a, b) => a.localeCompare(b, 'pt-BR')).map(n => `<option>${esc(n)}</option>`).join('')}
+      <select class="input" id="dashEmpresa" style="height:38px;width:auto;max-width:100%" aria-label="Filtrar por empresa">
+        <option value="todas">Todas as empresas (${ATIVAS.length})</option>${ADESAO.map(e => e.nome).sort((a, b) => a.localeCompare(b, 'pt-BR')).map(n => `<option ${n === dashEmp ? 'selected' : ''}>${esc(n)}</option>`).join('')}
       </select>
+      <div class="seg" id="segPeriodo" role="group" aria-label="Período">${[7, 30, 90].map(n => `<button type="button" data-v="${n}" aria-pressed="${periodo === n}">${n} dias</button>`).join('')}</div>
       <button class="btn" id="dashExport">${icon('download')}Exportar resumo</button>
     </div>
   </div>
 
-  <section class="kpis" aria-label="Indicadores de hoje">
-    ${kpi('empresas', 'Empresas ativas', String(ATIVAS.length), `<small>/ ${EMP.length}</small>`, `<span>${EMP.length - ATIVAS.length} inativas</span>`)}
-    ${kpi('users', 'Funcionários participantes', fmt(cadastrados), '', `<span class="delta up">▲ 214</span><span>no mês</span>`)}
-    ${kpi('send', 'Respostas hoje', fmt(hoje.total), '', `<span class="delta up">▲ 2,1%</span><span>vs. sexta passada</span>`)}
-    ${kpi('percent', 'Adesão hoje', pct(adesao), '', `<div class="meter" style="width:100%"><i style="width:${adesao}%"></i></div><span>${fmt(hoje.total)} de ${fmt(cadastrados)} cadastrados</span>`)}
-    ${kpi('warn', 'Alertas de Atenção', fmt(hoje.atencao), '', `<span class="delta good-down">▼ 6%</span><span>vs. média de 30 dias</span>`, 'warn')}
-    ${kpi('risk', 'Alertas de Risco', fmt(hoje.risco), '', `<span class="delta bad-up">▲ 9%</span><span>vs. média de 30 dias</span>`, 'risk')}
-  </section>
+  <section class="kpi-group" aria-label="Indicadores de hoje"><h2 class="sec-label">Hoje</h2><div class="kpis k4">
+    ${kpi('send', 'Respostas hoje', fmt(hoje.total), '', `${seta(delta(hoje.total, semPassada.total))}<span>vs. sexta passada</span>`)}
+    ${kpi('percent', 'Adesão hoje', pct(adesao), '', `<div class="meter" style="width:100%"><i style="width:${Math.min(adesao, 100)}%"></i></div><span>${fmt(hoje.total)} respostas de ${fmt(cad)} cadastrados</span>`)}
+    ${kpi('warn', 'Alertas de Atenção', fmt(hoje.atencao), '', `${seta(delta(hoje.atencao, media30.atencao), true)}<span>vs. média de 30 dias</span>`, 'warn')}
+    ${kpi('risk', 'Alertas de Risco', fmt(hoje.risco), '', `${seta(delta(hoje.risco, media30.risco), true)}<span>vs. média de 30 dias</span>`, 'risk')}
+  </div></section>
+
+  <section class="kpi-group" aria-label="Histórico geral"><h2 class="sec-label">Histórico geral</h2><div class="kpis k4">
+    ${kpi('empresas', 'Empresas participantes', emp ? '1' : String(ATIVAS.length), emp ? '' : `<small>/ ${EMP.length}</small>`, emp ? `<span>${esc(emp.cidade)}/${emp.uf}</span>` : `<span>${EMP.length - ATIVAS.length} inativas</span>`)}
+    ${kpi('users', 'Funcionários participantes', fmt(cad), '', `<span>${fmt(sup)} supervisores · ${fmt(restr)} acesso restrito</span>`)}
+    ${kpi('calendar', 'Respostas no período', fmt(doPeriodo), '', `<span>últimos ${periodo} dias</span>`)}
+    ${kpi('relatorios', 'Total de respostas', fmt(totalGeral), '', `<span>desde janeiro de 2024</span>`)}
+  </div></section>
 
   <section class="grid-2">
     <article class="card">
       <div class="card-head">
         <div><h2>Resultados por período</h2><p>Classificação nas perguntas principais, por dia</p></div>
-        <div class="page-actions">
-          <div class="seg" id="segModo" role="group" aria-label="Exibição">
-            <button type="button" data-v="todos">Todos</button><button type="button" data-v="alertas">Só alertas</button>
-          </div>
-          <div class="seg" id="segPeriodo" role="group" aria-label="Período">
-            <button type="button" data-v="7">7 dias</button><button type="button" data-v="30">30 dias</button><button type="button" data-v="90">90 dias</button>
-          </div>
-        </div>
+        <div class="seg" id="segModo" role="group" aria-label="Exibição">${[['todos', 'Todos'], ['alertas', 'Só alertas']].map(([k, l]) => `<button type="button" data-v="${k}" aria-pressed="${serieModo === k}">${l}</button>`).join('')}</div>
       </div>
       <div class="card-body">
         <div class="legend" id="legendSerie" style="margin-bottom:12px"></div>
         <div class="chart-box"><canvas id="chartSerie" aria-label="Gráfico de resultados por dia"></canvas></div>
       </div>
     </article>
-
     <article class="card">
       <div class="card-head"><div><h2>Principais × Avaliação × Adicionais</h2><p id="funnelSub"></p></div></div>
       <div class="card-body"><div class="funnel" id="funnel"></div></div>
@@ -824,53 +849,54 @@ function renderDashboard(v) {
   <section class="grid-2">
     <article class="card">
       <div class="card-head">
-        <div><h2>Últimos alertas</h2><p>Supervisores notificados automaticamente · clique para ver o histórico</p></div>
-        <button class="btn btn-sm" id="verTodos">Ver todos ${icon('chev')}</button>
+        <div><h2>Últimos alertas</h2><p>${alertaModo === 'resultado' ? 'Supervisores notificados na hora · clique para ver o histórico' : `Respostas fora do limite de ${CFG.tempoMin} s a ${CFG.tempoMax} s por pergunta`}</p></div>
+        <div class="page-actions">
+          <div class="seg" id="segAlerta" role="group" aria-label="Tipo de alerta"><button type="button" data-v="resultado" aria-pressed="${alertaModo === 'resultado'}">Resultado (${alertas.length})</button><button type="button" data-v="tempo" aria-pressed="${alertaModo === 'tempo'}">Tempo de resposta (${tempoHoje.length})</button></div>
+          ${alertaModo === 'resultado' && alertas.length ? `<button class="btn btn-sm" id="verTodos">Ver todos ${icon('chev')}</button>` : ''}
+        </div>
       </div>
-      <div class="card-body" style="padding-inline:0;padding-bottom:4px">
-        <div class="table-wrap"><table>
-          <thead><tr><th>Funcionário</th><th>Empresa</th><th>Data/hora</th><th>Etapa</th><th>Pontuação</th><th>Classificação</th></tr></thead>
-          <tbody id="alertRows"></tbody>
-        </table></div>
-      </div>
+      <div class="card-body" style="padding-inline:0;padding-bottom:4px"><div class="table-wrap"><table>
+        ${alertaModo === 'resultado' ? `<thead><tr><th>Funcionário</th><th>Empresa</th><th>Data/hora</th><th>Etapa</th><th>Pontuação</th><th>Classificação</th></tr></thead>
+          <tbody id="alertRows">${alertas.length ? alertas.slice(0, 8).map(a => `<tr data-i="${ALERTAS.indexOf(a)}" tabindex="0">
+            <td><span class="code">${a.codigo}</span></td><td>${esc(a.empresa)}<span class="sub">${a.setor}</span></td>
+            <td class="num">06/11/2026 <span style="color:var(--fg-3)">${a.hora}</span></td><td>${a.etapa}</td><td class="num">${a.pont}%</td><td>${pill(a.classe)}</td></tr>`).join('') : vazio('Nenhum alerta de resultado hoje para esta empresa.')}</tbody>`
+        : `<thead><tr><th>Funcionário</th><th>Empresa</th><th>Hora</th><th>Pergunta</th><th style="text-align:right">Tempo</th><th>Desvio</th></tr></thead>
+          <tbody class="static">${tempoHoje.length ? tempoHoje.slice(0, 8).map(x => `<tr>
+            <td><span class="code">${x.codigo}</span></td><td>${esc(x.empresa)}</td><td class="num">${x.data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
+            <td class="trunc" title="${esc(x.pergunta)}">${esc(x.pergunta)}</td><td class="num" style="text-align:right">${fmtTempo(x.tempo)}</td>
+            <td><span class="pill ${x.tempo < CFG.tempoMin ? 'atencao' : 'risco'}">${x.tempo < CFG.tempoMin ? 'Rápida demais' : 'Demorada'}</span></td></tr>`).join('') : vazio('Nenhum desvio de tempo hoje.')}</tbody>`}
+      </table></div></div>
     </article>
-
     <article class="card">
       <div class="card-head"><div><h2>Adesão por empresa hoje</h2><p>Menores taxas primeiro</p></div></div>
       <div class="card-body"><div class="adh-list">
-        ${ADESAO.slice(0, 7).map(e => `<div class="adh-row"><div class="top"><span>${e.nome}</span><b>${pct(e.taxa * 100)}</b></div>
+        ${ADESAO.slice(0, 7).map(e => `<div class="adh-row"><div class="top"><span>${esc(e.nome)}</span><b>${pct(e.taxa * 100)}</b></div>
           <div class="meter"><i class="${e.taxa < .75 ? 'low' : e.taxa < .88 ? 'mid' : 'high'}" style="width:${e.taxa * 100}%"></i></div></div>`).join('')}
       </div></div>
     </article>
   </section>`;
 
-  $('#alertRows').innerHTML = ALERTAS.slice(0, 8).map((a, i) => `<tr data-i="${i}" tabindex="0">
-    <td><span class="code">${a.codigo}</span></td>
-    <td>${a.empresa}<span class="sub">${a.setor}</span></td>
-    <td class="num">06/11/2026 <span style="color:var(--fg-3)">${a.hora}</span></td>
-    <td>${a.etapa}</td>
-    <td class="num">${a.pont}%</td>
-    <td>${pill(a.classe)}</td></tr>`).join('');
-  $('#alertRows').addEventListener('click', e => { const tr = e.target.closest('tr'); if (tr) alertDetail(ALERTAS[tr.dataset.i]); });
-  $('#alertRows').addEventListener('keydown', e => { if (e.key === 'Enter') { const tr = e.target.closest('tr'); if (tr) alertDetail(ALERTAS[tr.dataset.i]); } });
-  $('#verTodos').addEventListener('click', () => {
-    const m = openModal({ title: 'Alertas de hoje', sub: `${ALERTAS.length} alertas mais recentes · supervisores notificados`, width: 780,
+  const abrirAlerta = e => { const tr = e.target.closest('tr[data-i]'); if (tr) alertDetail(ALERTAS[tr.dataset.i]); };
+  if ($('#alertRows')) {
+    $('#alertRows').addEventListener('click', abrirAlerta);
+    $('#alertRows').addEventListener('keydown', e => { if (e.key === 'Enter') abrirAlerta(e); });
+  }
+  if ($('#verTodos')) $('#verTodos').addEventListener('click', () => {
+    const m = openModal({ title: 'Alertas de hoje', sub: `${alertas.length} alertas mais recentes · supervisores notificados`, width: 780,
       body: `<div class="table-wrap"><table><thead><tr><th>Funcionário</th><th>Empresa</th><th>Hora</th><th>Etapa</th><th>Pontuação</th><th>Classificação</th></tr></thead><tbody>
-        ${ALERTAS.map((a, i) => `<tr data-i="${i}" tabindex="0"><td><span class="code">${a.codigo}</span></td><td>${esc(a.empresa)}</td><td class="num">${a.hora}</td><td>${a.etapa}</td><td class="num">${a.pont}%</td><td>${pill(a.classe)}</td></tr>`).join('')}</tbody></table></div>`,
+        ${alertas.map(a => `<tr data-i="${ALERTAS.indexOf(a)}" tabindex="0"><td><span class="code">${a.codigo}</span></td><td>${esc(a.empresa)}</td><td class="num">${a.hora}</td><td>${a.etapa}</td><td class="num">${a.pont}%</td><td>${pill(a.classe)}</td></tr>`).join('')}</tbody></table></div>`,
       foot: `<button class="btn" data-close>Fechar</button>` });
     m.querySelector('tbody').addEventListener('click', e => { const tr = e.target.closest('tr'); if (tr) alertDetail(ALERTAS[tr.dataset.i], true); });
   });
-  $('#dashExport').addEventListener('click', () => toast('Resumo do dia exportado em PDF (simulação).'));
-  $('#dashEmpresa').addEventListener('change', e => toast(`Filtro aplicado: ${e.target.value}`));
-
-  const segP = $('#segPeriodo'), segM = $('#segModo');
-  const syncSeg = () => {
-    segP.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v == periodo));
-    segM.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === serieModo));
-  };
-  segP.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; periodo = +b.dataset.v; syncSeg(); drawSerie(); drawFunnel(); });
-  segM.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; serieModo = b.dataset.v; syncSeg(); drawSerie(); });
-  syncSeg(); drawSerie(); drawFunnel();
+  $('#dashExport').addEventListener('click', () => toast('Resumo exportado em PDF (simulação).'));
+  $('#dashEmpresa').addEventListener('change', e => { dashEmp = e.target.value; renderDashboard(v); });
+  $('#segPeriodo').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { periodo = +b.dataset.v; renderDashboard(v); } });
+  $('#segAlerta').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { alertaModo = b.dataset.v; renderDashboard(v); } });
+  $('#segModo').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    serieModo = b.dataset.v; $('#segModo').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); drawSerie();
+  });
+  drawSerie(); drawFunnel();
 }
 function kpi(ic, label, val, extra, foot, tone = '') {
   return `<article class="card kpi ${tone}"><div class="kpi-top"><span>${label}</span><span class="kpi-ico">${icon(ic)}</span></div>
@@ -880,7 +906,7 @@ function kpi(ic, label, val, extra, foot, tone = '') {
 let serieChart;
 function drawSerie() {
   if (serieChart) { serieChart.destroy(); charts = charts.filter(c => c !== serieChart); }
-  const dados = SERIE.slice(-periodo);
+  const dados = serieDash();
   const cOk = cssVar('--ok'), cWarn = cssVar('--warn'), cRisk = cssVar('--risk');
   const sets = [];
   if (serieModo === 'todos') sets.push({ label: 'Apto', data: dados.map(d => d.apto), backgroundColor: cOk });
@@ -907,7 +933,7 @@ function drawSerie() {
   charts.push(serieChart);
 }
 function drawFunnel() {
-  const { P, A, D, pt, aEnv, adEnv } = computeCiclo(SERIE.slice(-periodo));
+  const { P, A, D, pt, aEnv, adEnv } = computeCiclo(serieDash());
   $('#funnelSub').textContent = `Distribuição dos resultados · últimos ${periodo} dias`;
   const stage = (nome, desc, o, tot) => {
     const w = k => o[k] / tot * 100;
@@ -1077,40 +1103,159 @@ function empModal(emp) {
   });
 }
 
+/* ============ Funcionários (somente código, LGPD) ============ */
+const FUNCS = (() => {
+  const r = rng(77), out = [];
+  let seq = 1000;
+  const hm = m => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+  const resHoje = () => { const x = r(); return x < .214 ? 'nao' : x < .247 ? 'atencao' : x < .254 ? 'risco' : 'apto'; };
+  EMP.forEach(e => {
+    const nEquipes = Math.max(2, Math.round(e.func / 45)), extras = Math.round(e.func * .03);
+    for (let i = 0; i < e.func + extras; i++) {
+      seq += 1 + Math.floor(r() * 2);
+      const ativo = i < e.func && e.status === 'ativa', t = r(), hoje = ativo ? resHoje() : 'nao';
+      out.push({ codigo: 'FUNC-' + String(seq).padStart(5, '0'), seed: seq, empresa: e.nome,
+        equipe: 'Equipe ' + String(1 + Math.floor(r() * nEquipes)).padStart(2, '0'),
+        tipo: t < .06 ? 'Supervisor' : t < .09 ? 'Acesso restrito' : 'Normal', status: ativo ? 'ativo' : 'inativo',
+        lgpd: !ativo || r() < .97 ? 'aceito' : 'pendente', hoje, hora: hoje === 'nao' ? null : hm(360 + Math.floor(r() * 100)) });
+    }
+  });
+  return out;
+})();
+let fQ = '', fEmp = 'todas', fTipo = 'todos', fSt = 'ativo', fRes = 'todos', fPage = 1;
+const F_POR_PAG = 15;
+function renderFuncionarios(v) {
+  const ativos = FUNCS.filter(x => x.status === 'ativo');
+  const nTipo = t => ativos.filter(x => x.tipo === t).length, pend = ativos.filter(x => x.lgpd !== 'aceito').length;
+  const opt = (val, lista) => lista.map(([k, l]) => `<option value="${k}" ${k === val ? 'selected' : ''}>${l}</option>`).join('');
+  v.innerHTML = `
+  <div class="page-head"><div><h1>Funcionários</h1><p>Identificados apenas por código. O nome fica vinculado ao código e só a empresa consegue vê-lo.</p></div></div>
+  <section class="kpis k4">
+    ${kpi('users', 'Funcionários ativos', fmt(ativos.length), '', `<span>${fmt(FUNCS.length - ativos.length)} inativos</span>`)}
+    ${kpi('shield', 'Supervisores', fmt(nTipo('Supervisor')), '', `<span>recebem os alertas da equipe</span>`)}
+    ${kpi('lock', 'Acesso restrito', fmt(nTipo('Acesso restrito')), '', `<span>perfil com acesso limitado</span>`)}
+    ${kpi('check', 'Termo LGPD aceito', pct((ativos.length - pend) / ativos.length * 100), '', `<span>${fmt(pend)} aguardando o 1º acesso</span>`)}
+  </section>
+  <article class="card">
+    <div class="info-banner">${icon('shield')}<span>Por LGPD, o Admin Master não vê nome, e-mail nem dados pessoais. Cadastros, edições e equipes são feitos pela própria empresa no painel dela.</span></div>
+    <div class="toolbar">
+      <div class="input-icon grow">${icon('search')}<input class="input" id="fBusca" placeholder="Buscar pelo código, ex.: FUNC-01234" value="${esc(fQ)}" aria-label="Buscar funcionário pelo código"></div>
+      <select class="input" id="fEmp" aria-label="Empresa"><option value="todas">Todas as empresas</option>${[...EMP].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(e => `<option ${e.nome === fEmp ? 'selected' : ''}>${esc(e.nome)}</option>`).join('')}</select>
+      <select class="input" id="fTipo" aria-label="Tipo">${opt(fTipo, [['todos', 'Todos os tipos'], ['Normal', 'Normal'], ['Supervisor', 'Supervisor'], ['Acesso restrito', 'Acesso restrito']])}</select>
+      <select class="input" id="fSt" aria-label="Status">${opt(fSt, [['todos', 'Todos os status'], ['ativo', 'Ativos'], ['inativo', 'Inativos']])}</select>
+      <select class="input" id="fRes" aria-label="Resultado de hoje">${opt(fRes, [['todos', 'Qualquer resultado hoje'], ['apto', 'Apto'], ['atencao', 'Atenção'], ['risco', 'Risco'], ['nao', 'Não respondeu']])}</select>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Código</th><th>Empresa</th><th>Equipe</th><th>Tipo</th><th>Status</th><th>Termo LGPD</th><th>Resposta de hoje</th></tr></thead>
+      <tbody id="fRows"></tbody>
+    </table></div>
+    <div class="pager" id="fPager"></div>
+  </article>`;
+  const set = (fn) => e => { fn(e.target.value); fPage = 1; drawFRows(); };
+  $('#fBusca').addEventListener('input', set(x => { fQ = x; }));
+  $('#fEmp').addEventListener('change', set(x => { fEmp = x; }));
+  $('#fTipo').addEventListener('change', set(x => { fTipo = x; }));
+  $('#fSt').addEventListener('change', set(x => { fSt = x; }));
+  $('#fRes').addEventListener('change', set(x => { fRes = x; }));
+  const abrir = e => { const tr = e.target.closest('tr[data-c]'); if (tr) funcDetail(FUNCS.find(x => x.codigo === tr.dataset.c)); };
+  $('#fRows').addEventListener('click', abrir);
+  $('#fRows').addEventListener('keydown', e => { if (e.key === 'Enter') abrir(e); });
+  $('#fPager').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (b && !b.disabled) { fPage = +b.dataset.p; drawFRows(); } });
+  drawFRows();
+}
+function drawFRows() {
+  const q = fQ.replace(/\D/g, '');
+  const lista = FUNCS.filter(x => (fEmp === 'todas' || x.empresa === fEmp) && (fTipo === 'todos' || x.tipo === fTipo)
+    && (fSt === 'todos' || x.status === fSt) && (fRes === 'todos' || x.hoje === fRes) && (!q || x.codigo.includes(q)));
+  const pages = Math.max(1, Math.ceil(lista.length / F_POR_PAG));
+  fPage = Math.min(fPage, pages);
+  const vis = lista.slice((fPage - 1) * F_POR_PAG, fPage * F_POR_PAG);
+  $('#fRows').innerHTML = vis.length ? vis.map(x => `<tr data-c="${x.codigo}" tabindex="0">
+      <td><span class="code">${x.codigo}</span></td><td>${esc(x.empresa)}</td><td>${x.equipe}</td>
+      <td>${x.tipo === 'Normal' ? 'Normal' : `<span class="chip ${x.tipo === 'Supervisor' ? 'accent' : ''}">${x.tipo}</span>`}</td>
+      <td><span class="pill ${x.status === 'ativo' ? 'on' : 'off'}">${x.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
+      <td>${x.lgpd === 'aceito' ? '<span class="notified">' + icon('check') + 'Aceito</span>' : '<span class="chip">Pendente</span>'}</td>
+      <td>${x.hoje === 'nao' ? `<span class="pill neutro">${x.status === 'ativo' ? 'Não respondeu' : '—'}</span>` : `${pill(x.hoje)} <span class="num" style="color:var(--fg-3);font-size:12px">${x.hora}</span>`}</td></tr>`).join('')
+    : `<tr><td colspan="7" class="empty">Nenhum funcionário encontrado com esses filtros.</td></tr>`;
+  $('#fPager').innerHTML = `<span>${fmt(lista.length)} funcionários · página ${fPage} de ${fmt(pages)}</span>
+    <div class="btns"><button class="btn btn-sm" type="button" data-p="${fPage - 1}" ${fPage === 1 ? 'disabled' : ''}>Anterior</button><button class="btn btn-sm" type="button" data-p="${fPage + 1}" ${fPage === pages ? 'disabled' : ''}>Próxima</button></div>`;
+}
+function funcDetail(x) {
+  const r = rng(x.seed);
+  const dias = SERIE.slice(-14).map((s, i) => {
+    if (i === 13) return { d: s.d, res: x.hoje };
+    if (x.status !== 'ativo' || (s.d.getDay() % 6 === 0 && r() < .6)) return { d: s.d, res: 'nao' };
+    const y = r(); return { d: s.d, res: y < .08 ? 'nao' : y < .14 ? 'atencao' : y < .16 ? 'risco' : 'apto' };
+  });
+  const resp = dias.filter(d => d.res !== 'nao').length, tMed = (5 + r() * 9).toFixed(1).replace('.', ','), desvios = Math.floor(r() * 3);
+  const rot = { apto: 'Apto', atencao: 'Atenção', risco: 'Risco', nao: 'Não respondeu' };
+  openModal({
+    title: x.codigo, sub: `${esc(x.empresa)} · ${x.equipe}`, width: 580,
+    body: `<dl class="kv" style="margin:0">
+        <div><dt>Tipo</dt><dd>${x.tipo}</dd></div>
+        <div><dt>Status</dt><dd><span class="pill ${x.status === 'ativo' ? 'on' : 'off'}">${x.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></dd></div>
+        <div><dt>Termo LGPD e consentimento</dt><dd>${x.lgpd === 'aceito' ? 'Aceitos no 1º acesso' : 'Pendente (ainda não acessou o app)'}</dd></div>
+        <div><dt>Tempo médio por resposta</dt><dd class="num">${tMed} s · ${desvios} desvio${desvios === 1 ? '' : 's'} no mês</dd></div>
+      </dl>
+      <div><div class="hint" style="margin-bottom:8px">Últimos 14 dias · respondeu em ${resp} de 14 dias</div>
+        <div class="hist">${dias.map(d => `<i class="${d.res}" title="${d.d.toLocaleDateString('pt-BR')}: ${rot[d.res]}"></i>`).join('')}</div>
+        <div class="hist-lbl"><span>${dias[0].d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</span><span>Hoje</span></div>
+        <div class="legend" style="margin-top:10px"><span><i style="background:var(--ok)"></i>Apto</span><span><i style="background:var(--warn)"></i>Atenção</span><span><i style="background:var(--risk)"></i>Risco</span><span><i style="background:var(--surface-2);border:1px dashed var(--line-strong)"></i>Não respondeu</span></div>
+      </div>
+      <div class="lgpd-box">${icon('shield')}<span>A pontuação numérica nunca é mostrada ao funcionário. O supervisor vê apenas a classificação, sem as respostas.</span></div>`,
+    foot: `<button class="btn btn-primary" data-close>Fechar</button>`
+  });
+}
+
 /* ============ Banco de Perguntas ============ */
-// Imagens de exemplo desenhadas em SVG (em produção viriam do upload)
-const IMGS = {
-  triangulos: `<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="100" fill="#f4f8f9"/>
-    <polygon points="20,82 40,46 60,82" fill="#155e75"/><circle cx="82" cy="28" r="12" fill="#e0a84a"/><polygon points="70,88 88,56 106,88" fill="#2f855a"/>
-    <rect x="114" y="14" width="24" height="24" fill="#c53030"/><polygon points="118,90 132,64 146,90" fill="#155e75"/><polygon points="34,32 46,10 58,32" fill="#c53030"/>
-    <rect x="62" y="42" width="15" height="15" fill="#155e75" transform="rotate(20 70 50)"/><polygon points="96,44 106,24 116,44" fill="#e0a84a"/>
-    <polygon points="6,42 14,26 22,42" fill="#2f855a"/><circle cx="142" cy="52" r="7" fill="#2f855a"/></svg>`,
-  sequencia: `<svg viewBox="0 0 224 60" xmlns="http://www.w3.org/2000/svg"><rect width="224" height="60" fill="#f4f8f9"/>
-    <circle cx="22" cy="30" r="11" fill="#155e75"/><rect x="47" y="19" width="22" height="22" fill="#e0a84a"/><polygon points="83,41 94,19 105,41" fill="#2f855a"/>
-    <circle cx="130" cy="30" r="11" fill="#155e75"/><rect x="155" y="19" width="22" height="22" fill="#e0a84a"/>
-    <rect x="189" y="17" width="26" height="26" rx="4" fill="none" stroke="#7a8b93" stroke-width="1.5" stroke-dasharray="4 3"/>
-    <text x="202" y="36" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="700" fill="#7a8b93">?</text></svg>`,
-  circulo: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="#f4f8f9"/><circle cx="30" cy="30" r="14" fill="#155e75"/></svg>`,
-  quadrado: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="#f4f8f9"/><rect x="16" y="16" width="28" height="28" fill="#e0a84a"/></svg>`,
-  triangulo: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="#f4f8f9"/><polygon points="15,44 30,16 45,44" fill="#2f855a"/></svg>`,
-  losango: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="#f4f8f9"/><polygon points="30,13 47,30 30,47 13,30" fill="#c53030"/></svg>`,
-  estrela: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="#f4f8f9"/><polygon points="30,12 35,25 49,25 38,33 42,47 30,39 18,47 22,33 11,25 25,25" fill="#155e75"/></svg>`
+// Imagens das perguntas desenhadas em SVG (em produção viriam do upload). Cores fixas: fazem parte da imagem.
+const FORMAS = {
+  circulo: (x, y, s, c) => `<circle cx="${x}" cy="${y}" r="${s * .5}" fill="${c}"/>`,
+  quadrado: (x, y, s, c) => `<rect x="${x - s * .45}" y="${y - s * .45}" width="${s * .9}" height="${s * .9}" fill="${c}"/>`,
+  triangulo: (x, y, s, c) => `<polygon points="${x - s * .55},${y + s * .45} ${x},${y - s * .55} ${x + s * .55},${y + s * .45}" fill="${c}"/>`,
+  losango: (x, y, s, c) => `<polygon points="${x},${y - s * .6} ${x + s * .6},${y} ${x},${y + s * .6} ${x - s * .6},${y}" fill="${c}"/>`,
+  estrela: (x, y, s, c) => { const p = []; for (let k = 0; k < 10; k++) { const r = k % 2 ? s * .25 : s * .6, a = -Math.PI / 2 + k * Math.PI / 5; p.push(`${(x + r * Math.cos(a)).toFixed(1)},${(y + r * Math.sin(a)).toFixed(1)}`); } return `<polygon points="${p.join(' ')}" fill="${c}"/>`; }
 };
+const COR_FORMA = { circulo: '#155e75', quadrado: '#e0a84a', triangulo: '#2f855a', losango: '#c53030', estrela: '#6b5bb5' };
+const NOME_FORMA = { circulo: 'Círculo', quadrado: 'Quadrado', triangulo: 'Triângulo', losango: 'Losango', estrela: 'Estrela' };
+const PLURAL_FORMA = { circulo: 'círculos', quadrado: 'quadrados', triangulo: 'triângulos', losango: 'losangos', estrela: 'estrelas' };
+const svgBox = (w, h, inner) => `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg"><rect width="${w}" height="${h}" fill="#f4f8f9"/>${inner}</svg>`;
+function imgContagem(seed, alvo, n) {
+  const r = rng(seed), cells = [];
+  for (let i = 0; i < 8; i++) for (let j = 0; j < 5; j++) cells.push([i, j]);
+  for (let i = cells.length - 1; i > 0; i--) { const k = Math.floor(r() * (i + 1)); [cells[i], cells[k]] = [cells[k], cells[i]]; }
+  const outras = Object.keys(FORMAS).filter(f => f !== alvo), cores = Object.values(COR_FORMA);
+  return svgBox(160, 100, cells.slice(0, n + 6 + Math.floor(r() * 5)).map(([i, j], k) =>
+    FORMAS[k < n ? alvo : outras[Math.floor(r() * outras.length)]](12 + i * 19.5 + (r() - .5) * 4, 11 + j * 19.5 + (r() - .5) * 3, 13 + r() * 3, cores[Math.floor(r() * cores.length)])).join(''));
+}
+function imgSequencia(padrao) {
+  const itens = Array.from({ length: 5 }, (_, i) => padrao[i % padrao.length]);
+  return svgBox(224, 60, itens.map((f, i) => FORMAS[f](22 + i * 36, 30, 22, COR_FORMA[f])).join('') +
+    `<rect x="189" y="17" width="26" height="26" rx="4" fill="none" stroke="#7a8b93" stroke-width="1.5" stroke-dasharray="4 3"/><text x="202" y="36" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="700" fill="#7a8b93">?</text>`);
+}
 const face = n => {
   const cor = ['#eba3a3', '#f1c48f', '#f2db8f', '#bfe0a6', '#94d4ad'][n], c = [-10, -5, 0, 5, 10][n];
   return `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="#f4f8f9"/><circle cx="30" cy="30" r="20" fill="${cor}" stroke="#15242b" stroke-width="1.5"/>
     <circle cx="23" cy="26" r="2.2" fill="#15242b"/><circle cx="37" cy="26" r="2.2" fill="#15242b"/>
     <path d="M21 ${38 - c / 4} Q30 ${38 + c} 39 ${38 - c / 4}" fill="none" stroke="#15242b" stroke-width="2" stroke-linecap="round"/></svg>`;
 };
-const renderImg = k => !k ? '' : k.startsWith('data:') ? `<img src="${k}" alt="">` : k.startsWith('face') ? face(+k.slice(4)) : (IMGS[k] || '');
+// Chaves de imagem: data:… (upload), faceN, cnt:semente:forma:qtd, seq:forma,forma…, forma:nome
+const renderImg = k => {
+  if (!k) return '';
+  if (k.startsWith('data:')) return `<img src="${k}" alt="">`;
+  if (k.startsWith('face')) return face(+k.slice(4));
+  if (k.startsWith('cnt:')) { const [, sd, f, n] = k.split(':'); return imgContagem(+sd, f, +n); }
+  if (k.startsWith('seq:')) return imgSequencia(k.slice(4).split(','));
+  if (k.startsWith('forma:')) { const f = k.slice(6); return svgBox(60, 60, FORMAS[f](30, 30, 30, COR_FORMA[f])); }
+  return '';
+};
 
+// Documento do cliente: 4 grupos de análise com 20 a 30 perguntas cada; 1 grupo por imagem e 1 com alternativas em imagem
 const GRUPOS = [
-  { id: 'sono', titulo: 'Sono e descanso', tipo: 'Texto', desc: 'Duração e qualidade do sono antes do turno.', sorteio: 2, status: 'ativo' },
-  { id: 'emocional', titulo: 'Bem-estar emocional', tipo: 'Imagem', desc: 'Humor, estresse e preocupações do dia.', sorteio: 1, status: 'ativo' },
-  { id: 'atencao', titulo: 'Atenção e concentração', tipo: 'Imagem', desc: 'Testes rápidos de percepção e foco.', sorteio: 1, status: 'ativo' },
-  { id: 'fisica', titulo: 'Condição física', tipo: 'Texto', desc: 'Dores, disposição e alimentação.', sorteio: 1, status: 'ativo' },
-  { id: 'substancias', titulo: 'Medicamentos e substâncias', tipo: 'Texto', desc: 'Álcool e medicamentos que afetam o reflexo.', sorteio: 1, status: 'ativo' },
-  { id: 'seguranca', titulo: 'Percepção de segurança', tipo: 'Texto', desc: 'Confiança para executar as tarefas do dia.', sorteio: 1, status: 'ativo' }
+  { id: 'sono', titulo: 'Sono e descanso', tipo: 'Texto', desc: 'Duração e qualidade do sono antes do turno.', sorteio: 3, status: 'ativo' },
+  { id: 'saude', titulo: 'Saúde e condição física', tipo: 'Texto', desc: 'Dores, alimentação, álcool, medicamentos e segurança.', sorteio: 3, status: 'ativo' },
+  { id: 'percepcao', titulo: 'Percepção visual', tipo: 'Imagem', desc: 'Pergunta com imagem: contagem rápida de figuras.', sorteio: 3, status: 'ativo' },
+  { id: 'humor', titulo: 'Humor e raciocínio', tipo: 'Imagem', desc: 'Texto e imagem, com as 5 alternativas em imagem.', sorteio: 3, status: 'ativo' }
 ];
 const ESCALAS = {
   horas: [['Menos de 4 horas', 0], ['Entre 4 e 5 horas', 3], ['Entre 5 e 6 horas', 5], ['Entre 6 e 7 horas', 8], ['Mais de 7 horas', 10]],
@@ -1123,53 +1268,115 @@ const FACES = [['Muito mal', 0, 'face0'], ['Mal', 3, 'face1'], ['Neutro', 5, 'fa
 let qid = 0;
 const Q = (tipo, grupo, titulo, desc, alts, extra = {}) => ({ id: ++qid, tipo, grupo, titulo, desc, status: 'ativa', img: null,
   alts: (typeof alts === 'string' ? ESCALAS[alts] : alts).map(([t, p, img]) => ({ t, p, img: img || null })), ...extra });
+const SONO = [
+  ['Quantas horas você dormiu na última noite?', 'Considere apenas o sono contínuo, sem cochilos durante o dia.', 'horas'],
+  ['Como você avalia a qualidade do seu sono?', 'Pense em como você acordou hoje.', 'qualidade'],
+  ['Você acordou durante a noite?', '', [['Praticamente não dormi', 0], ['Acordei várias vezes', 3], ['Acordei algumas vezes', 5], ['Acordei uma vez e voltei a dormir', 8], ['Não, dormi a noite toda', 10]]],
+  ['Você se sente descansado para começar o turno?', '', 'concordo'],
+  ['Quanto tempo você levou para pegar no sono ontem?', '', [['Não consegui dormir', 0], ['Mais de 1 hora', 3], ['Entre 30 min e 1 hora', 5], ['Entre 15 e 30 min', 8], ['Menos de 15 min', 10]]],
+  ['Você sente sonolência neste momento?', '', 'intensNeg'],
+  ['Com que frequência você bocejou desde que acordou?', '', 'freqNeg'],
+  ['Você trabalhou ou estudou até tarde ontem?', '', [['Sim, virei a noite', 0], ['Sim, até de madrugada', 3], ['Um pouco além do normal', 5], ['Não, horário normal', 8], ['Não, descansei bem', 10]]],
+  ['Como foi seu descanso no último fim de semana?', '', 'qualidade'],
+  ['Você teve pesadelos ou sono agitado?', '', 'freqNeg'],
+  ['Você precisou do despertador mais de uma vez para levantar?', '', [['Sim, várias vezes e me atrasei', 0], ['Sim, várias vezes', 3], ['Sim, duas vezes', 5], ['Não, uma vez só', 8], ['Acordei sozinho', 10]]],
+  ['O lugar onde você dormiu estava adequado?', 'Silêncio, temperatura e conforto.', 'concordo'],
+  ['Nos últimos 3 dias, quantas noites você dormiu mal?', '', [['Todas', 0], ['Duas', 3], ['Uma, e foi bem ruim', 5], ['Uma, sem impacto', 8], ['Nenhuma', 10]]],
+  ['Você cochilou no trajeto até o trabalho?', '', [['Sim, e eu estava dirigindo', 0], ['Sim, por bastante tempo', 3], ['Sim, rapidamente', 5], ['Quase, mas não', 8], ['Não', 10]]],
+  ['Como está sua energia agora, comparada a um dia normal?', '', [['Muito abaixo', 0], ['Abaixo', 3], ['Um pouco abaixo', 5], ['Igual', 8], ['Acima do normal', 10]]],
+  ['Você tomou mais café ou energético que o normal para ficar acordado?', '', [['Muito mais', 0], ['Mais', 3], ['Um pouco mais', 5], ['O normal', 8], ['Não tomei', 10]]],
+  ['Você teve dificuldade para se levantar hoje?', '', 'intensNeg'],
+  ['Seus olhos estão pesados ou ardendo?', '', 'intensNeg'],
+  ['Você dormiu em horário diferente do habitual?', '', [['Totalmente diferente', 0], ['Bem diferente', 3], ['Um pouco diferente', 5], ['Quase igual', 8], ['No horário de sempre', 10]]],
+  ['Você se sente capaz de manter a atenção durante todo o turno?', '', 'concordo'],
+  ['Algo em casa atrapalhou seu sono (barulho, criança, doença)?', '', 'freqNeg'],
+  ['Você fez turno extra nas últimas 24 horas?', '', [['Sim, mais de 4 horas', 0], ['Sim, entre 2 e 4 horas', 3], ['Sim, até 2 horas', 5], ['Não, mas saí mais tarde', 8], ['Não', 10]]]
+];
+const SAUDE = [
+  ['Você sente alguma dor que possa atrapalhar suas atividades?', 'Considere dores musculares, de cabeça ou nas costas.', 'intensNeg'],
+  ['Como você avalia sua disposição física agora?', '', 'qualidade'],
+  ['Você se alimentou antes de iniciar o turno?', '', [['Não comi nada desde ontem', 0], ['Só tomei café ou outra bebida', 3], ['Fiz um lanche rápido', 5], ['Fiz uma refeição leve', 8], ['Fiz uma refeição completa', 10]]],
+  ['Nas últimas 12 horas, você consumiu bebida alcoólica?', 'As respostas são confidenciais e identificadas apenas por código.', [['Sim, e ainda sinto os efeitos', 0], ['Sim, em grande quantidade', 0], ['Sim, em pequena quantidade', 5], ['Sim, há mais de 10 horas', 8], ['Não consumi', 10]]],
+  ['Você tomou algum medicamento que pode causar sonolência?', 'Por exemplo: antialérgicos, relaxantes musculares ou calmantes.', [['Sim, e estou com sono', 0], ['Sim, sem saber os efeitos', 3], ['Sim, mas sem efeitos até agora', 5], ['Sim, com liberação médica', 8], ['Não tomei', 10]]],
+  ['Você se sente seguro para executar as atividades de hoje?', '', 'concordo'],
+  ['Você recebeu as orientações necessárias para as tarefas do dia?', '', 'concordo'],
+  ['Você está com febre, gripe ou mal-estar?', '', 'intensNeg'],
+  ['Você sente tontura ou visão turva?', '', 'intensNeg'],
+  ['Você bebeu água desde que acordou?', '', [['Nada', 0], ['Muito pouco', 3], ['Um copo', 5], ['Dois copos', 8], ['Mais de dois copos', 10]]],
+  ['Você sente tremores nas mãos?', '', 'intensNeg'],
+  ['Seus EPIs estão completos e em bom estado?', '', 'concordo'],
+  ['Algum ferimento recente limita seus movimentos?', '', 'intensNeg'],
+  ['Você usou alguma substância que altere a atenção?', 'Respostas confidenciais.', [['Sim, hoje', 0], ['Sim, ontem à noite', 3], ['Sim, há mais de 24 horas', 5], ['Prefiro não responder', 5], ['Não', 10]]],
+  ['Como está sua respiração neste momento?', '', [['Com muita dificuldade', 0], ['Com dificuldade', 3], ['Um pouco ofegante', 5], ['Normal, mas cansa no esforço', 8], ['Normal', 10]]],
+  ['Você sente dor de cabeça?', '', 'intensNeg'],
+  ['Você se sente apto para operar máquinas ou dirigir hoje?', '', 'concordo'],
+  ['Se você faz tratamento de pressão, tomou o remédio hoje?', '', [['Não, e estou passando mal', 0], ['Não tomei', 3], ['Não lembro', 5], ['Sim', 8], ['Não faço tratamento', 10]]],
+  ['Você sente náusea ou enjoo?', '', 'intensNeg'],
+  ['Você consegue enxergar bem, sem esforço, hoje?', '', 'concordo'],
+  ['Você tem alguma preocupação com a segurança do seu posto de trabalho?', '', [['Sim, risco grave', 0], ['Sim, preocupante', 3], ['Alguma, mas sob controle', 5], ['Pequena', 8], ['Nenhuma', 10]]],
+  ['Você passou por algum quase acidente nos últimos dias?', '', [['Sim, mais de um', 0], ['Sim, um sério', 3], ['Sim, um leve', 5], ['Não tenho certeza', 8], ['Não', 10]]],
+  ['Você sente cansaço muscular do dia anterior?', '', 'intensNeg'],
+  ['No geral, como está sua saúde hoje?', '', 'qualidade']
+];
+const HUMOR_FACES = ['Qual destas imagens representa melhor como você se sente agora?', 'Qual expressão mostra sua disposição para trabalhar hoje?', 'Como você chegou ao trabalho hoje?',
+  'Qual imagem mostra seu ânimo neste momento?', 'Como você se sentiu ao acordar?', 'Qual imagem representa como foi o seu dia ontem?', 'Como você se sente em relação à sua equipe hoje?', 'Qual expressão representa sua tranquilidade agora?'];
+const PADROES = [['circulo', 'quadrado'], ['triangulo', 'losango', 'circulo'], ['estrela', 'estrela', 'quadrado'], ['quadrado', 'circulo', 'circulo'], ['losango', 'triangulo'], ['circulo', 'estrela', 'triangulo'],
+  ['triangulo', 'triangulo', 'circulo'], ['quadrado', 'losango'], ['estrela', 'circulo', 'quadrado'], ['losango', 'losango', 'estrela'], ['circulo', 'triangulo', 'quadrado', 'estrela'], ['quadrado', 'estrela', 'estrela']];
+const ORDEM_FORMAS = ['circulo', 'quadrado', 'triangulo', 'losango', 'estrela'];
 const PERGUNTAS = [
-  Q('principal', 'sono', 'Quantas horas você dormiu na última noite?', 'Considere apenas o sono contínuo, sem cochilos durante o dia.', 'horas'),
-  Q('principal', 'sono', 'Como você avalia a qualidade do seu sono?', 'Pense em como você acordou hoje.', 'qualidade'),
-  Q('principal', 'sono', 'Você acordou durante a noite?', '', [['Praticamente não dormi', 0], ['Acordei várias vezes', 3], ['Acordei algumas vezes', 5], ['Acordei uma vez e voltei a dormir', 8], ['Não, dormi a noite toda', 10]]),
-  Q('principal', 'sono', 'Você se sente descansado para começar o turno?', '', 'concordo'),
-  Q('principal', 'emocional', 'Qual destas imagens representa melhor como você se sente agora?', 'Escolha a expressão mais próxima do seu estado atual.', FACES),
-  Q('principal', 'emocional', 'Nos últimos dias, alguma preocupação atrapalhou seu trabalho?', '', 'freqNeg'),
-  Q('principal', 'emocional', 'Como está o seu nível de estresse hoje?', '', 'intensNeg'),
-  Q('principal', 'atencao', 'Quantos triângulos aparecem na imagem?', 'Observe com atenção antes de responder.', [['4', 0], ['5', 5], ['6', 10], ['7', 5], ['8', 0]], { img: 'triangulos' }),
-  Q('principal', 'atencao', 'Qual figura completa a sequência?', 'Observe o padrão que se repete.', [['Círculo', 0, 'circulo'], ['Quadrado', 0, 'quadrado'], ['Triângulo', 10, 'triangulo'], ['Losango', 0, 'losango'], ['Estrela', 0, 'estrela']], { img: 'sequencia' }),
-  Q('principal', 'atencao', 'Ontem, com que frequência você se distraiu em tarefas simples?', '', 'freqNeg'),
-  Q('principal', 'fisica', 'Você sente alguma dor que possa atrapalhar suas atividades?', 'Considere dores musculares, de cabeça ou nas costas.', 'intensNeg'),
-  Q('principal', 'fisica', 'Como você avalia sua disposição física agora?', '', 'qualidade'),
-  Q('principal', 'fisica', 'Você se alimentou antes de iniciar o turno?', '', [['Não comi nada desde ontem', 0], ['Só tomei café ou outra bebida', 3], ['Fiz um lanche rápido', 5], ['Fiz uma refeição leve', 8], ['Fiz uma refeição completa', 10]]),
-  Q('principal', 'substancias', 'Nas últimas 12 horas, você consumiu bebida alcoólica?', 'As respostas são confidenciais e identificadas apenas por código.', [['Sim, e ainda sinto os efeitos', 0], ['Sim, em grande quantidade', 0], ['Sim, em pequena quantidade', 5], ['Sim, há mais de 10 horas', 8], ['Não consumi', 10]]),
-  Q('principal', 'substancias', 'Você tomou algum medicamento que pode causar sonolência?', 'Por exemplo: antialérgicos, relaxantes musculares ou calmantes.', [['Sim, e estou com sono', 0], ['Sim, sem saber os efeitos', 3], ['Sim, mas sem efeitos até agora', 5], ['Sim, com liberação médica', 8], ['Não tomei', 10]]),
-  Q('principal', 'seguranca', 'Você se sente seguro para executar as atividades de hoje?', '', 'concordo'),
-  Q('principal', 'seguranca', 'Você recebeu as orientações necessárias para as tarefas do dia?', '', 'concordo', { status: 'inativa' }),
+  ...SONO.map(([t, d, a]) => Q('principal', 'sono', t, d, a)),
+  ...SAUDE.map(([t, d, a], i) => Q('principal', 'saude', t, d, a, i === 6 ? { status: 'inativa' } : {})),
+  ...Array.from({ length: 20 }, (_, i) => {
+    const forma = ORDEM_FORMAS[i % 5], n = 4 + ((i * 7) % 6);
+    return Q('principal', 'percepcao', i < 10 ? `Quantos ${PLURAL_FORMA[forma]} aparecem na imagem?` : `Conte os ${PLURAL_FORMA[forma]} da imagem. Quantos são?`,
+      'Observe com atenção antes de responder.', [n - 2, n - 1, n, n + 1, n + 2].map((x, k) => [String(x), [0, 5, 10, 5, 0][k]]), { img: `cnt:${101 + i}:${forma}:${n}` });
+  }),
+  ...HUMOR_FACES.map(t => Q('principal', 'humor', t, 'Escolha a imagem mais próxima do seu estado atual.', FACES)),
+  ...PADROES.map((pd, i) => Q('principal', 'humor', i % 2 ? 'Observe o padrão. Qual figura entra no lugar do ponto de interrogação?' : 'Qual figura completa a sequência?',
+    'Observe o padrão que se repete.', ORDEM_FORMAS.map(f => [NOME_FORMA[f], f === pd[5 % pd.length] ? 10 : 0, 'forma:' + f]), { img: 'seq:' + pd.join(',') })),
   Q('avaliacao', null, 'Neste momento, você sente sono ou cansaço excessivo?', '', 'intensNeg'),
   Q('avaliacao', null, 'Você conseguiria operar máquinas ou dirigir com segurança agora?', '', 'concordo'),
   Q('avaliacao', null, 'Há algo acontecendo hoje que possa afetar sua segurança no trabalho?', '', [['Sim, algo grave', 0], ['Sim, e está me preocupando', 3], ['Talvez', 5], ['Algo pequeno, sob controle', 8], ['Não', 10]]),
-  Q('avaliacao', null, 'Como você descreveria seu foco agora?', '', 'qualidade'),
-  Q('avaliacao', null, 'Como você se sente depois de responder às primeiras perguntas?', 'Escolha a expressão mais próxima.', FACES),
   Q('avaliacao', null, 'Você gostaria de conversar com seu supervisor antes de começar?', '', [['Sim, com urgência', 0], ['Sim, assim que possível', 3], ['Talvez mais tarde', 5], ['Não é necessário', 8], ['Não, estou bem', 10]]),
   Q('adicional', null, 'Desde quando você está se sentindo assim?', '', [['Há mais de uma semana', 0], ['Há alguns dias', 3], ['Desde ontem', 5], ['Desde hoje cedo', 8], ['Foi algo pontual', 10]]),
   Q('adicional', null, 'Você já procurou atendimento médico por esse motivo?', '', [['Não, e preciso de ajuda', 0], ['Não, mas pretendo', 3], ['Estou em acompanhamento', 5], ['Sim, fui liberado', 8], ['Não é necessário', 10]]),
   Q('adicional', null, 'Você precisa de apoio do RH ou da saúde ocupacional?', '', [['Sim, hoje', 0], ['Sim, nesta semana', 3], ['Talvez', 5], ['Acho que não', 8], ['Não preciso', 10]]),
   Q('adicional', null, 'Você está em condições de cumprir a jornada completa hoje?', '', 'concordo'),
-  Q('adicional', null, 'Qual a chance de você precisar parar durante o turno?', '', [['Muito alta', 0], ['Alta', 3], ['Média', 5], ['Baixa', 8], ['Nenhuma', 10]], { status: 'inativa' })
+  Q('adicional', null, 'Qual a chance de você precisar parar durante o turno?', '', [['Muito alta', 0], ['Alta', 3], ['Média', 5], ['Baixa', 8], ['Nenhuma', 10]])
 ];
 const TIPO_NOME = { principal: 'Pergunta principal', avaliacao: 'Pergunta de Avaliação', adicional: 'Pergunta Adicional' };
 let bpTab = 'grupos', bpGrupo = 'todos', bpQ = '', bpSt = 'todas';
 
+// Documento: o banco de perguntas só é alterado com a senha de acesso master
+let masterOk = false;
+function comMaster(fn) {
+  if (masterOk) return fn();
+  openModal({ title: 'Senha master', sub: 'O banco de perguntas só pode ser alterado pelo administrador principal.', width: 440,
+    body: `<div class="field"><label for="mPass">Senha de acesso master</label><div class="input-icon">${icon('lock')}<input class="input" id="mPass" type="password" autocomplete="off"></div></div>
+      <p class="form-error" id="mErro" hidden>Digite a senha master para continuar.</p>
+      <span class="hint">Demonstração: qualquer senha libera a edição até você sair do painel.</span>`,
+    foot: `<button class="btn" data-close>Cancelar</button><button class="btn btn-primary" id="mOk">Liberar edição</button>` });
+  const ok = () => {
+    if (!$('#mPass').value) { $('#mErro').hidden = false; $('#mPass').classList.add('invalid'); return; }
+    masterOk = true; closeLayer(); renderPerguntas($('#view')); fn();
+  };
+  $('#mOk').addEventListener('click', ok);
+  $('#mPass').addEventListener('keydown', e => { if (e.key === 'Enter') ok(); });
+}
 function renderPerguntas(v) {
   const cnt = t => PERGUNTAS.filter(p => p.tipo === t).length;
   const abas = [['grupos', 'Grupos de análise', GRUPOS.length], ['principal', 'Perguntas', cnt('principal')], ['avaliacao', 'Perguntas de Avaliação', cnt('avaliacao')], ['adicional', 'Perguntas Adicionais', cnt('adicional')]];
   v.innerHTML = `
   <div class="page-head">
-    <div><h1>Banco de Perguntas</h1><p>Perguntas usadas por todas as empresas. Cada uma tem 5 alternativas com pontuação de 0 a 10.</p></div>
-    <div class="page-actions"><button class="btn btn-primary" id="bpNovo">${icon('plus')}${bpTab === 'grupos' ? 'Novo grupo' : 'Nova pergunta'}</button></div>
+    <div><h1>Banco de Perguntas</h1><p>Perguntas usadas por todas as empresas, com 5 alternativas pontuadas de 0 a 10. Só o administrador principal edita, com a senha master.</p></div>
+    <div class="page-actions">${masterOk ? `<span class="chip accent">${icon('lock')}Edição liberada</span>` : ''}${bpTab === 'avaliacao' ? '' : `<button class="btn btn-primary" id="bpNovo">${icon('plus')}${bpTab === 'grupos' ? 'Novo grupo' : 'Nova pergunta'}</button>`}</div>
   </div>
   <article class="card">
     <div class="tabs" role="tablist" id="bpTabs">${abas.map(([k, l, n]) => `<button type="button" role="tab" data-t="${k}" aria-selected="${bpTab === k}">${l}<span class="n">${n}</span></button>`).join('')}</div>
     <div id="bpBody"></div>
   </article>`;
   $('#bpTabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (b) { bpTab = b.dataset.t; bpQ = ''; renderPerguntas(v); } });
-  $('#bpNovo').addEventListener('click', () => bpTab === 'grupos' ? grupoModal() : qModal());
+  if ($('#bpNovo')) $('#bpNovo').addEventListener('click', () => comMaster(() => bpTab === 'grupos' ? grupoModal() : qModal()));
   bpTab === 'grupos' ? drawGrupos() : drawQuestoes();
 }
 function drawGrupos() {
@@ -1182,7 +1389,7 @@ function drawGrupos() {
       return `<tr data-g="${g.id}" tabindex="0">
         <td><span style="font-weight:500">${esc(g.titulo)}</span><span class="sub">${esc(g.desc)}</span></td>
         <td><span class="chip ${g.tipo === 'Imagem' ? 'accent' : ''}">${icon(g.tipo === 'Imagem' ? 'image' : 'text')}${g.tipo}</span></td>
-        <td class="num" style="text-align:right">${qs.length}<span class="sub">${at} ativas</span></td>
+        <td class="num" style="text-align:right">${qs.length}<span class="sub"${at < 20 ? ' style="color:var(--warn)"' : ''}>${at} ativas${at < 20 ? ' · mínimo de 20' : ''}</span></td>
         <td class="num" style="text-align:right">${g.sorteio}</td>
         <td><span class="pill ${g.status === 'ativo' ? 'on' : 'off'}">${g.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
         <td><div class="row-actions"><button class="btn btn-sm" type="button" data-ver="${g.id}">Ver perguntas</button><button class="icon-btn sm" type="button" title="Editar" aria-label="Editar ${esc(g.titulo)}">${icon('edit')}</button></div></td></tr>`;
@@ -1192,7 +1399,7 @@ function drawGrupos() {
   const abrir = e => {
     const ver = e.target.closest('[data-ver]');
     if (ver) { bpTab = 'principal'; bpGrupo = ver.dataset.ver; renderPerguntas($('#view')); return; }
-    const tr = e.target.closest('tr[data-g]'); if (tr) grupoModal(GRUPOS.find(g => g.id === tr.dataset.g));
+    const tr = e.target.closest('tr[data-g]'); if (tr) comMaster(() => grupoModal(GRUPOS.find(g => g.id === tr.dataset.g)));
   };
   $('#gRows').addEventListener('click', abrir);
   $('#gRows').addEventListener('keydown', e => { if (e.key === 'Enter') abrir(e); });
@@ -1223,8 +1430,8 @@ function grupoModal(g) {
 function drawQuestoes() {
   const banner = {
     principal: `Sorteadas todos os dias para cada funcionário, de acordo com a quantidade definida para cada grupo.`,
-    avaliacao: `Enviadas ${CFG.envioAval === 'imediato' ? 'imediatamente' : 'no dia seguinte'} quando o resultado das perguntas principais é <b>Atenção</b> ou <b>Risco</b>. São sorteadas ${CFG.avalQtd} perguntas deste banco.`,
-    adicional: `Enviadas ${CFG.envioAdic === 'imediato' ? 'imediatamente' : 'no dia seguinte'} quando o resultado da Avaliação continua em <b>Atenção</b> ou <b>Risco</b>.`
+    avaliacao: `Enviadas ${CFG.envioAval === 'imediato' ? 'imediatamente' : 'no dia seguinte'} quando o resultado das perguntas principais é <b>Atenção</b> ou <b>Risco</b>. São 4 perguntas fixas, sempre as mesmas; o texto e a pontuação podem ser editados.`,
+    adicional: `Enviadas ${CFG.envioAdic === 'imediato' ? 'imediatamente' : 'no dia seguinte'} quando o resultado da Avaliação continua em <b>Atenção</b> ou <b>Risco</b>. São 4 ou mais perguntas ativas.`
   }[bpTab];
   $('#bpBody').innerHTML = `<div class="info-banner">${icon(bpTab === 'principal' ? 'shuffle' : 'layers')}<span>${banner}</span></div>
     <div class="toolbar">
@@ -1240,7 +1447,7 @@ function drawQuestoes() {
   const abrir = e => {
     const pv = e.target.closest('[data-prev]');
     if (pv) { e.stopPropagation(); preview(PERGUNTAS.find(p => p.id === +pv.dataset.prev)); return; }
-    const row = e.target.closest('[data-q]'); if (row) qModal(PERGUNTAS.find(p => p.id === +row.dataset.q));
+    const row = e.target.closest('[data-q]'); if (row) comMaster(() => qModal(PERGUNTAS.find(p => p.id === +row.dataset.q)));
   };
   $('#qList').addEventListener('click', abrir);
   $('#qList').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('[data-q]')) abrir(e); });
@@ -1251,7 +1458,7 @@ function drawQList() {
   const lista = PERGUNTAS.filter(p => p.tipo === bpTab && (bpTab !== 'principal' || bpGrupo === 'todos' || p.grupo === bpGrupo)
     && (bpSt === 'todas' || p.status === bpSt) && (!q || norm(p.titulo + ' ' + p.desc).includes(q)));
   $('#qList').innerHTML = lista.length ? lista.map(p => {
-    const altImg = p.alts.find(a => a.img), g = GRUPOS.find(x => x.id === p.grupo);
+    const altImg = [...p.alts].reverse().find(a => a.img), g = GRUPOS.find(x => x.id === p.grupo);
     const pts = p.alts.map(a => a.p);
     return `<div class="q-row" data-q="${p.id}" tabindex="0">
       <div class="q-thumb">${p.img ? renderImg(p.img) : altImg ? renderImg(altImg.img) : icon('text')}</div>
@@ -1276,7 +1483,7 @@ function qModal(p) {
   openModal({
     title: novo ? 'Nova pergunta' : 'Editar pergunta', sub: TIPO_NOME[d.tipo], width: 760,
     body: `<div class="form-grid">
-      <div class="span-6"><label class="switch"><input type="checkbox" id="qSt" ${d.status === 'ativa' ? 'checked' : ''}><span>Pergunta ativa</span></label></div>
+      <div class="span-6">${d.tipo === 'avaliacao' ? `<span class="chip accent">${icon('lock')}Pergunta fixa: enviada sempre nesta etapa</span><input type="checkbox" id="qSt" checked hidden>` : `<label class="switch"><input type="checkbox" id="qSt" ${d.status === 'ativa' ? 'checked' : ''}><span>Pergunta ativa</span></label>`}</div>
       ${d.tipo === 'principal' ? `<div class="field span-6"><label for="qGrupo">Grupo de análise</label><select class="input" id="qGrupo">${GRUPOS.map(g => `<option value="${g.id}" ${g.id === d.grupo ? 'selected' : ''}>${esc(g.titulo)} (${g.tipo})</option>`).join('')}</select></div>` : ''}
       <div class="field span-6"><label for="qTit">Título da pergunta</label><input class="input" id="qTit" value="${esc(d.titulo)}" placeholder="Ex.: Quantas horas você dormiu na última noite?"></div>
       <div class="field span-6"><label for="qDesc">Descrição <span class="hint">(opcional)</span></label><textarea class="input" id="qDesc" rows="2" placeholder="Orientação curta exibida abaixo do título">${esc(d.desc)}</textarea></div>
@@ -1328,7 +1535,8 @@ function qModal(p) {
     const msg = d.titulo.length < 5 ? 'Escreva o título da pergunta.'
       : semTexto.length ? `Preencha a descrição das alternativas ${semTexto.join(', ')}.`
       : ptsRuins ? 'A pontuação de cada alternativa deve ser um número inteiro de 0 a 10.'
-      : Math.max(...d.alts.map(a => a.p)) === 0 ? 'Pelo menos uma alternativa precisa ter pontuação maior que zero.' : '';
+      : Math.max(...d.alts.map(a => a.p)) === 0 ? 'Pelo menos uma alternativa precisa ter pontuação maior que zero.'
+      : d.tipo === 'adicional' && d.status === 'inativa' && PERGUNTAS.filter(x => x.tipo === 'adicional' && x.status === 'ativa' && x.id !== d.id).length < 4 ? 'As Perguntas Adicionais precisam de pelo menos 4 perguntas ativas.' : '';
     $('#qTit').classList.toggle('invalid', d.titulo.length < 5);
     d.alts.forEach((a, i) => $('#qAlt' + i).classList.toggle('invalid', !a.t));
     if (msg) { err.textContent = msg; err.hidden = false; return; }
@@ -1371,8 +1579,8 @@ function renderConfig(v) {
   <div class="cfg-grid" id="cfgGrid">
     <article class="card"><div class="card-head"><div><h2>Sorteio de perguntas</h2><p>Quantas perguntas de cada grupo o funcionário recebe por dia</p></div></div>
       <div class="card-body">
-        ${GRUPOS.map(g => `<div class="cfg-row"><div class="lbl"><b>${esc(g.titulo)}</b><span>${PERGUNTAS.filter(p => p.grupo === g.id && p.status === 'ativa').length} perguntas ativas no grupo</span></div>${numero('s_' + g.id, d.sorteio[g.id], 'perguntas', 0, 10)}</div>`).join('')}
-        <div class="cfg-total">Total por funcionário: <b id="sTotal"></b> perguntas por dia</div>
+        ${GRUPOS.map(g => `<div class="cfg-row"><div class="lbl"><b>${esc(g.titulo)}</b>${(n => `<span${n < 20 ? ' style="color:var(--warn)"' : ''}>${n} perguntas ativas no grupo${n < 20 ? ' · mínimo de 20' : ''}</span>`)(PERGUNTAS.filter(p => p.grupo === g.id && p.status === 'ativa').length)}</div>${numero('s_' + g.id, d.sorteio[g.id], 'perguntas', 1, 6)}</div>`).join('')}
+        <div class="cfg-total">Total por funcionário: <b id="sTotal"></b> perguntas por dia · o permitido é de 8 a 12</div>
       </div></article>
 
     <article class="card"><div class="card-head"><div><h2>Disparo diário</h2><p>Quando as perguntas chegam aos funcionários</p></div></div>
@@ -1396,10 +1604,11 @@ function renderConfig(v) {
         <div class="lgpd-box">${icon('bell')}<span>Resultados em Atenção ou Risco avisam o supervisor na hora e liberam as Perguntas de Avaliação para o funcionário.</span></div>
       </div></article>
 
-    <article class="card"><div class="card-head"><div><h2>Tempo de resposta</h2><p>Respostas fora desses limites aparecem nos relatórios</p></div></div>
+    <article class="card"><div class="card-head"><div><h2>Tempo de resposta</h2><p>O app registra o tempo de cada resposta; o painel compara com estes limites, registra os desvios e gera alertas</p></div></div>
       <div class="card-body">
-        <div class="cfg-row"><div class="lbl"><b>Tempo mínimo</b><span>Abaixo disso, a resposta é sinalizada como rápida demais</span></div>${numero('cTMin', d.tempoMin, 'seg', 5, 600)}</div>
-        <div class="cfg-row"><div class="lbl"><b>Tempo máximo</b><span>Acima disso, a resposta é sinalizada como demorada</span></div>${numero('cTMax', d.tempoMax, 'min', 1, 120)}</div>
+        <div class="cfg-row"><div class="lbl"><b>Tempo mínimo por resposta</b><span>Abaixo disso, a resposta é marcada como rápida demais</span></div>${numero('cTMin', d.tempoMin, 'seg', 1, 60)}</div>
+        <div class="cfg-row"><div class="lbl"><b>Tempo máximo por resposta</b><span>Acima disso, a resposta é marcada como demorada</span></div>${numero('cTMax', d.tempoMax, 'seg', 5, 600)}</div>
+        <div class="cfg-row"><div class="lbl"><b>Gerar alerta de desvio</b><span>Mostra no Dashboard quem passou dos limites</span></div><label class="switch"><input type="checkbox" id="cAlertT" ${d.alertaTempo ? 'checked' : ''}><span class="sr">Gerar alerta de desvio de tempo</span></label></div>
       </div></article>
 
     <article class="card"><div class="card-head"><div><h2>Segurança de acesso</h2><p>Vale para o painel das empresas e para o aplicativo</p></div></div>
@@ -1410,7 +1619,7 @@ function renderConfig(v) {
 
     <article class="card span-all"><div class="card-head"><div><h2>Envio das etapas seguintes</h2><p>Quando o funcionário recebe as perguntas extras depois de um resultado negativo</p></div></div>
       <div class="card-body cfg-grid" style="gap:20px">
-        ${etapa('envioAval', 'Perguntas de Avaliação', `Após Atenção ou Risco nas perguntas principais · ${d.avalQtd} perguntas`)}
+        ${etapa('envioAval', 'Perguntas de Avaliação', 'Após Atenção ou Risco nas perguntas principais · 4 perguntas fixas')}
         ${etapa('envioAdic', 'Perguntas Adicionais', 'Se o resultado da Avaliação continuar negativo')}
       </div></article>
   </div>
@@ -1422,7 +1631,7 @@ function renderConfig(v) {
     d.horario = $('#cHora').value; d.janela = +$('#cJanela').value;
     d.faixaRisco = +$('#cRisco').value; d.faixaAtencao = +$('#cAtencao').value;
     d.tempoMin = +$('#cTMin').value; d.tempoMax = +$('#cTMax').value; d.tentativas = +$('#cTent').value; d.bloqueio = +$('#cBloq').value;
-    d.lembrete = $('#cLemb').checked; d.notifEmail = $('#cMail').checked;
+    d.lembrete = $('#cLemb').checked; d.notifEmail = $('#cMail').checked; d.alertaTempo = $('#cAlertT').checked;
     d.envioAval = $('input[name=envioAval]:checked').value; d.envioAdic = $('input[name=envioAdic]:checked').value;
   };
   const drawRange = () => {
@@ -1447,8 +1656,8 @@ function renderConfig(v) {
     const erro = d.faixaRisco < 1 || d.faixaAtencao <= d.faixaRisco || d.faixaAtencao >= 100 ? 'As faixas precisam seguir a ordem Risco < Atenção < 100%.'
       : !d.horario ? 'Informe o horário do disparo.'
       : !d.dias.length ? 'Selecione pelo menos um dia de disparo.'
-      : !Object.values(d.sorteio).some(n => n > 0) ? 'Defina pelo menos uma pergunta sorteada por dia.'
-      : !(d.tempoMin > 0 && d.tempoMax > 0) || d.tempoMin >= d.tempoMax * 60 ? 'O tempo mínimo precisa ser menor que o tempo máximo.'
+      : (t => t < 8 || t > 12)(Object.values(d.sorteio).reduce((a, n) => a + n, 0)) ? 'O total sorteado precisa ficar entre 8 e 12 perguntas por dia.'
+      : !(d.tempoMin > 0 && d.tempoMax > 0) || d.tempoMin >= d.tempoMax ? 'O tempo mínimo precisa ser menor que o tempo máximo.'
       : !(d.tentativas >= 1) ? 'Informe pelo menos 1 tentativa de login.' : '';
     if (erro) { $('#saveMsg').innerHTML = icon('warn') + erro; return; }
     const { sorteio, ...resto } = d;
@@ -1483,14 +1692,17 @@ const ANOS = (() => {
   const r = rng(8), a26 = MESES.filter(m => m.d.getFullYear() === 2026).reduce((s, m) => s + m.total, 0), media = MESES.reduce((s, m) => s + m.total, 0) / 12;
   return [{ ano: 2024, ...mix(Math.round(media * 12 * 0.58), r) }, { ano: 2025, ...mix(Math.round(media * 12 * 0.84), r) }, { ano: 2026, ...mix(a26, r) }];
 })();
+// Desvios de tempo por resposta (o app envia o tempo de cada resposta; o painel compara com os limites)
 const FORA = (() => {
-  const r = rng(13), out = [];
-  for (let i = 0; i < 70; i++) {
-    const e = ATIVAS[Math.floor(r() * ATIVAS.length)], dia = SERIE[Math.floor(r() * SERIE.length)].d;
-    const abaixo = r() < .58, min = 6 * 60 + Math.floor(r() * 110);
-    out.push({ codigo: 'FUNC-' + String(Math.floor(r() * 90000) + 1000).padStart(5, '0'), empresa: e.nome,
+  const r = rng(13), out = [], principais = PERGUNTAS.filter(p => p.tipo === 'principal'), aval = PERGUNTAS.filter(p => p.tipo === 'avaliacao');
+  for (let i = 0; i < 90; i++) {
+    const hojeTb = i < 14, e = hojeTb ? EMPRESAS[Math.floor(r() * EMPRESAS.length)] : ATIVAS[Math.floor(r() * ATIVAS.length)];
+    const dia = hojeTb ? SERIE[SERIE.length - 1].d : SERIE[Math.floor(r() * SERIE.length)].d;
+    const abaixo = r() < .55, min = 6 * 60 + Math.floor(r() * 100), etapa = r() < .85 ? 'Principais' : 'Avaliação';
+    const q = (etapa === 'Principais' ? principais : aval)[Math.floor(r() * (etapa === 'Principais' ? principais : aval).length)];
+    out.push({ codigo: 'FUNC-' + String(Math.floor(r() * 40000) + 1000).padStart(5, '0'), empresa: e.nome, pergunta: q.titulo, etapa,
       data: new Date(dia.getFullYear(), dia.getMonth(), dia.getDate(), Math.floor(min / 60), min % 60),
-      tempo: abaixo ? Math.round(14 + r() * 42) : Math.round((16 + r() * 26) * 60), etapa: r() < .8 ? 'Principais' : 'Avaliação',
+      tempo: abaixo ? 1 + Math.floor(r() * 2) : Math.round(65 + r() * 150),
       classe: r() < .78 ? 'apto' : r() < .7 ? 'atencao' : 'risco' });
   }
   return out.sort((a, b) => b.data - a.data);
@@ -1524,22 +1736,26 @@ function stackedChart(canvas, labels, rows, thin) {
 function renderRelatorios(v) {
   if (relChart) { relChart.destroy(); charts = charts.filter(c => c !== relChart); relChart = null; }
   const ini = fromISO(relIni), fim = fromISO(relFim), fimExcl = new Date(fim.getFullYear(), fim.getMonth(), fim.getDate() + 1);
-  const emp = ADESAO.find(e => e.nome === relEmp);
-  const f = emp ? (emp.func / CAD) * (emp.taxa / 0.786) : 1;
-  const scale = s => { const apto = Math.round(s.apto * f), atencao = Math.round(s.atencao * f), risco = Math.round(s.risco * f); return { ...s, apto, atencao, risco, total: apto + atencao + risco }; };
-  const dias = SERIE.filter(s => s.d >= ini && s.d <= fim).map(scale);
+  const { emp, f } = fatorEmp(relEmp);
+  const dias = SERIE.filter(s => s.d >= ini && s.d <= fim).map(s => escalar(s, f));
   const tot = dias.reduce((a, s) => a + s.total, 0), media = dias.length ? Math.round(tot / dias.length) : 0;
-  const noMes = SERIE.filter(s => s.d.getMonth() === 10).map(scale).reduce((a, s) => a + s.total, 0);
-  const noAno = Math.round(ANOS[2].total * f);
+  const noMes = SERIE.filter(s => s.d.getMonth() === 10).map(s => escalar(s, f)).reduce((a, s) => a + s.total, 0);
+  const noAno = Math.round(ANOS[2].total * f), totalGeral = Math.round(ANOS.reduce((a, x) => a + x.total, 0) * f);
   const cad = emp ? emp.func : CAD;
+  // Quem respondeu ao menos uma vez no período (cresce com o tamanho do período)
+  const taxaUnica = Math.min(.97, .79 + .006 * dias.length);
+  const responderam = Math.min(cad, Math.round(cad * taxaUnica * (emp ? Math.min(1.1, emp.taxa / .786) : 1)));
   const uteis = dias.filter(s => s.d.getDay() % 6 !== 0);
   const adesao = uteis.length ? uteis.reduce((a, s) => a + s.total, 0) / uteis.length / cad * 100 : 0;
   const ciclo = computeCiclo(dias);
   const fora = FORA.filter(x => x.data >= ini && x.data < fimExcl && (!emp || x.empresa === emp.nome));
-  const abaixo = fora.filter(x => x.tempo < CFG.tempoMin), acima = fora.filter(x => x.tempo > CFG.tempoMax * 60);
+  const abaixo = fora.filter(x => x.tempo < CFG.tempoMin), acima = fora.filter(x => x.tempo > CFG.tempoMax);
   const listaFora = relFora === 'abaixo' ? abaixo : acima;
-  const adh = emp ? [emp] : [...ADESAO].sort((a, b) => b.taxa - a.taxa);
-  const peso = ADESAO.reduce((s, e) => s + e.func * e.taxa, 0), alertasPer = ciclo.P.atencao + ciclo.P.risco;
+  const peso = ADESAO.reduce((a, e) => a + e.func * e.taxa, 0);
+  const linhas = (emp ? [emp] : [...ADESAO].sort((a, b) => b.taxa - a.taxa)).map(e => {
+    const sh = emp ? 1 : e.func * e.taxa / peso;
+    return { ...e, resp: Math.min(e.func, Math.round(e.func * taxaUnica * Math.min(1.1, e.taxa / .786))), at: Math.round(ciclo.P.atencao * sh), ri: Math.round(ciclo.P.risco * sh) };
+  });
   const dif = Math.round((fim - ini) / 864e5) + 1;
   const preset = relFim !== MAX_DATA ? '' : relIni === '2026-11-01' ? 'mes' : [7, 30, 90].includes(dif) ? String(dif) : '';
   const tipoBloco = (nome, o, total) => {
@@ -1551,58 +1767,66 @@ function renderRelatorios(v) {
   const legenda = `<div class="legend" style="margin-bottom:12px"><span><i style="background:var(--ok)"></i>Apto</span><span><i style="background:var(--warn)"></i>Atenção</span><span><i style="background:var(--risk)"></i>Risco</span></div>`;
   v.innerHTML = `
   <div class="page-head">
-    <div><h1>Relatórios</h1><p>${ini.toLocaleDateString('pt-BR')} a ${fim.toLocaleDateString('pt-BR')} · ${emp ? esc(emp.nome) : 'todas as empresas ativas'}</p></div>
+    <div><h1>Relatórios</h1><p>${ini.toLocaleDateString('pt-BR')} a ${fim.toLocaleDateString('pt-BR')} · ${emp ? esc(emp.nome) : 'geral, todas as empresas ativas'}</p></div>
     <div class="page-actions"><button class="btn" id="expPdf">${icon('file')}Exportar PDF</button><button class="btn" id="expXls">${icon('sheet')}Exportar Excel</button></div>
   </div>
   <article class="card"><div class="filters">
     <div class="field"><label for="rIni">De</label><input class="input" type="date" id="rIni" min="${MIN_DATA}" max="${MAX_DATA}" value="${relIni}"></div>
     <div class="field"><label for="rFim">Até</label><input class="input" type="date" id="rFim" min="${MIN_DATA}" max="${MAX_DATA}" value="${relFim}"></div>
-    <div class="field grow"><label for="rEmp">Empresa</label><select class="input" id="rEmp"><option value="todas">Todas as empresas ativas (${ADESAO.length})</option>${[...ADESAO].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(e => `<option ${e.nome === relEmp ? 'selected' : ''}>${esc(e.nome)}</option>`).join('')}</select></div>
+    <div class="field grow"><label for="rEmp">Empresa</label><select class="input" id="rEmp"><option value="todas">Geral: todas as empresas ativas (${ADESAO.length})</option>${[...ADESAO].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(e => `<option ${e.nome === relEmp ? 'selected' : ''}>${esc(e.nome)}</option>`).join('')}</select></div>
     <div class="field"><span class="flabel">Período rápido</span><div class="seg" id="rPre">${[['7', '7 dias'], ['30', '30 dias'], ['mes', 'Este mês'], ['90', '90 dias']].map(([k, l]) => `<button type="button" data-p="${k}" aria-pressed="${preset === k}">${l}</button>`).join('')}</div></div>
   </div></article>
 
-  <section class="kpis k4" aria-label="Indicadores do período">
+  <section class="kpi-group" aria-label="Participação"><h2 class="sec-label">Participação</h2><div class="kpis k4">
+    ${kpi('empresas', 'Empresas participantes', emp ? '1' : String(ATIVAS.length), '', `<span>${emp ? esc(emp.cidade) + '/' + emp.uf : 'nesta etapa do projeto'}</span>`)}
+    ${kpi('users', 'Funcionários participantes', fmt(cad), '', `<span>cadastrados e ativos</span>`)}
+    ${kpi('check', 'Responderam no período', fmt(responderam), '', `<span>${pct(responderam / cad * 100)} dos cadastrados</span>`)}
+    ${kpi('percent', 'Respostas × cadastrados', pct(adesao), '', `<div class="meter" style="width:100%"><i style="width:${Math.min(adesao, 100)}%"></i></div><span>média dos dias úteis</span>`)}
+  </div></section>
+
+  <section class="kpi-group" aria-label="Volume de respostas"><h2 class="sec-label">Respostas</h2><div class="kpis k4">
     ${kpi('send', 'Respostas no período', fmt(tot), '', `<span>${dias.length} dias · média de ${fmt(media)} por dia</span>`)}
     ${kpi('calendar', 'Respostas no mês', fmt(noMes), '', `<span>novembro de 2026, até hoje</span>`)}
     ${kpi('relatorios', 'Respostas no ano', fmt(noAno), '', `<span>janeiro a novembro de 2026</span>`)}
-    ${kpi('percent', 'Adesão média', pct(adesao), '', `<div class="meter" style="width:100%"><i style="width:${Math.min(adesao, 100)}%"></i></div><span>dias úteis do período</span>`)}
-  </section>
+    ${kpi('layers', 'Total de respostas', fmt(totalGeral), '', `<span>desde janeiro de 2024</span>`)}
+  </div></section>
 
   <section class="grid-2">
     <article class="card">
-      <div class="card-head"><div><h2>Volume de respostas</h2><p>${relGran === 'diario' ? 'Por dia, no período filtrado' : relGran === 'mensal' ? 'Por mês, últimos 12 meses' : 'Por ano'}</p></div>
+      <div class="card-head"><div><h2>Respostas por tipo de resultado</h2><p>${relGran === 'diario' ? 'Por dia, no período filtrado' : relGran === 'mensal' ? 'Por mês, últimos 12 meses' : 'Por ano'}</p></div>
         <div class="seg" id="rGran" role="group" aria-label="Agrupamento">${[['diario', 'Diário'], ['mensal', 'Mensal'], ['anual', 'Anual']].map(([k, l]) => `<button type="button" data-v="${k}" aria-pressed="${relGran === k}">${l}</button>`).join('')}</div></div>
-      <div class="card-body">${legenda}<div class="chart-box"><canvas id="relChart" aria-label="Gráfico de volume de respostas"></canvas></div></div>
+      <div class="card-body">${legenda}<div class="chart-box"><canvas id="relChart" aria-label="Gráfico de respostas por tipo de resultado"></canvas></div></div>
     </article>
     <article class="card">
-      <div class="card-head"><div><h2>Resultados por tipo</h2><p>Principais, Avaliação e Adicionais no período</p></div></div>
-      <div class="card-body"><div class="funnel">${tipoBloco('Principais', ciclo.P, ciclo.pt)}${tipoBloco('Avaliação', ciclo.A, ciclo.aEnv)}${tipoBloco('Adicionais', ciclo.D, ciclo.adEnv)}</div></div>
+      <div class="card-head"><div><h2>Principais × Avaliação × Adicionais</h2><p>Total por tipo de resultado no período</p></div></div>
+      <div class="card-body"><div class="funnel">${tipoBloco('Perguntas principais', ciclo.P, ciclo.pt)}${tipoBloco('Perguntas de Avaliação', ciclo.A, ciclo.aEnv)}${tipoBloco('Perguntas Adicionais', ciclo.D, ciclo.adEnv)}</div></div>
     </article>
   </section>
 
   <article class="card">
-    <div class="card-head"><div><h2>Adesão por empresa</h2><p>Respostas recebidas em relação aos funcionários cadastrados</p></div></div>
+    <div class="card-head"><div><h2>Participação por empresa</h2><p>Funcionários, respostas e resultados no período${emp ? '' : ', da maior para a menor adesão'}</p></div></div>
     <div class="card-body" style="padding-inline:0;padding-bottom:0"><div class="table-wrap"><table>
-      <thead><tr><th>Empresa</th><th>Cidade/UF</th><th style="text-align:right">Cadastrados</th><th style="text-align:right">Média diária</th><th style="min-width:200px">Adesão</th><th style="text-align:right">Alertas no período</th></tr></thead>
-      <tbody class="static">${(relTodas || emp ? adh : adh.slice(0, 8)).map(e => `<tr>
-        <td style="font-weight:500">${esc(e.nome)}</td><td>${esc(e.cidade)}/${e.uf}</td>
-        <td class="num" style="text-align:right">${fmt(e.func)}</td><td class="num" style="text-align:right">${fmt(Math.round(e.func * e.taxa))}</td>
+      <thead><tr><th>Empresa</th><th style="text-align:right">Funcionários</th><th style="text-align:right">Responderam</th><th style="text-align:right">Média diária</th><th style="min-width:190px">Respostas × cadastrados</th><th style="text-align:right">Atenção</th><th style="text-align:right">Risco</th></tr></thead>
+      <tbody class="static">${(relTodas || emp ? linhas : linhas.slice(0, 8)).map(e => `<tr>
+        <td><span style="font-weight:500">${esc(e.nome)}</span><span class="sub">${esc(e.cidade)}/${e.uf}</span></td>
+        <td class="num" style="text-align:right">${fmt(e.func)}</td><td class="num" style="text-align:right">${fmt(e.resp)}</td><td class="num" style="text-align:right">${fmt(Math.round(e.func * e.taxa))}</td>
         <td><div class="adh-cell"><div class="meter"><i class="${e.taxa < .75 ? 'low' : e.taxa < .88 ? 'mid' : 'high'}" style="width:${e.taxa * 100}%"></i></div><b class="num">${pct(e.taxa * 100)}</b></div></td>
-        <td class="num" style="text-align:right">${fmt(emp ? alertasPer : Math.round(alertasPer * e.func * e.taxa / peso))}</td></tr>`).join('')}</tbody>
+        <td class="num" style="text-align:right;color:var(--warn);font-weight:600">${fmt(e.at)}</td><td class="num" style="text-align:right;color:var(--risk);font-weight:600">${fmt(e.ri)}</td></tr>`).join('')}</tbody>
     </table></div>
-    ${emp ? '' : `<div class="pager"><span>${relTodas ? `Mostrando as ${adh.length} empresas` : `Mostrando 8 de ${adh.length} empresas, da maior para a menor adesão`}</span><button class="btn btn-sm" type="button" id="rTodas">${relTodas ? 'Mostrar menos' : 'Mostrar todas'}</button></div>`}</div>
+    ${emp ? '' : `<div class="pager"><span>${relTodas ? `Mostrando as ${linhas.length} empresas` : `Mostrando 8 de ${linhas.length} empresas`}</span><button class="btn btn-sm" type="button" id="rTodas">${relTodas ? 'Mostrar menos' : 'Mostrar todas'}</button></div>`}</div>
   </article>
 
   <article class="card">
-    <div class="card-head"><div><h2>Respostas fora do tempo limite</h2><p>Limites atuais: mínimo de ${CFG.tempoMin} s e máximo de ${CFG.tempoMax} min por questionário</p></div>
+    <div class="card-head"><div><h2>Respostas fora do tempo limite</h2><p>Limites por resposta: mínimo de ${CFG.tempoMin} s e máximo de ${CFG.tempoMax} s · definidos em Configurações</p></div>
       <div class="seg" id="rFora" role="group" aria-label="Tipo de desvio"><button type="button" data-v="abaixo" aria-pressed="${relFora === 'abaixo'}">Abaixo do mínimo (${abaixo.length})</button><button type="button" data-v="acima" aria-pressed="${relFora === 'acima'}">Acima do máximo (${acima.length})</button></div></div>
     <div class="card-body" style="padding-inline:0;padding-bottom:0"><div class="table-wrap"><table>
-      <thead><tr><th>Funcionário</th><th>Empresa</th><th>Data/hora</th><th>Etapa</th><th style="text-align:right">Tempo de resposta</th><th style="text-align:right">${relFora === 'abaixo' ? 'Abaixo do mínimo' : 'Acima do máximo'}</th><th>Classificação</th></tr></thead>
+      <thead><tr><th>Funcionário</th><th>Empresa</th><th>Data/hora</th><th>Pergunta</th><th style="text-align:right">Tempo da resposta</th><th style="text-align:right">${relFora === 'abaixo' ? 'Abaixo do mínimo' : 'Acima do máximo'}</th><th>Classificação</th></tr></thead>
       <tbody class="static">${listaFora.length ? listaFora.slice(0, 12).map(x => `<tr>
         <td><span class="code">${x.codigo}</span></td><td>${esc(x.empresa)}</td>
         <td class="num">${x.data.toLocaleDateString('pt-BR')} <span style="color:var(--fg-3)">${x.data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span></td>
-        <td>${x.etapa}</td><td class="num" style="text-align:right">${fmtTempo(x.tempo)}</td>
-        <td class="num" style="text-align:right;color:var(--${relFora === 'abaixo' ? 'warn' : 'risk'});font-weight:600">${relFora === 'abaixo' ? '−' + fmtTempo(CFG.tempoMin - x.tempo) : '+' + fmtTempo(x.tempo - CFG.tempoMax * 60)}</td>
+        <td class="trunc" title="${esc(x.pergunta)}">${esc(x.pergunta)}<span class="sub">${x.etapa}</span></td>
+        <td class="num" style="text-align:right">${fmtTempo(x.tempo)}</td>
+        <td class="num" style="text-align:right;color:var(--${relFora === 'abaixo' ? 'warn' : 'risk'});font-weight:600">${relFora === 'abaixo' ? '−' + fmtTempo(CFG.tempoMin - x.tempo) : '+' + fmtTempo(x.tempo - CFG.tempoMax)}</td>
         <td>${pill(x.classe)}</td></tr>`).join('')
         : `<tr><td colspan="7" class="empty">Nenhuma resposta ${relFora === 'abaixo' ? 'abaixo do tempo mínimo' : 'acima do tempo máximo'} neste período.</td></tr>`}</tbody>
     </table></div>
@@ -1611,8 +1835,8 @@ function renderRelatorios(v) {
 
   let labels, rows;
   if (relGran === 'diario') { labels = dias.map(s => s.d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })); rows = dias; }
-  else if (relGran === 'mensal') { labels = MESES.map(m => m.d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }).replace('.', '')); rows = MESES.map(scale); }
-  else { labels = ANOS.map(a => a.ano === 2026 ? '2026 (até nov.)' : String(a.ano)); rows = ANOS.map(scale); }
+  else if (relGran === 'mensal') { labels = MESES.map(m => m.d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }).replace('.', '')); rows = MESES.map(m => escalar(m, f)); }
+  else { labels = ANOS.map(a => a.ano === 2026 ? '2026 (até nov.)' : String(a.ano)); rows = ANOS.map(a => escalar(a, f)); }
   relChart = stackedChart($('#relChart'), labels, rows, rows.length > 40);
 
   const setData = () => {
@@ -1652,7 +1876,7 @@ function boot() {
   $('#bellBtn .count').textContent = SERIE[SERIE.length - 1].risco;
   $('#sideDisparo').textContent = `${CFG.horario} · ${fmt(CAD)} funcionários convocados`;
   $('#bellBtn').addEventListener('click', () => { location.hash = 'dashboard'; if ((location.hash || '#dashboard') === '#dashboard') go('dashboard'); setTimeout(() => { const t = $('#alertRows'); if (t) t.closest('.card').scrollIntoView({ behavior: 'smooth' }); }, 50); });
-  $('#logoutBtn').addEventListener('click', () => { store.del('pulse-auth'); closeAll(); showLogin(); });
+  $('#logoutBtn').addEventListener('click', () => { store.del('pulse-auth'); masterOk = false; closeAll(); showLogin(); });
   $('#menuBtn').addEventListener('click', () => {
     document.body.classList.add('nav-open');
     const s = document.createElement('div'); s.className = 'scrim'; s.addEventListener('click', () => { document.body.classList.remove('nav-open'); s.remove(); });
