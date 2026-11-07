@@ -471,6 +471,39 @@ td.trunc { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
   .kv { grid-template-columns: minmax(0, 1fr); }
 }
 .scrim { position: fixed; inset: 0; background: rgba(8,20,26,.45); z-index: 25; }
+.chip.risk { background: var(--risk-soft); border-color: transparent; color: var(--risk); }
+.chip.warn { background: var(--warn-soft); border-color: transparent; color: var(--warn); }
+.pz-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.pz-stat { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 2px; }
+.pz-stat b { font-family: var(--font-display); font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.pz-stat span { font-size: 12px; color: var(--fg-2); }
+.pz-stat.risk b { color: var(--risk); }
+.pz-stat.warn b { color: var(--warn); }
+.pz-stat.ok b { color: var(--ok); }
+.sim-grid { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start; }
+.sim-phone { width: 340px; min-height: 580px; align-content: start; }
+.phone .input { background: #fff; color: #15242b; border-color: #d5dfe3; }
+button.ph-btn { border: 0; font: inherit; font-weight: 600; width: 100%; cursor: pointer; }
+button.ph-btn:disabled { opacity: .45; cursor: default; }
+.ph-alt { cursor: pointer; }
+.ph-hello { display: grid; gap: 4px; padding: 8px 0 4px; }
+.ph-hello b { font-family: var(--font-display); font-size: 21px; }
+.ph-hello span, .ph-msg span { color: #4a5c65; }
+.ph-lbl { font-size: 12px; color: #4a5c65; margin-bottom: -6px; }
+.ph-msg { display: grid; justify-items: center; text-align: center; gap: 10px; padding: 48px 8px 24px; }
+.ph-msg b { font-family: var(--font-display); font-size: 19px; }
+.ph-ico { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; background: #e3f0f3; color: #155e75; }
+.ph-ico.ok { background: #dcf2e5; color: #2f855a; }
+.ph-ico svg.i { width: 30px; height: 30px; }
+.sim-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.sim-ev { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.sim-ev:last-child { border-bottom: 0; }
+.sim-ev > span:first-child { color: var(--fg-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sim-ev.risco > span:last-child { color: var(--risk); font-weight: 600; }
+.sim-ev.atencao > span:last-child { color: var(--warn); font-weight: 600; }
+.sim-ev.apto > span:last-child { color: var(--ok); font-weight: 600; }
+@media (max-width: 860px) { .sim-grid { grid-template-columns: minmax(0, 1fr); } .sim-phone { width: 100%; max-width: 340px; } }
+@media (max-width: 760px) { .pz-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>
 </head>
 <body>
@@ -511,7 +544,7 @@ td.trunc { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
         <button type="button" class="link" id="forgotBtn">Esqueci minha senha</button>
       </div>
       <button class="btn btn-primary" type="submit">Entrar</button>
-      <div class="demo-note"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span>Ambiente de demonstração: qualquer e-mail e senha dão acesso. Nenhum dado é enviado.</span></div>
+      <div class="demo-note"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span>Ambiente de demonstração: qualquer e-mail e senha dão acesso. Nenhum dado é enviado; as alterações ficam salvas só neste navegador.</span></div>
       <div class="lgpd-line"><svg class="i" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Conexão protegida · bloqueio após 5 tentativas</div>
     </form>
   </div>
@@ -606,6 +639,7 @@ const ICONS = {
   auditoria: '<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
   moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  simulador: '<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/>',
   trash: '<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'
 };
 const icon = (n, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
@@ -684,7 +718,7 @@ const ALERTAS = (() => {
     const risco = r() < .38;
     const pont = risco ? Math.round(22 + r() * 18) : Math.round(48 + r() * 16);
     out.push({
-      codigo: 'FUNC-' + String(Math.floor(r() * 90000) + 1000).padStart(5, '0'),
+      id: 'a' + i, dia: 0, codigo: 'FUNC-' + String(Math.floor(r() * 90000) + 1000).padStart(5, '0'),
       empresa: emp.nome, setor: SETORES[Math.floor(r() * SETORES.length)],
       hora: `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`,
       etapa, pont, classe: risco ? 'risco' : 'atencao',
@@ -692,6 +726,12 @@ const ALERTAS = (() => {
     });
     min -= Math.round(2 + r() * 7);
   }
+  // Alertas dos dois dias anteriores, para acompanhar o prazo dos planos de ação
+  [[2, '15:30'], [2, '08:10'], [1, '14:20'], [1, '11:05'], [1, '09:42'], [1, '07:15']].forEach(([dia, hora], k) => {
+    const emp = EMPRESAS[Math.floor(r() * EMPRESAS.length)], risco = r() < .4;
+    out.push({ id: 'd' + k, dia, codigo: 'FUNC-' + String(Math.floor(r() * 90000) + 1000).padStart(5, '0'), empresa: emp.nome, setor: SETORES[Math.floor(r() * SETORES.length)],
+      hora, etapa: r() < .6 ? 'Principais' : 'Avaliação', pont: risco ? Math.round(22 + r() * 18) : Math.round(48 + r() * 16), classe: risco ? 'risco' : 'atencao', tempo: Math.round(95 + r() * 240) });
+  });
   return out;
 })();
 
@@ -705,21 +745,42 @@ const ADESAO = (() => {
 
 const hhmm = t => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
 const somaMin = (hm, n) => { const [h, m] = hm.split(':').map(Number); return hhmm(h * 60 + m + n); };
+// Data de um alerta (dia = quantos dias antes de hoje) e o relógio do protótipo
+const alertaData = a => { const [h, m] = a.hora.split(':').map(Number); return new Date(2026, 10, 6 - (a.dia || 0), h, m); };
+const agora = () => new Date(2026, 10, 6, Math.floor(auditMin / 60), auditMin % 60);
+const fmtLimite = ms => { const d = new Date(ms); return `${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} às ${hhmm(d.getHours() * 60 + d.getMinutes())}`; };
+const dur = ms => { const t = Math.max(1, Math.round(Math.abs(ms) / 60000)); return t < 60 ? `${t} min` : `${Math.floor(t / 60)} h${t % 60 ? ' ' + (t % 60) + ' min' : ''}`; };
 
 // Plano de ação de cada alerta (chave = posição em ALERTAS). Os mais recentes ainda aguardam ação.
 const ACAO_TIPOS = ['Conversa com o supervisor', 'Remanejado para outra função', 'Afastado das atividades no dia', 'Encaminhado à saúde ocupacional', 'Liberado após reavaliação'];
 const ACAO_ST = { pendente: 'Pendente', andamento: 'Em acompanhamento', concluido: 'Concluído' };
 const RESPONSAVEIS = ['Supervisor da equipe', 'RH da empresa', 'Segurança do trabalho (SESMT)'];
 const ACOES = {};
+// em = quando o plano foi registrado (ms), usado para saber se cumpriu o prazo
 ALERTAS.forEach((a, i) => {
-  if (i < 5 || i % 3 === 0) return;
+  if (a.dia || i < 5 || i % 3 === 0) return;
   const tipo = ACAO_TIPOS[i % ACAO_TIPOS.length], status = i % 2 ? 'concluido' : 'andamento', resp = RESPONSAVEIS[i % 3];
-  ACOES[i] = { status, tipo, resp, obs: '', registros: [{ hora: somaMin(a.hora, 6), texto: `${tipo} · ${ACAO_ST[status]}`, usuario: resp }] };
+  ACOES[a.id] = { status, tipo, resp, obs: '', em: alertaData(a).getTime() + 6 * 60e3, registros: [{ hora: somaMin(a.hora, 6), texto: `${tipo} · ${ACAO_ST[status]}`, usuario: resp }] };
 });
-const acaoTag = i => {
-  const st = (ACOES[i] || {}).status || 'pendente';
-  return st === 'concluido' ? `<span class="notified">${icon('check')}Concluído</span>`
-    : st === 'andamento' ? '<span class="chip accent">Em acompanhamento</span>' : `<span class="chip">${icon('clock')}Pendente</span>`;
+// Dias anteriores: um registrado fora do prazo e um em acompanhamento; os outros seguem pendentes
+[['d1', 'concluido', 3, 2, 26 * 60], ['d4', 'andamento', 0, 0, 48]].forEach(([id, status, t, rp, depois]) => {
+  const a = ALERTAS.find(x => x.id === id), em = alertaData(a).getTime() + depois * 60e3, d = new Date(em);
+  ACOES[id] = { status, tipo: ACAO_TIPOS[t], resp: RESPONSAVEIS[rp], obs: '', em,
+    registros: [{ hora: `${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} ${hhmm(d.getHours() * 60 + d.getMinutes())}`, texto: `${ACAO_TIPOS[t]} · ${ACAO_ST[status]}`, usuario: RESPONSAVEIS[rp] }] };
+});
+// Prazo do plano de ação: CFG.prazoAcao horas depois do alerta
+function prazoInfo(a) {
+  const limite = alertaData(a).getTime() + CFG.prazoAcao * 3600e3, p = ACOES[a.id];
+  if (p && p.status !== 'pendente') return { st: p.em == null || p.em <= limite ? 'cumprido' : 'atrasado', limite };
+  const resta = limite - agora().getTime();
+  return { st: resta < 0 ? 'vencido' : resta <= 4 * 3600e3 ? 'breve' : 'prazo', resta, limite };
+}
+const acaoTag = a => {
+  const st = (ACOES[a.id] || {}).status || 'pendente', pz = prazoInfo(a);
+  if (st === 'concluido') return `<span class="notified">${icon('check')}Concluído${pz.st === 'atrasado' ? ' (fora do prazo)' : ''}</span>`;
+  if (st === 'andamento') return '<span class="chip accent">Em acompanhamento</span>';
+  return pz.st === 'vencido' ? `<span class="chip risk">${icon('warn')}Vencido há ${dur(pz.resta)}</span>`
+    : pz.st === 'breve' ? `<span class="chip warn">${icon('clock')}Vence em ${dur(pz.resta)}</span>` : `<span class="chip">${icon('clock')}Pendente · ${dur(pz.resta)}</span>`;
 };
 
 // Respostas suspeitas de hoje: padrões que indicam que o funcionário respondeu sem ler
@@ -770,6 +831,45 @@ let auditMin = 7 * 60 + 42;
 function audit(tipo, acao, detalhe = '') {
   auditMin++; // o relógio do protótipo avança 1 minuto por ação registrada
   AUDIT.unshift({ data: new Date(2026, 10, 6, Math.floor(auditMin / 60), auditMin % 60), usuario: usuarioAtual(), tipo, acao, detalhe });
+  agendarSalvar();
+}
+
+/* ============ Dados salvos no navegador ============ */
+// Cadastros, planos de ação, configurações, auditoria e respostas do simulador ficam neste navegador e voltam ao recarregar.
+const DADOS_KEY = 'pulse-dados-v1';
+const FUNC_HOJE = {}, FORA_SIM = []; // respostas do simulador: resultado do funcionário e desvios de tempo
+let salvarTimer, avisoCheio = false;
+function salvarDados() {
+  clearTimeout(salvarTimer);
+  const h = SERIE[SERIE.length - 1];
+  const dados = { v: 1, EMP, CFG, GRUPOS, PERGUNTAS, qid, ACOES, ALERTAS, SUSPEITAS, FUNC_HOJE, FORA_SIM, auditMin,
+    AUDIT: AUDIT.map(a => ({ ...a, data: a.data.getTime() })), serieHoje: { total: h.total, apto: h.apto, atencao: h.atencao, risco: h.risco } };
+  try { localStorage.setItem(DADOS_KEY, JSON.stringify(dados)); }
+  catch (e) { if (!avisoCheio) { avisoCheio = true; toast('Não foi possível salvar neste navegador (espaço cheio ou bloqueado).'); } }
+}
+const agendarSalvar = () => { clearTimeout(salvarTimer); salvarTimer = setTimeout(salvarDados, 0); };
+function carregarDados() {
+  let d = null;
+  try { d = JSON.parse(localStorage.getItem(DADOS_KEY)); } catch (e) {}
+  if (!d || d.v !== 1) return;
+  const repor = (arr, novo) => { if (Array.isArray(novo)) arr.splice(0, arr.length, ...novo); };
+  repor(EMP, d.EMP); repor(GRUPOS, d.GRUPOS); repor(PERGUNTAS, d.PERGUNTAS); repor(ALERTAS, d.ALERTAS); repor(SUSPEITAS, d.SUSPEITAS);
+  repor(AUDIT, d.AUDIT && d.AUDIT.map(a => ({ ...a, data: new Date(a.data) })));
+  Object.assign(CFG, d.CFG);
+  if (d.ACOES) { Object.keys(ACOES).forEach(k => delete ACOES[k]); Object.assign(ACOES, d.ACOES); }
+  Object.assign(FUNC_HOJE, d.FUNC_HOJE);
+  FUNCS.forEach(f => { if (FUNC_HOJE[f.codigo]) Object.assign(f, FUNC_HOJE[f.codigo]); });
+  (d.FORA_SIM || []).forEach(x => { FORA_SIM.push(x); FORA.unshift({ ...x, data: new Date(x.data) }); });
+  Object.assign(SERIE[SERIE.length - 1], d.serieHoje);
+  if (d.qid) qid = d.qid;
+  if (d.auditMin) auditMin = d.auditMin;
+}
+function restaurarDados() {
+  openModal({ title: 'Restaurar dados de demonstração', width: 480,
+    body: `<p style="margin:0">Apaga o que foi cadastrado ou alterado neste navegador (empresas, perguntas, configurações, planos de ação, auditoria e respostas do app) e volta aos dados de exemplo.</p>
+      <span class="hint">O login e o tema escolhido continuam como estão.</span>`,
+    foot: `<button class="btn" data-close>Cancelar</button><button class="btn btn-primary" id="rOk">Restaurar</button>` });
+  $('#rOk').addEventListener('click', () => { clearTimeout(salvarTimer); try { localStorage.removeItem(DADOS_KEY); } catch (e) {} location.reload(); });
 }
 
 /* ============ Componentes globais ============ */
@@ -851,6 +951,7 @@ const ROUTES = {
   dashboard: { label: 'Dashboard', render: renderDashboard },
   empresas: { label: 'Empresas', render: renderEmpresas },
   funcionarios: { label: 'Funcionários', render: renderFuncionarios },
+  simulador: { label: 'App do funcionário', render: renderSimulador },
   perguntas: { label: 'Banco de Perguntas', render: renderPerguntas },
   configuracoes: { label: 'Configurações', render: renderConfig },
   relatorios: { label: 'Relatórios', render: renderRelatorios },
@@ -864,7 +965,7 @@ function buildNav() {
 }
 function go(route) {
   if (!ROUTES[route]) route = 'dashboard';
-  rotaAtual = route; closeAll();
+  rotaAtual = route; closeAll(); clearInterval(simTimer);
   charts.forEach(c => c.destroy()); charts = []; serieChart = relChart = null;
   document.querySelectorAll('#nav a').forEach(a => a.dataset.route === route ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
   $('#crumb').textContent = ROUTES[route].label;
@@ -895,13 +996,16 @@ function renderDashboard(v) {
   const totalGeral = Math.round(ANOS.reduce((s, a) => s + a.total, 0) * f);
   const equipe = FUNCS.filter(x => x.status === 'ativo' && (!emp || x.empresa === emp.nome));
   const sup = equipe.filter(x => x.tipo === 'Supervisor').length, restr = equipe.filter(x => x.tipo === 'Acesso restrito').length;
-  const alertas = ALERTAS.filter(a => !emp || a.empresa === emp.nome);
+  const alertas = ALERTAS.filter(a => !a.dia && (!emp || a.empresa === emp.nome));
   const tempoHoje = FORA.filter(x => toISO(x.data) === MAX_DATA && (!emp || x.empresa === emp.nome) && (x.tempo < CFG.tempoMin || x.tempo > CFG.tempoMax));
   const delta = (a, b) => b ? Math.round((a / b - 1) * 100) : 0;
   const seta = (d, ruimSubir) => `<span class="delta ${(d >= 0) === !ruimSubir ? 'up' : 'down'}">${d >= 0 ? '▲' : '▼'} ${Math.abs(d)}%</span>`;
   const dataExt = HOJE.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const vazio = txt => `<tr><td colspan="7" class="empty">${txt}</td></tr>`;
-  const semPlano = alertas.filter(a => !ACOES[ALERTAS.indexOf(a)] || ACOES[ALERTAS.indexOf(a)].status === 'pendente').length;
+  const semPlano = alertas.filter(a => ((ACOES[a.id] || {}).status || 'pendente') === 'pendente').length;
+  const pzs = ALERTAS.filter(a => !emp || a.empresa === emp.nome).map(a => ({ a, ...prazoInfo(a) }));
+  const nPz = st => pzs.filter(x => x.st === st).length, registrados = nPz('cumprido') + nPz('atrasado');
+  const filaPz = pzs.filter(x => ['vencido', 'breve', 'prazo'].includes(x.st)).sort((x, y) => x.limite - y.limite);
   const susp = SUSPEITAS.filter(x => !emp || x.empresa === emp.nome), suspRevisar = susp.filter(x => x.status === 'revisar').length;
   const subAlerta = { resultado: `Supervisores notificados na hora · ${semPlano} sem plano de ação`, tempo: `Respostas fora do limite de ${CFG.tempoMin} s a ${CFG.tempoMax} s por pergunta`,
     suspeitas: 'Padrões que indicam resposta sem leitura · revise ou reenvie a avaliação' };
@@ -948,6 +1052,27 @@ function renderDashboard(v) {
     </article>
   </section>
 
+  <article class="card">
+    <div class="card-head">
+      <div><h2>Prazo dos planos de ação</h2><p>Registro em até ${CFG.prazoAcao} h depois de cada alerta · hoje e os 2 dias anteriores</p></div>
+      <a class="btn btn-sm" href="#configuracoes">Ajustar prazo</a>
+    </div>
+    <div class="card-body"><div class="pz-stats">
+      <div class="pz-stat risk"><b>${nPz('vencido')}</b><span>Vencidos sem plano</span></div>
+      <div class="pz-stat warn"><b>${nPz('breve')}</b><span>Vencem em até 4 h</span></div>
+      <div class="pz-stat"><b>${nPz('prazo')}</b><span>Pendentes no prazo</span></div>
+      <div class="pz-stat ok"><b>${registrados ? pct(nPz('cumprido') / registrados * 100, 0) : '—'}</b><span>Registrados no prazo (${nPz('cumprido')} de ${registrados})</span></div>
+    </div></div>
+    <div class="card-body" style="padding:0 0 4px"><div class="table-wrap"><table>
+      <thead><tr><th>Funcionário</th><th>Empresa</th><th>Alerta</th><th>Classificação</th><th>Prazo</th><th>Situação</th></tr></thead>
+      <tbody id="pzRows">${filaPz.length ? filaPz.slice(0, 6).map(({ a, limite }) => `<tr data-i="${ALERTAS.indexOf(a)}" tabindex="0">
+        <td><span class="code">${a.codigo}</span></td><td>${esc(a.empresa)}</td>
+        <td class="num">${a.dia ? alertaData(a).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : 'Hoje'} <span style="color:var(--fg-3)">${a.hora}</span></td>
+        <td>${pill(a.classe)}</td><td class="num">${fmtLimite(limite)}</td><td>${acaoTag(a)}</td></tr>`).join('')
+        : '<tr><td colspan="6" class="empty">Todos os alertas já têm plano de ação registrado.</td></tr>'}</tbody>
+    </table></div></div>
+  </article>
+
   <section class="grid-2">
     <article class="card">
       <div class="card-head">
@@ -961,7 +1086,7 @@ function renderDashboard(v) {
         ${alertaModo === 'resultado' ? `<thead><tr><th>Funcionário</th><th>Empresa</th><th>Data/hora</th><th>Etapa</th><th>Pontuação</th><th>Classificação</th><th>Plano de ação</th></tr></thead>
           <tbody id="alertRows">${alertas.length ? alertas.slice(0, 8).map(a => `<tr data-i="${ALERTAS.indexOf(a)}" tabindex="0">
             <td><span class="code">${a.codigo}</span></td><td>${esc(a.empresa)}<span class="sub">${a.setor}</span></td>
-            <td class="num">06/11/2026 <span style="color:var(--fg-3)">${a.hora}</span></td><td>${a.etapa}</td><td class="num">${a.pont}%</td><td>${pill(a.classe)}</td><td>${acaoTag(ALERTAS.indexOf(a))}</td></tr>`).join('') : vazio('Nenhum alerta de resultado hoje para esta empresa.')}</tbody>`
+            <td class="num">06/11/2026 <span style="color:var(--fg-3)">${a.hora}</span></td><td>${a.etapa}</td><td class="num">${a.pont}%</td><td>${pill(a.classe)}</td><td>${acaoTag(a)}</td></tr>`).join('') : vazio('Nenhum alerta de resultado hoje para esta empresa.')}</tbody>`
         : alertaModo === 'suspeitas' ? `<thead><tr><th>Funcionário</th><th>Empresa</th><th>Hora</th><th>Motivo</th><th>Detalhe</th><th>Situação</th></tr></thead>
           <tbody class="static" id="suspRows">${!CFG.suspeitas ? vazio('A detecção de respostas suspeitas está desligada nas Configurações.') : susp.length ? susp.slice(0, 8).map(x => `<tr>
             <td><span class="code">${x.codigo}</span></td><td>${esc(x.empresa)}</td><td class="num">${x.hora}</td><td><span class="pill atencao">${x.motivo}</span></td>
@@ -989,6 +1114,8 @@ function renderDashboard(v) {
     $('#alertRows').addEventListener('click', abrirAlerta);
     $('#alertRows').addEventListener('keydown', e => { if (e.key === 'Enter') abrirAlerta(e); });
   }
+  $('#pzRows').addEventListener('click', abrirAlerta);
+  $('#pzRows').addEventListener('keydown', e => { if (e.key === 'Enter') abrirAlerta(e); });
   if ($('#suspRows')) $('#suspRows').addEventListener('click', e => {
     const b = e.target.closest('button[data-s]'); if (!b) return;
     const x = SUSPEITAS[b.dataset.s], reenviar = b.dataset.a === 'reenviar';
@@ -1000,7 +1127,7 @@ function renderDashboard(v) {
   if ($('#verTodos')) $('#verTodos').addEventListener('click', () => {
     const m = openModal({ title: 'Alertas de hoje', sub: `${alertas.length} alertas mais recentes · supervisores notificados`, width: 780,
       body: `<div class="table-wrap"><table><thead><tr><th>Funcionário</th><th>Empresa</th><th>Hora</th><th>Etapa</th><th>Pontuação</th><th>Classificação</th><th>Plano de ação</th></tr></thead><tbody>
-        ${alertas.map(a => `<tr data-i="${ALERTAS.indexOf(a)}" tabindex="0"><td><span class="code">${a.codigo}</span></td><td>${esc(a.empresa)}</td><td class="num">${a.hora}</td><td>${a.etapa}</td><td class="num">${a.pont}%</td><td>${pill(a.classe)}</td><td>${acaoTag(ALERTAS.indexOf(a))}</td></tr>`).join('')}</tbody></table></div>`,
+        ${alertas.map(a => `<tr data-i="${ALERTAS.indexOf(a)}" tabindex="0"><td><span class="code">${a.codigo}</span></td><td>${esc(a.empresa)}</td><td class="num">${a.hora}</td><td>${a.etapa}</td><td class="num">${a.pont}%</td><td>${pill(a.classe)}</td><td>${acaoTag(a)}</td></tr>`).join('')}</tbody></table></div>`,
       foot: `<button class="btn" data-close>Fechar</button>` });
     m.querySelector('tbody').addEventListener('click', e => { const tr = e.target.closest('tr'); if (tr) alertDetail(ALERTAS[tr.dataset.i], true); });
   });
@@ -1082,11 +1209,14 @@ function alertDetail(a, stack = false) {
   const idx = etapas.indexOf(a.etapa);
   const [h, m] = a.hora.split(':').map(Number);
   const hm = off => { const t = h * 60 + m - off; return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`; };
-  const passos = [];
-  if (idx >= 1) passos.push({ when: hm(idx === 2 ? 14 : 7), etapa: 'Principais', pont: 58 + (a.pont % 5), classe: 'atencao' });
-  if (idx >= 2) passos.push({ when: hm(7), etapa: 'Avaliação', pont: 49 + (a.pont % 4), classe: 'atencao' });
-  passos.push({ when: a.hora, etapa: a.etapa, pont: a.pont, classe: a.classe });
-  const i = ALERTAS.indexOf(a), plano = ACOES[i] || { status: 'pendente', tipo: '', resp: RESPONSAVEIS[0], obs: '', registros: [] };
+  // Alertas vindos do simulador trazem as etapas reais; os de exemplo são reconstruídos
+  const passos = a.passos ? [...a.passos] : [];
+  if (!a.passos) {
+    if (idx >= 1) passos.push({ when: hm(idx === 2 ? 14 : 7), etapa: 'Principais', pont: 58 + (a.pont % 5), classe: 'atencao' });
+    if (idx >= 2) passos.push({ when: hm(7), etapa: 'Avaliação', pont: 49 + (a.pont % 4), classe: 'atencao' });
+    passos.push({ when: a.hora, etapa: a.etapa, pont: a.pont, classe: a.classe });
+  }
+  const plano = ACOES[a.id] || { status: 'pendente', tipo: '', resp: RESPONSAVEIS[0], obs: '', registros: [] }, pz = prazoInfo(a);
   const prox = a.etapa === 'Adicionais' ? 'Ciclo concluído · acompanhamento presencial do supervisor' : `Perguntas ${a.etapa === 'Principais' ? 'de Avaliação' : 'Adicionais'} enviadas imediatamente`;
   const md = openModal({
     title: a.codigo, sub: `${a.empresa} · ${a.setor}`, stack, width: 620,
@@ -1097,13 +1227,14 @@ function alertDetail(a, stack = false) {
         <div><dt>Tempo de resposta</dt><dd class="num">${Math.floor(a.tempo / 60)} min ${a.tempo % 60} s</dd></div>
         <div><dt>Supervisor</dt><dd><span class="notified">${icon('check')}Notificado às ${a.hora}</span></dd></div>
       </dl>
-      <div><div style="font-size:12px;color:var(--fg-3);margin-bottom:10px">Histórico de hoje</div>
+      <div><div style="font-size:12px;color:var(--fg-3);margin-bottom:10px">${a.dia ? 'Histórico de ' + alertaData(a).toLocaleDateString('pt-BR') : 'Histórico de hoje'}</div>
         <div class="timeline">
           ${passos.map(p => `<div class="tl-item ${p.classe}"><span class="when">${p.when}</span><span class="what">${p.etapa} · ${p.pont}% ${pill(p.classe)}</span></div>`).join('')}
           <div class="tl-item"><span class="when">Próximo passo</span><span class="what" style="font-weight:400;color:var(--fg-2)">${prox}</span></div>
         </div></div>
       <div class="acao-box">
-        <div class="acao-head"><b>Plano de ação</b>${acaoTag(i)}</div>
+        <div class="acao-head"><b>Plano de ação</b>${acaoTag(a)}</div>
+        <span class="hint" style="margin-top:-6px">Prazo para registrar: até ${fmtLimite(pz.limite)} (${CFG.prazoAcao} h depois do alerta)</span>
         <div class="form-grid">
           <div class="field span-3"><label for="aTipo">Ação tomada</label><select class="input" id="aTipo"><option value="">Selecione…</option>${ACAO_TIPOS.map(t => `<option ${t === plano.tipo ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
           <div class="field span-3"><label for="aResp">Responsável</label><select class="input" id="aResp">${RESPONSAVEIS.map(t => `<option ${t === plano.resp ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
@@ -1112,7 +1243,7 @@ function alertDetail(a, stack = false) {
         </div>
         <p class="form-error" id="aErro" hidden>Escolha a ação tomada para marcar o plano como em acompanhamento ou concluído.</p>
         ${plano.registros.length ? `<div class="acao-log">${plano.registros.map(r => `<div><span>${r.hora}</span><span>${esc(r.texto)} · ${esc(r.usuario)}</span></div>`).join('')}</div>`
-          : `<span class="hint">Registre a ação em até ${CFG.prazoAcao} h após o alerta. Fica no histórico do código e na auditoria.</span>`}
+          : `<span class="hint">Ainda sem registro. O plano fica no histórico do código e na auditoria.</span>`}
       </div>
       <div class="lgpd-box">${icon('shield')}<span>Por LGPD, o Admin Master vê apenas o código do funcionário. Nome e contato ficam visíveis somente para o supervisor da empresa.</span></div>`,
     foot: `<button class="btn" type="button" id="aHist">${icon('calendar')}Histórico de 30 dias</button><button class="btn" data-close>Fechar</button><button class="btn btn-primary" type="button" id="aSalvar">Salvar plano de ação</button>`
@@ -1124,8 +1255,8 @@ function alertDetail(a, stack = false) {
     const status = $('#aSt [aria-pressed="true"]', md).dataset.v, tipo = $('#aTipo', md).value, resp = $('#aResp', md).value, obs = $('#aObs', md).value.trim();
     if (status !== 'pendente' && !tipo) { $('#aErro', md).hidden = false; $('#aTipo', md).classList.add('invalid'); $('#aTipo', md).focus(); return; }
     audit('alertas', 'Plano de ação registrado', `${a.codigo} · ${tipo || 'sem ação definida'} · ${ACAO_ST[status]}`);
-    ACOES[i] = { status, tipo, resp, obs, registros: [...plano.registros, { hora: hhmm(auditMin), texto: `${tipo || 'Sem ação definida'} · ${ACAO_ST[status]}${obs ? ' · ' + obs : ''}`, usuario: usuarioAtual() }] };
-    closeAll(); if (rotaAtual === 'dashboard') renderDashboard($('#view'));
+    ACOES[a.id] = { status, tipo, resp, obs, em: plano.em ?? (status !== 'pendente' ? agora().getTime() : null), registros: [...plano.registros, { hora: hhmm(auditMin), texto: `${tipo || 'Sem ação definida'} · ${ACAO_ST[status]}${obs ? ' · ' + obs : ''}`, usuario: usuarioAtual() }] };
+    closeAll(); if (rotaAtual === 'dashboard') renderDashboard($('#view')); else if (rotaAtual === 'simulador') drawSim();
     toast(`Plano de ação de ${a.codigo} salvo.`);
   });
 }
@@ -1752,7 +1883,8 @@ function renderConfig(v) {
       <label class="radio-card"><input type="radio" name="${key}" value="seguinte" ${d[key] === 'seguinte' ? 'checked' : ''}><span><b>No dia seguinte</b><small>Junto com o próximo disparo</small></span></label>
     </div></div>`;
   v.innerHTML = `
-  <div class="page-head"><div><h1>Configurações</h1><p>Regras gerais aplicadas a todas as empresas clientes.</p></div></div>
+  <div class="page-head"><div><h1>Configurações</h1><p>Regras gerais aplicadas a todas as empresas clientes.</p></div>
+    <div class="page-actions"><button class="btn" type="button" id="cReset">${icon('shuffle')}Restaurar dados de demonstração</button></div></div>
   <div class="cfg-grid" id="cfgGrid">
     <article class="card"><div class="card-head"><div><h2>Sorteio de perguntas</h2><p>Quantas perguntas de cada grupo o funcionário recebe por dia</p></div></div>
       <div class="card-body">
@@ -1840,6 +1972,7 @@ function renderConfig(v) {
     b.setAttribute('aria-pressed', d.dias.includes(i)); sujo();
   });
   $('#cDesc').addEventListener('click', () => { renderConfig(v); toast('Alterações descartadas.'); });
+  $('#cReset').addEventListener('click', restaurarDados);
   $('#cSalvar').addEventListener('click', () => {
     ler();
     const erro = d.faixaRisco < 1 || d.faixaAtencao <= d.faixaRisco || d.faixaAtencao >= 100 ? 'As faixas precisam seguir a ordem Risco < Atenção < 100%.'
@@ -2112,6 +2245,173 @@ function drawAuRows() {
     <div class="btns"><button class="btn btn-sm" type="button" data-p="${auPage - 1}" ${auPage === 1 ? 'disabled' : ''}>Anterior</button><button class="btn btn-sm" type="button" data-p="${auPage + 1}" ${auPage === pages ? 'disabled' : ''}>Próxima</button></div>`;
 }
 
+/* ============ Simulador do app do funcionário ============ */
+// Demonstração ponta a ponta: o funcionário responde no "celular" e o resultado entra no painel na hora.
+let SIM = null, simTimer;
+const ETAPA_NOME = { principal: 'Principais', avaliacao: 'Avaliação', adicional: 'Adicionais' };
+const ETAPA_TIT = { principal: 'Avaliação diária', avaliacao: 'Perguntas de Avaliação', adicional: 'Perguntas Adicionais' };
+const classificar = pont => pont <= CFG.faixaRisco ? 'risco' : pont <= CFG.faixaAtencao ? 'atencao' : 'apto';
+// Funcionários ativos, com termo LGPD aceito, que ainda não responderam hoje (3 por empresa)
+const simCodigos = () => EMPRESAS.map(e => ({ empresa: e.nome,
+  codigos: FUNCS.filter(f => f.empresa === e.nome && f.status === 'ativo' && f.lgpd === 'aceito' && f.hoje === 'nao').slice(0, 3) })).filter(g => g.codigos.length);
+const primeiroCodigo = () => { const g = simCodigos()[0]; return g ? g.codigos[0].codigo : FUNCS[0].codigo; };
+function sortear(etapa) {
+  const ativas = t => PERGUNTAS.filter(p => p.tipo === t && p.status === 'ativa');
+  const embaralha = arr => arr.map(x => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+  if (etapa === 'principal') return GRUPOS.filter(g => g.status === 'ativo').flatMap(g => embaralha(ativas('principal').filter(p => p.grupo === g.id)).slice(0, g.sorteio));
+  return etapa === 'avaliacao' ? ativas('avaliacao').slice(0, CFG.avalQtd) : ativas('adicional');
+}
+function simNovo(codigo) {
+  SIM = { f: FUNCS.find(x => x.codigo === codigo), fase: 'inicio', etapa: 'principal', fila: [], idx: 0, sel: null, t0: 0, resp: [], passos: [], log: [], tempoTotal: 0, avisado: false, copiaRisco: false };
+}
+const simLog = (txt, tom = '') => SIM.log.push({ hora: hhmm(auditMin), txt, tom });
+function simIniciar(etapa) {
+  Object.assign(SIM, { etapa, fila: sortear(etapa), idx: 0, resp: [], sel: null, fase: 'perg', t0: performance.now() });
+  if (etapa === 'principal') { auditMin++; simLog(`${SIM.f.codigo} abriu o app e iniciou a avaliação diária · ${SIM.fila.length} perguntas sorteadas`); }
+  else simLog(`Perguntas ${etapa === 'avaliacao' ? 'de Avaliação' : 'Adicionais'} liberadas no app · ${SIM.fila.length} perguntas`);
+}
+function simResponder(alt, tempo) {
+  const q = SIM.fila[SIM.idx];
+  SIM.resp.push({ q, alt, p: q.alts[alt].p, max: Math.max(...q.alts.map(x => x.p)), tempo });
+  SIM.tempoTotal += tempo; SIM.idx++; SIM.sel = null; SIM.t0 = performance.now();
+  if (SIM.idx >= SIM.fila.length) simFimEtapa();
+}
+function simFimEtapa() {
+  const r = SIM.resp, f = SIM.f, nome = ETAPA_NOME[SIM.etapa];
+  const pont = Math.round(r.reduce((s, x) => s + x.p, 0) / r.reduce((s, x) => s + x.max, 0) * 100), classe = classificar(pont);
+  auditMin++;
+  SIM.passos.push({ when: hhmm(auditMin), etapa: nome, pont, classe });
+  simLog(`${nome}: ${pont}% · ${classeLabel[classe]}`, classe);
+  // Desvios de tempo vão para a aba Tempo do Dashboard
+  const fora = CFG.alertaTempo ? r.filter(x => x.tempo < CFG.tempoMin || x.tempo > CFG.tempoMax) : [];
+  fora.forEach(x => { const reg = { codigo: f.codigo, empresa: f.empresa, pergunta: x.q.titulo, etapa: nome, data: agora().getTime(), tempo: x.tempo, classe };
+    FORA_SIM.push(reg); FORA.unshift({ ...reg, data: new Date(reg.data) }); });
+  if (fora.length) simLog(`${fora.length} ${fora.length > 1 ? 'respostas' : 'resposta'} fora do limite de ${CFG.tempoMin} s a ${CFG.tempoMax} s · aba Tempo do Dashboard`);
+  if (SIM.etapa === 'principal') {
+    const h = SERIE[SERIE.length - 1]; h.total++; h[classe]++;
+    if (CFG.suspeitas && r.length >= 4) {
+      const media = r.reduce((s, x) => s + x.tempo, 0) / r.length;
+      const motivo = r.every(x => x.alt === r[0].alt) ? ['Todas as respostas iguais', `${r.length} de ${r.length} perguntas na mesma alternativa`]
+        : media < CFG.tempoMin ? ['Rápida demais', `média de ${media.toFixed(1).replace('.', ',')} s por pergunta`] : null;
+      if (motivo) {
+        const reenviar = CFG.suspeitaAcao === 'reenviar';
+        SUSPEITAS.unshift({ codigo: f.codigo, empresa: f.empresa, hora: hhmm(auditMin), motivo: motivo[0], detalhe: motivo[1], status: reenviar ? 'reenviada' : 'revisar' });
+        simLog(`Resposta suspeita (${motivo[0].toLowerCase()}) · ${reenviar ? 'avaliação reenviada automaticamente' : 'marcada para revisão no Dashboard'}`, 'atencao');
+      }
+    }
+  }
+  if (classe === 'apto') return simConcluir('apto');
+  if (!SIM.avisado) { SIM.avisado = true; simLog(`Supervisor notificado no app${CFG.notifEmail ? ', por e-mail' : ''}${CFG.whatsapp ? ' e por WhatsApp' : ''}`); }
+  if (classe === 'risco' && CFG.alertaRiscoEmails && !SIM.copiaRisco) { SIM.copiaRisco = true; simLog(`Cópia do alerta de Risco enviada para ${CFG.alertaRiscoEmails}`); }
+  const prox = SIM.etapa === 'principal' ? 'avaliacao' : SIM.etapa === 'avaliacao' ? 'adicional' : null;
+  if (!prox) return simConcluir(classe);
+  if ((prox === 'avaliacao' ? CFG.envioAval : CFG.envioAdic) === 'seguinte') {
+    simLog(`Perguntas ${prox === 'avaliacao' ? 'de Avaliação' : 'Adicionais'} agendadas para o próximo disparo (${CFG.horario})`);
+    return simConcluir(classe);
+  }
+  SIM.fase = 'intervalo'; SIM.prox = prox;
+}
+function simConcluir(classe) {
+  const f = SIM.f, ult = SIM.passos[SIM.passos.length - 1];
+  f.hoje = classe; f.hora = SIM.passos[0].when; FUNC_HOJE[f.codigo] = { hoje: classe, hora: f.hora };
+  if (classe === 'apto') simLog(SIM.passos.length > 1 ? 'Revertido para Apto na confirmação · sem plano de ação' : 'Apto · liberado para o turno', 'apto');
+  else {
+    const a = { id: 's' + Date.now(), dia: 0, codigo: f.codigo, empresa: f.empresa, setor: f.equipe, hora: SIM.passos[0].when, etapa: ult.etapa, pont: ult.pont, classe,
+      tempo: SIM.tempoTotal, passos: SIM.passos, sim: true };
+    ALERTAS.unshift(a); SIM.alerta = a.id;
+    simLog(`Alerta de ${classeLabel[classe]} no Dashboard · plano de ação até ${fmtLimite(prazoInfo(a).limite)}`, classe);
+  }
+  SIM.fase = 'fim'; SIM.fim = classe;
+  const h = SERIE[SERIE.length - 1], b = $('#nav .badge');
+  if (b) b.textContent = h.atencao + h.risco;
+  $('#bellBtn .count').textContent = h.risco;
+  agendarSalvar();
+}
+// Responde o restante automaticamente, mirando um resultado (para a apresentação)
+function simAuto(alvo) {
+  if (SIM.fase === 'fim') simNovo(primeiroCodigo());
+  if (SIM.fase === 'inicio') { const c = $('#simCod'); simNovo(c ? c.value : primeiroCodigo()); simIniciar('principal'); }
+  for (let g = 0; SIM.fase !== 'fim' && g < 200; g++) {
+    if (SIM.fase === 'intervalo') { simIniciar(SIM.prox); continue; }
+    const ps = SIM.fila[SIM.idx].alts.map(a => a.p), mira = alvo === 'apto' ? 8 : alvo === 'risco' ? 3 : 5;
+    const alt = alvo === 'suspeita' ? 2 : ps.reduce((b, p, i) => Math.abs(p - mira) < Math.abs(ps[b] - mira) ? i : b, 0);
+    simResponder(alt, alvo === 'suspeita' ? 1 : 4 + Math.floor(Math.random() * 6));
+  }
+  drawSim();
+}
+function renderSimulador(v) {
+  if (!SIM || (SIM.fase === 'inicio' && SIM.f.hoje !== 'nao')) simNovo(primeiroCodigo());
+  v.innerHTML = `
+  <div class="page-head">
+    <div><h1>App do funcionário</h1><p>Simulação do aplicativo: responda como um funcionário e veja o resultado chegar ao painel na hora.</p></div>
+    <div class="page-actions"><button class="btn" type="button" id="simNova">${icon('shuffle')}Nova avaliação</button></div>
+  </div>
+  <div class="sim-grid">
+    <div style="display:grid;gap:10px"><div class="phone sim-phone" id="simPhone"></div><p class="hint" style="text-align:center;margin:0">A pontuação nunca é mostrada ao funcionário.</p></div>
+    <div style="display:grid;gap:16px;align-content:start;min-width:0">
+      <article class="card"><div class="card-head"><div><h2>Responder rápido</h2><p>Completa a avaliação automaticamente, mirando um resultado</p></div></div>
+        <div class="card-body"><div class="sim-btns" id="simAuto">
+          <button class="btn btn-sm" type="button" data-alvo="apto"><span class="pill apto">Apto</span>Bem disposto</button>
+          <button class="btn btn-sm" type="button" data-alvo="atencao"><span class="pill atencao">Atenção</span>Cansado</button>
+          <button class="btn btn-sm" type="button" data-alvo="risco"><span class="pill risco">Risco</span>Sem condições</button>
+          <button class="btn btn-sm" type="button" data-alvo="suspeita"><span class="pill neutro">Suspeita</span>Respondeu sem ler</button>
+        </div></div></article>
+      <article class="card"><div class="card-head"><div><h2>No painel, em tempo real</h2><p>O que o Admin Master e o supervisor recebem a cada resposta</p></div></div>
+        <div class="card-body" id="simLog"></div></article>
+    </div>
+  </div>`;
+  $('#simNova').addEventListener('click', () => { simNovo(primeiroCodigo()); drawSim(); });
+  $('#simAuto').addEventListener('click', e => { const b = e.target.closest('button[data-alvo]'); if (b) simAuto(b.dataset.alvo); });
+  $('#simPhone').addEventListener('click', e => {
+    const alt = e.target.closest('.ph-alt[data-a]');
+    if (alt) { SIM.sel = +alt.dataset.a; $('#simPhone').querySelectorAll('.ph-alt').forEach(x => x.classList.toggle('sel', x === alt)); $('#simOk').disabled = false; return; }
+    if (e.target.closest('#simIni')) { simNovo($('#simCod').value); simIniciar('principal'); drawSim(); }
+    else if (e.target.closest('#simOk') && SIM.sel != null) { simResponder(SIM.sel, Math.max(1, Math.round((performance.now() - SIM.t0) / 1000))); drawSim(); }
+    else if (e.target.closest('#simCont')) { simIniciar(SIM.prox); drawSim(); }
+    else if (e.target.closest('#simOutro')) { simNovo(primeiroCodigo()); drawSim(); }
+  });
+  $('#simLog').addEventListener('click', e => { if (e.target.closest('#simVer')) alertDetail(ALERTAS.find(a => a.id === SIM.alerta)); });
+  drawSim();
+}
+function drawSim() {
+  const ph = $('#simPhone'); if (!ph) return;
+  clearInterval(simTimer);
+  const total = sortear('principal').length;
+  if (SIM.fase === 'inicio') {
+    ph.innerHTML = `<div class="ph-top"><span>Pulse</span><span>06/11 · ${hhmm(auditMin)}</span></div>
+      <div class="ph-hello"><b>Bom dia!</b><span>Sua avaliação diária está disponível até ${somaMin(CFG.horario, CFG.janela)}.</span></div>
+      <label class="ph-lbl" for="simCod">Entrar como</label>
+      <select class="input" id="simCod">${simCodigos().map(g => `<optgroup label="${esc(g.empresa)}">${g.codigos.map(f => `<option value="${f.codigo}" ${f.codigo === SIM.f.codigo ? 'selected' : ''}>${f.codigo} · ${f.equipe}</option>`).join('')}</optgroup>`).join('')}</select>
+      <div class="ph-d" style="margin-top:0">São ${total} perguntas rápidas. Responda com sinceridade: suas respostas são identificadas só pelo seu código.</div>
+      <button class="ph-btn" type="button" id="simIni">Começar avaliação</button>`;
+  } else if (SIM.fase === 'perg') {
+    const q = SIM.fila[SIM.idx], n = SIM.fila.length, altImg = q.alts.some(a => a.img);
+    ph.innerHTML = `<div class="ph-top"><span>${ETAPA_TIT[SIM.etapa]} · ${SIM.idx + 1} de ${n}</span><span>${icon('clock')}<span id="simTempo">00:00</span></span></div>
+      <div class="ph-prog"><i style="width:${SIM.idx / n * 100}%"></i></div>
+      <div class="ph-q">${esc(q.titulo)}</div>${q.desc ? `<div class="ph-d">${esc(q.desc)}</div>` : ''}
+      ${q.img ? `<div class="ph-img">${renderImg(q.img)}</div>` : ''}
+      <div class="ph-alts ${altImg ? 'img' : ''}">${q.alts.map((a, i) => `<button type="button" class="ph-alt" data-a="${i}">${a.img ? `<span class="ph-alt-img">${renderImg(a.img)}</span>` : `<span class="ph-l">${'ABCDE'[i]}</span>`}<span>${esc(a.t)}</span></button>`).join('')}</div>
+      <button class="ph-btn" type="button" id="simOk" disabled>Confirmar resposta</button>`;
+    const pad = x => String(Math.floor(x)).padStart(2, '0');
+    simTimer = setInterval(() => { const el = $('#simTempo'); if (!el) return clearInterval(simTimer); const t = (performance.now() - SIM.t0) / 1000; el.textContent = `${pad(t / 60)}:${pad(t % 60)}`; }, 500);
+  } else if (SIM.fase === 'intervalo') {
+    ph.innerHTML = `<div class="ph-top"><span>Pulse</span><span>06/11 · ${hhmm(auditMin)}</span></div>
+      <div class="ph-msg"><span class="ph-ico">${icon('clock')}</span><b>Só mais algumas perguntas</b><span>Precisamos confirmar como você está antes de começar o turno. São ${sortear(SIM.prox).length} perguntas rápidas.</span></div>
+      <button class="ph-btn" type="button" id="simCont">Continuar</button>`;
+  } else {
+    const ok = SIM.fim === 'apto';
+    ph.innerHTML = `<div class="ph-top"><span>Pulse</span><span>06/11 · ${hhmm(auditMin)}</span></div>
+      <div class="ph-msg"><span class="ph-ico ${ok ? 'ok' : ''}">${icon(ok ? 'check' : 'users')}</span>
+        <b>${ok ? 'Tudo certo!' : 'Obrigado pelas respostas'}</b>
+        <span>${ok ? 'Avaliação concluída. Bom trabalho e boa jornada.' : 'Seu supervisor vai conversar com você antes do início das atividades. Se precisar, procure-o agora.'}</span></div>
+      <button class="ph-btn" type="button" id="simOutro">Responder com outro código</button>`;
+  }
+  $('#simLog').innerHTML = SIM.log.length
+    ? SIM.log.map(x => `<div class="sim-ev ${x.tom}"><span>${x.hora}</span><span>${esc(x.txt)}</span></div>`).join('')
+      + (SIM.fase === 'fim' ? `<div class="sim-btns" style="margin-top:14px">${SIM.alerta ? `<button class="btn btn-sm btn-primary" type="button" id="simVer">Ver alerta e plano de ação</button>` : ''}<a class="btn btn-sm" href="#dashboard">Ir para o Dashboard</a></div>` : '')
+    : '<p class="empty" style="padding:24px 0">Assim que o funcionário começar a responder, os eventos aparecem aqui.</p>';
+}
+
 /* ============ Tema claro/escuro ============ */
 // Sem escolha salva, segue o tema do sistema. A escolha fica salva só neste navegador.
 const temaSalvo = () => { try { return localStorage.getItem('pulse-tema'); } catch (e) { return null; } };
@@ -2129,6 +2429,7 @@ function trocaTema() {
 
 /* ============ Inicialização ============ */
 function boot() {
+  carregarDados();
   const tema = temaSalvo();
   if (tema === 'dark' || tema === 'light') document.documentElement.dataset.theme = tema;
   pintaBotoesTema();

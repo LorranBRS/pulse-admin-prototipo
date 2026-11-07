@@ -4,15 +4,17 @@ Protótipo navegável do painel administrativo da plataforma **Pulse**, de avali
 
 **Acesse:** https://lorranbrs.github.io/pulse-admin-prototipo/
 
-> Ambiente de demonstração: qualquer e-mail e senha dão acesso. Todos os dados são fictícios e nada é salvo em servidor (o que for cadastrado vale até recarregar a página).
+> Ambiente de demonstração: qualquer e-mail e senha dão acesso. Todos os dados são fictícios e nada é enviado a servidor. O que for cadastrado ou alterado fica salvo só no navegador de quem está usando; em **Configurações → Restaurar dados de demonstração** tudo volta ao exemplo.
 
 ## Telas
 
 - **Login**: acesso simulado e "Esqueci minha senha".
 - **Tema claro e escuro**: botão no topo (e na tela de login) para alternar; a escolha fica salva no navegador.
 - **Dashboard**: indicadores do dia, resultados por período, funil Principais → Avaliação → Adicionais e últimos alertas, com **plano de ação** em cada alerta e aba de **respostas suspeitas** (todas iguais, padrão alternado ou rápidas demais), que podem ser reenviadas.
+- **Prazo dos planos de ação** (Dashboard): vencidos, que vencem em até 4 h, pendentes no prazo e percentual registrado dentro do prazo configurado.
 - **Empresas**: listagem com busca e filtros, cadastro e edição.
 - **Funcionários**: listagem somente por código (LGPD), com tipo, equipe, termo LGPD, resultado do dia e histórico de 30 dias com gráfico de pontuação e indicador de tendência de piora.
+- **App do funcionário**: simulador do celular. O funcionário responde as perguntas sorteadas (Principais → Avaliação → Adicionais) e o resultado entra no painel na hora: alerta, notificação ao supervisor, prazo do plano de ação, desvios de tempo e respostas suspeitas. Tem botões de resposta rápida (Apto, Atenção, Risco e "sem ler") para a apresentação.
 - **Banco de Perguntas**: 4 grupos de análise com 20+ perguntas cada (texto, imagem na pergunta e alternativas em imagem), 4 perguntas fixas de Avaliação e 4+ Adicionais, edição protegida por senha master e pré-visualização no celular.
 - **Configurações**: sorteio por grupo (total de 8 a 12), disparo diário, faixas Apto/Atenção/Risco, tempo mínimo e máximo por resposta, envio das etapas, bloqueio de login, cópia dos alertas de Risco, WhatsApp (opcional), prazo do plano de ação e detecção de respostas suspeitas.
 
