@@ -504,6 +504,54 @@ button.ph-btn:disabled { opacity: .45; cursor: default; }
 .sim-ev.apto > span:last-child { color: var(--ok); font-weight: 600; }
 @media (max-width: 860px) { .sim-grid { grid-template-columns: minmax(0, 1fr); } .sim-phone { width: 100%; max-width: 340px; } }
 @media (max-width: 760px) { .pz-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.side { overflow-y: auto; overflow-x: hidden; }
+.side-perfil { display: grid; gap: 6px; padding: 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--side-fg-dim); }
+.side-perfil select { width: 100%; min-width: 0; height: 36px; border-radius: 8px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: #fff; padding: 0 8px; font: inherit; font-size: 13px; text-transform: none; letter-spacing: 0; }
+.side-perfil option { color: #15242b; background: #fff; }
+.perfil-chip[hidden] { display: none; }
+.perfil-top { display: none; height: 34px; width: auto; max-width: 260px; }
+@media (min-width: 761px) and (max-width: 1180px) { .side-perfil, .perfil-chip { display: none !important; } .perfil-top { display: block; } }
+@media (max-width: 760px) { .perfil-chip { display: none; } }
+.phone .pill.apto { background: #dcf2e5; color: #2f855a; }
+.phone .pill.atencao { background: #fbf0dc; color: #a86b12; }
+.phone .pill.risco { background: #fbe5e5; color: #c53030; }
+.sup-resumo { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.sup-resumo div { background: #fff; border: 1px solid #dfe6e9; border-radius: 10px; padding: 8px 4px; display: grid; gap: 1px; text-align: center; }
+.sup-resumo b { font-family: var(--font-display); font-size: 18px; }
+.sup-resumo span, .ph-tag { font-size: 11px; color: #6b7c84; }
+.ph-tag { white-space: nowrap; }
+.sup-tabs { display: flex; gap: 3px; background: #e8eef0; padding: 3px; border-radius: 9px; }
+.sup-tabs button { flex: 1; border: 0; background: none; border-radius: 7px; padding: 6px 2px; font: inherit; font-size: 11.5px; color: #4a5c65; cursor: pointer; }
+.sup-tabs button[aria-pressed="true"] { background: #fff; color: #15242b; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.sup-lista { display: grid; max-height: 290px; overflow-y: auto; border: 1px solid #dfe6e9; border-radius: 10px; background: #fff; }
+.sup-row { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 0; border-bottom: 1px solid #edf1f3; background: none; text-align: left; font: inherit; color: #15242b; width: 100%; }
+.sup-row:last-child { border-bottom: 0; }
+button.sup-row { cursor: pointer; }
+button.sup-row:hover { background: #f4f8f9; }
+.sup-row > svg.i { width: 14px; height: 14px; color: #8a9aa1; flex: none; }
+.sup-row .nm { flex: 1; min-width: 0; display: grid; }
+.sup-row .nm b { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sup-row .nm span { font-size: 11px; color: #6b7c84; }
+.ph-back { border: 0; background: none; color: #155e75; font: inherit; font-size: 12px; font-weight: 600; padding: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; }
+.ph-voltar { display: inline-grid; transform: rotate(180deg); }
+.ph-sec { display: grid; gap: 8px; background: #fff; border: 1px solid #dfe6e9; border-radius: 10px; padding: 10px; }
+.ph-sec h4 { margin: 0; font-size: 13px; }
+.notif { position: fixed; top: 60px; right: 16px; width: min(400px, calc(100vw - 32px)); max-height: min(560px, calc(100dvh - 80px)); display: flex; flex-direction: column; background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.18); z-index: 60; overflow: hidden; }
+.notif-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px 10px; }
+.notif-head h3 { margin: 0; font-size: 15px; }
+.notif-tabs { padding: 0 16px 12px; border-bottom: 1px solid var(--line); }
+.notif-list { overflow-y: auto; }
+.notif-item { display: flex; align-items: flex-start; gap: 12px; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 12px 16px; color: var(--fg); font: inherit; cursor: pointer; }
+.notif-item:hover { background: var(--surface-2); }
+.notif-ico { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; flex: none; background: var(--surface-2); color: var(--fg-2); }
+.notif-ico.risco { background: var(--risk-soft); color: var(--risk); }
+.notif-ico.atencao { background: var(--warn-soft); color: var(--warn); }
+.notif-ico svg.i { width: 16px; height: 16px; }
+.notif-txt { min-width: 0; flex: 1; display: grid; gap: 2px; }
+.notif-txt b { font-size: 13px; font-weight: 600; }
+.notif-txt span { font-size: 12px; color: var(--fg-2); }
+.notif-txt small { font-size: 11px; color: var(--fg-3); }
+.notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -563,9 +611,10 @@ button.ph-btn:disabled { opacity: .45; cursor: default; }
         <strong><i class="dot"></i>Disparo de hoje concluído</strong>
         <span id="sideDisparo">06:00 · 12.486 funcionários convocados</span>
       </div>
+      <label class="side-perfil"><span>Ver como</span><select id="perfilSel"></select></label>
       <div class="side-user">
-        <div class="avatar">AM</div>
-        <div class="who"><b>Admin Master</b><span>admin@pulse.com.br</span></div>
+        <div class="avatar" id="avatar">AM</div>
+        <div class="who"><b id="whoNome">Admin Master</b><span id="whoMail">admin@pulse.com.br</span></div>
         <button type="button" id="logoutBtn" title="Sair" aria-label="Sair"></button>
       </div>
     </div>
@@ -575,9 +624,11 @@ button.ph-btn:disabled { opacity: .45; cursor: default; }
       <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="Abrir menu"></button>
       <div class="crumbs"><span>Pulse</span><span>/</span><b id="crumb">Dashboard</b></div>
       <div class="spacer"></div>
+      <span class="chip accent perfil-chip" id="perfilChip" hidden></span>
+      <select class="input perfil-top" id="perfilTop" aria-label="Ver como (demonstração)"></select>
       <span class="env-tag">Demonstração</span>
       <button class="icon-btn theme-btn" type="button"></button>
-      <button class="icon-btn" id="bellBtn" type="button" aria-label="Alertas de hoje"><span class="count">87</span></button>
+      <button class="icon-btn" id="bellBtn" type="button" aria-label="Notificações" aria-haspopup="dialog" aria-expanded="false"><span class="count"></span></button>
     </header>
     <main class="content" id="view"></main>
   </div>
@@ -640,6 +691,7 @@ const ICONS = {
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
   moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
   simulador: '<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/>',
+  supervisor: '<circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 11l2 2 4-4"/>',
   trash: '<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'
 };
 const icon = (n, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
@@ -800,7 +852,7 @@ const SUSPEITAS = (() => {
 
 // Auditoria: quem fez o quê e quando. As ações desta sessão entram no topo.
 const AUDIT_TIPOS = { acesso: 'Acesso', empresas: 'Empresas', perguntas: 'Perguntas', configuracoes: 'Configurações', alertas: 'Alertas', exportacao: 'Exportação' };
-const usuarioAtual = () => store.get('pulse-user') || 'admin@pulse.com.br';
+const usuarioAtual = () => perfil !== 'master' ? PERFIS[perfil].email : store.get('pulse-user') || 'admin@pulse.com.br';
 const AUDIT = [
   [0, '07:31', 'admin@pulse.com.br', 'acesso', 'Login no painel', 'Acesso pelo navegador'],
   [0, '07:12', 'ana.ribeiro@pulse.com.br', 'alertas', 'Plano de ação registrado', `${ALERTAS[7].codigo} · ${ACAO_TIPOS[2]} · Concluído`],
@@ -828,9 +880,9 @@ const AUDIT = [
   return { data: new Date(2026, 10, 6 - dias, h, m), usuario, tipo, acao, detalhe };
 });
 let auditMin = 7 * 60 + 42;
-function audit(tipo, acao, detalhe = '') {
+function audit(tipo, acao, detalhe = '', usuario = usuarioAtual()) {
   auditMin++; // o relógio do protótipo avança 1 minuto por ação registrada
-  AUDIT.unshift({ data: new Date(2026, 10, 6, Math.floor(auditMin / 60), auditMin % 60), usuario: usuarioAtual(), tipo, acao, detalhe });
+  AUDIT.unshift({ data: new Date(2026, 10, 6, Math.floor(auditMin / 60), auditMin % 60), usuario, tipo, acao, detalhe });
   agendarSalvar();
 }
 
@@ -842,12 +894,12 @@ let salvarTimer, avisoCheio = false;
 function salvarDados() {
   clearTimeout(salvarTimer);
   const h = SERIE[SERIE.length - 1];
-  const dados = { v: 1, EMP, CFG, GRUPOS, PERGUNTAS, qid, ACOES, ALERTAS, SUSPEITAS, FUNC_HOJE, FORA_SIM, auditMin,
+  const dados = { v: 1, lidas: [...NOTIF_LIDAS], EMP, CFG, GRUPOS, PERGUNTAS, qid, ACOES, ALERTAS, SUSPEITAS, FUNC_HOJE, FORA_SIM, auditMin,
     AUDIT: AUDIT.map(a => ({ ...a, data: a.data.getTime() })), serieHoje: { total: h.total, apto: h.apto, atencao: h.atencao, risco: h.risco } };
   try { localStorage.setItem(DADOS_KEY, JSON.stringify(dados)); }
   catch (e) { if (!avisoCheio) { avisoCheio = true; toast('Não foi possível salvar neste navegador (espaço cheio ou bloqueado).'); } }
 }
-const agendarSalvar = () => { clearTimeout(salvarTimer); salvarTimer = setTimeout(salvarDados, 0); };
+const agendarSalvar = () => { clearTimeout(salvarTimer); salvarTimer = setTimeout(() => { salvarDados(); atualizaSino(); }, 0); };
 function carregarDados() {
   let d = null;
   try { d = JSON.parse(localStorage.getItem(DADOS_KEY)); } catch (e) {}
@@ -863,6 +915,7 @@ function carregarDados() {
   Object.assign(SERIE[SERIE.length - 1], d.serieHoje);
   if (d.qid) qid = d.qid;
   if (d.auditMin) auditMin = d.auditMin;
+  (d.lidas || []).forEach(k => NOTIF_LIDAS.add(k));
 }
 function restaurarDados() {
   openModal({ title: 'Restaurar dados de demonstração', width: 480,
@@ -952,6 +1005,7 @@ const ROUTES = {
   empresas: { label: 'Empresas', render: renderEmpresas },
   funcionarios: { label: 'Funcionários', render: renderFuncionarios },
   simulador: { label: 'App do funcionário', render: renderSimulador },
+  supervisor: { label: 'Visão do supervisor', render: renderSupervisor },
   perguntas: { label: 'Banco de Perguntas', render: renderPerguntas },
   configuracoes: { label: 'Configurações', render: renderConfig },
   relatorios: { label: 'Relatórios', render: renderRelatorios },
@@ -959,17 +1013,19 @@ const ROUTES = {
 };
 let charts = [], rotaAtual = 'dashboard';
 function buildNav() {
-  $('#nav').innerHTML = Object.entries(ROUTES).map(([k, r]) =>
+  $('#nav').innerHTML = Object.entries(ROUTES).filter(([k]) => podeVer(k)).map(([k, r]) =>
     `<a href="#${k}" data-route="${k}">${icon(k)}<span>${r.label}</span>${k === 'dashboard' ? `<em class="badge">${SERIE[SERIE.length - 1].atencao + SERIE[SERIE.length - 1].risco}</em>` : ''}</a>`).join('');
   $('#nav').querySelectorAll('.badge').forEach(b => b.title = 'Alertas de hoje');
 }
 function go(route) {
-  if (!ROUTES[route]) route = 'dashboard';
-  rotaAtual = route; closeAll(); clearInterval(simTimer);
+  if (!ROUTES[route] || !podeVer(route)) route = 'dashboard';
+  if (location.hash && location.hash !== '#' + route) history.replaceState(null, '', '#' + route);
+  rotaAtual = route; closeAll(); fecharNotif(); clearInterval(simTimer);
   charts.forEach(c => c.destroy()); charts = []; serieChart = relChart = null;
   document.querySelectorAll('#nav a').forEach(a => a.dataset.route === route ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
   $('#crumb').textContent = ROUTES[route].label;
   ROUTES[route].render($('#view'));
+  atualizaSino();
   document.body.classList.remove('nav-open'); const s = $('.scrim'); if (s) s.remove();
   window.scrollTo(0, 0);
 }
@@ -1013,7 +1069,7 @@ function renderDashboard(v) {
   <div class="page-head">
     <div><h1>Visão geral</h1><p>${dataExt.charAt(0).toUpperCase() + dataExt.slice(1)} · atualizado às 07:42${emp ? ' · ' + esc(emp.nome) : ''}</p></div>
     <div class="page-actions">
-      <select class="input" id="dashEmpresa" style="height:38px;width:auto;max-width:100%" aria-label="Filtrar por empresa">
+      <select class="input" id="dashEmpresa" ${P().empresa ? 'disabled' : ''} style="height:38px;width:auto;max-width:100%" aria-label="Filtrar por empresa">
         <option value="todas">Todas as empresas (${ATIVAS.length})</option>${ADESAO.map(e => e.nome).sort((a, b) => a.localeCompare(b, 'pt-BR')).map(n => `<option ${n === dashEmp ? 'selected' : ''}>${esc(n)}</option>`).join('')}
       </select>
       <div class="seg" id="segPeriodo" role="group" aria-label="Período">${[7, 30, 90].map(n => `<button type="button" data-v="${n}" aria-pressed="${periodo === n}">${n} dias</button>`).join('')}</div>
@@ -1101,9 +1157,9 @@ function renderDashboard(v) {
       </table></div></div>
     </article>
     <article class="card">
-      <div class="card-head"><div><h2>Adesão por empresa hoje</h2><p>Menores taxas primeiro</p></div></div>
+      <div class="card-head"><div><h2>Adesão por ${P().empresa ? 'equipe' : 'empresa'} hoje</h2><p>Menores taxas primeiro</p></div></div>
       <div class="card-body"><div class="adh-list">
-        ${ADESAO.slice(0, 7).map(e => `<div class="adh-row"><div class="top"><span>${esc(e.nome)}</span><b>${pct(e.taxa * 100)}</b></div>
+        ${(P().empresa ? adesaoEquipes(P().empresa) : ADESAO).slice(0, 7).map(e => `<div class="adh-row"><div class="top"><span>${esc(e.nome)}</span><b>${pct(e.taxa * 100)}</b></div>
           <div class="meter"><i class="${e.taxa < .75 ? 'low' : e.taxa < .88 ? 'mid' : 'high'}" style="width:${e.taxa * 100}%"></i></div></div>`).join('')}
       </div></div>
     </article>
@@ -1256,7 +1312,7 @@ function alertDetail(a, stack = false) {
     if (status !== 'pendente' && !tipo) { $('#aErro', md).hidden = false; $('#aTipo', md).classList.add('invalid'); $('#aTipo', md).focus(); return; }
     audit('alertas', 'Plano de ação registrado', `${a.codigo} · ${tipo || 'sem ação definida'} · ${ACAO_ST[status]}`);
     ACOES[a.id] = { status, tipo, resp, obs, em: plano.em ?? (status !== 'pendente' ? agora().getTime() : null), registros: [...plano.registros, { hora: hhmm(auditMin), texto: `${tipo || 'Sem ação definida'} · ${ACAO_ST[status]}${obs ? ' · ' + obs : ''}`, usuario: usuarioAtual() }] };
-    closeAll(); if (rotaAtual === 'dashboard') renderDashboard($('#view')); else if (rotaAtual === 'simulador') drawSim();
+    closeAll(); if (rotaAtual === 'dashboard') renderDashboard($('#view')); else if (rotaAtual === 'simulador') drawSim(); else if (rotaAtual === 'supervisor') drawSup();
     toast(`Plano de ação de ${a.codigo} salvo.`);
   });
 }
@@ -1412,7 +1468,7 @@ function renderFuncionarios(v) {
     <div class="info-banner">${icon('shield')}<span>Por LGPD, o Admin Master não vê nome, e-mail nem dados pessoais. Cadastros, edições e equipes são feitos pela própria empresa no painel dela.</span></div>
     <div class="toolbar">
       <div class="input-icon grow">${icon('search')}<input class="input" id="fBusca" placeholder="Buscar pelo código, ex.: FUNC-01234" value="${esc(fQ)}" aria-label="Buscar funcionário pelo código"></div>
-      <select class="input" id="fEmp" aria-label="Empresa"><option value="todas">Todas as empresas</option>${[...EMP].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(e => `<option ${e.nome === fEmp ? 'selected' : ''}>${esc(e.nome)}</option>`).join('')}</select>
+      <select class="input" id="fEmp" aria-label="Empresa" ${P().empresa ? 'disabled' : ''}><option value="todas">Todas as empresas</option>${[...EMP].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(e => `<option ${e.nome === fEmp ? 'selected' : ''}>${esc(e.nome)}</option>`).join('')}</select>
       <select class="input" id="fTipo" aria-label="Tipo">${opt(fTipo, [['todos', 'Todos os tipos'], ['Normal', 'Normal'], ['Supervisor', 'Supervisor'], ['Acesso restrito', 'Acesso restrito']])}</select>
       <select class="input" id="fSt" aria-label="Status">${opt(fSt, [['todos', 'Todos os status'], ['ativo', 'Ativos'], ['inativo', 'Inativos']])}</select>
       <select class="input" id="fRes" aria-label="Resultado de hoje">${opt(fRes, [['todos', 'Qualquer resultado hoje'], ['apto', 'Apto'], ['atencao', 'Atenção'], ['risco', 'Risco'], ['nao', 'Não respondeu']])}</select>
@@ -2100,7 +2156,7 @@ function renderRelatorios(v) {
   <article class="card"><div class="filters">
     <div class="field"><label for="rIni">De</label><input class="input" type="date" id="rIni" min="${MIN_DATA}" max="${MAX_DATA}" value="${relIni}"></div>
     <div class="field"><label for="rFim">Até</label><input class="input" type="date" id="rFim" min="${MIN_DATA}" max="${MAX_DATA}" value="${relFim}"></div>
-    <div class="field grow"><label for="rEmp">Empresa</label><select class="input" id="rEmp"><option value="todas">Geral: todas as empresas ativas (${ADESAO.length})</option>${[...ADESAO].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(e => `<option ${e.nome === relEmp ? 'selected' : ''}>${esc(e.nome)}</option>`).join('')}</select></div>
+    <div class="field grow"><label for="rEmp">Empresa</label><select class="input" id="rEmp" ${P().empresa ? 'disabled' : ''}><option value="todas">Geral: todas as empresas ativas (${ADESAO.length})</option>${[...ADESAO].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(e => `<option ${e.nome === relEmp ? 'selected' : ''}>${esc(e.nome)}</option>`).join('')}</select></div>
     <div class="field"><span class="flabel">Período rápido</span><div class="seg" id="rPre">${[['7', '7 dias'], ['30', '30 dias'], ['mes', 'Este mês'], ['90', '90 dias']].map(([k, l]) => `<button type="button" data-p="${k}" aria-pressed="${preset === k}">${l}</button>`).join('')}</div></div>
   </div></article>
 
@@ -2324,7 +2380,7 @@ function simConcluir(classe) {
   SIM.fase = 'fim'; SIM.fim = classe;
   const h = SERIE[SERIE.length - 1], b = $('#nav .badge');
   if (b) b.textContent = h.atencao + h.risco;
-  $('#bellBtn .count').textContent = h.risco;
+  atualizaSino();
   agendarSalvar();
 }
 // Responde o restante automaticamente, mirando um resultado (para a apresentação)
@@ -2412,6 +2468,202 @@ function drawSim() {
     : '<p class="empty" style="padding:24px 0">Assim que o funcionário começar a responder, os eventos aparecem aqui.</p>';
 }
 
+/* ============ Perfis de acesso ============ */
+// Demonstração: o mesmo painel visto por cada perfil. Gestor e SESMT veem só a própria empresa.
+const PERFIS = {
+  master: { nome: 'Admin Master', sigla: 'AM', email: 'admin@pulse.com.br', desc: 'Acesso total a todas as empresas', rotas: null },
+  gestor: { nome: 'Gestor da empresa', sigla: 'GE', email: 'rh@transportadorarota.com.br', empresa: 'Transportadora Rota Sul',
+    desc: 'Vê só a própria empresa, sem Empresas, Banco de Perguntas, Configurações e Auditoria', rotas: ['dashboard', 'funcionarios', 'supervisor', 'relatorios'] },
+  seguranca: { nome: 'Segurança do trabalho', sigla: 'ST', email: 'sesmt@transportadorarota.com.br', empresa: 'Transportadora Rota Sul',
+    desc: 'Acompanha alertas e planos de ação da própria empresa', rotas: ['dashboard', 'supervisor', 'relatorios'] }
+};
+let perfil = PERFIS[store.get('pulse-perfil')] ? store.get('pulse-perfil') : 'master';
+const P = () => PERFIS[perfil];
+const podeVer = r => !P().rotas || P().rotas.includes(r);
+function aplicaPerfil() {
+  const p = P();
+  $('#avatar').textContent = p.sigla; $('#whoNome').textContent = p.nome; $('#whoMail').textContent = p.email;
+  $('#perfilSel').value = $('#perfilTop').value = perfil;
+  $('#perfilChip').hidden = !p.empresa; $('#perfilChip').textContent = p.empresa ? `${p.nome} · ${p.empresa}` : '';
+  dashEmp = fEmp = relEmp = p.empresa || 'todas';
+  buildNav();
+}
+function trocaPerfil(novo) {
+  perfil = novo; store.set('pulse-perfil', novo);
+  aplicaPerfil();
+  audit('acesso', 'Perfil de demonstração alterado', `${P().nome}${P().empresa ? ' · ' + P().empresa : ''}`);
+  go(podeVer(rotaAtual) ? rotaAtual : 'dashboard');
+  toast(`Vendo como ${P().nome}. ${P().desc}.`);
+}
+// Adesão de hoje por equipe, calculada sobre os funcionários da empresa
+function adesaoEquipes(empresa) {
+  const g = {};
+  FUNCS.forEach(f => { if (f.empresa === empresa && f.status === 'ativo') { const e = g[f.equipe] || (g[f.equipe] = { nome: f.equipe, n: 0, r: 0 }); e.n++; if (f.hoje !== 'nao') e.r++; } });
+  return Object.values(g).map(e => ({ nome: e.nome, taxa: e.r / e.n })).sort((a, b) => a.taxa - b.taxa);
+}
+
+/* ============ Visão do supervisor ============ */
+// App do supervisor: vê a própria equipe com nome (LGPD) e registra a conversa com quem deu alerta.
+const NOMES = ['Ana', 'Bruno', 'Carla', 'Diego', 'Eduarda', 'Fábio', 'Gabriela', 'Henrique', 'Isabela', 'João', 'Karina', 'Lucas', 'Mariana', 'Nelson', 'Otávio',
+  'Patrícia', 'Rafael', 'Sabrina', 'Thiago', 'Vanessa', 'Wagner', 'Yasmin', 'André', 'Beatriz', 'Caio', 'Daniela', 'Everton', 'Fernanda', 'Gustavo', 'Juliana'];
+const SOBRENOMES = ['Silva', 'Santos', 'Oliveira', 'Souza', 'Lima', 'Pereira', 'Costa', 'Rodrigues', 'Almeida', 'Nascimento', 'Carvalho', 'Araújo', 'Ribeiro', 'Gomes',
+  'Martins', 'Rocha', 'Barbosa', 'Moreira', 'Teixeira', 'Mendes'];
+const nomeFunc = f => `${NOMES[f.seed % NOMES.length]} ${SOBRENOMES[Math.floor(f.seed / 7) % SOBRENOMES.length]}`;
+const negativo = f => f.hoje === 'atencao' || f.hoje === 'risco';
+const equipeDe = (empresa, equipe) => FUNCS.filter(f => f.empresa === empresa && f.equipe === equipe && f.status === 'ativo');
+let SUP = null;
+// Equipe inicial: a do último funcionário simulado; senão, a equipe com mais alertas da empresa
+function supPadrao(empresa) {
+  if (!empresa) {
+    const emp = P().empresa, sim = ALERTAS.find(a => a.sim && !a.dia && (!emp || a.empresa === emp)), fs = sim && FUNCS.find(f => f.codigo === sim.codigo);
+    if (fs) return { empresa: fs.empresa, equipe: fs.equipe, tela: 'lista', filtro: 'todos' };
+    empresa = emp || 'Transportadora Rota Sul';
+  }
+  const conta = {};
+  FUNCS.forEach(f => { if (f.empresa === empresa && f.status === 'ativo') conta[f.equipe] = (conta[f.equipe] || 0) + (negativo(f) ? 1 : 0); });
+  return { empresa, equipe: Object.keys(conta).sort((a, b) => conta[b] - conta[a] || a.localeCompare(b))[0], tela: 'lista', filtro: 'todos' };
+}
+// Alerta do funcionário; se ainda não existe no painel, é criado ao salvar o primeiro registro
+const alertaDoFunc = f => ALERTAS.find(a => a.codigo === f.codigo && !a.dia) || { id: 'f' + f.codigo, dia: 0, codigo: f.codigo, empresa: f.empresa, setor: f.equipe,
+  hora: f.hora || '06:30', etapa: 'Principais', pont: f.hoje === 'risco' ? 20 + f.seed % 18 : 45 + f.seed % 20, classe: f.hoje, tempo: 90 + f.seed % 200 };
+const supNome = () => { const s = equipeDe(SUP.empresa, SUP.equipe).find(f => f.tipo === 'Supervisor'); return s ? nomeFunc(s) : 'Supervisor da equipe'; };
+const supUsuario = () => `${supNome()} (supervisor ${SUP.equipe})`;
+function renderSupervisor(v) {
+  if (!SUP || (P().empresa && SUP.empresa !== P().empresa)) SUP = supPadrao();
+  const emps = P().empresa ? [P().empresa] : EMPRESAS.map(e => e.nome).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  v.innerHTML = `
+  <div class="page-head"><div><h1>Visão do supervisor</h1><p>Como o supervisor acompanha a própria equipe pelo celular e registra a conversa com quem deu alerta.</p></div></div>
+  <div class="sim-grid">
+    <div style="display:grid;gap:10px"><div class="phone sim-phone" id="supPhone"></div><p class="hint" style="text-align:center;margin:0">O supervisor vê nome e código só da própria equipe.</p></div>
+    <div style="display:grid;gap:16px;align-content:start;min-width:0">
+      <article class="card"><div class="card-head"><div><h2>Equipe</h2><p>Escolha qual supervisor simular</p></div></div>
+        <div class="card-body"><div class="form-grid">
+          <div class="field span-3"><label for="supEmp">Empresa</label><select class="input" id="supEmp" ${P().empresa ? 'disabled' : ''}>${emps.map(n => `<option ${n === SUP.empresa ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></div>
+          <div class="field span-3"><label for="supEq">Equipe</label><select class="input" id="supEq"></select></div>
+        </div></div></article>
+      <article class="card"><div class="card-head"><div><h2>Registros desta equipe hoje</h2><p>Também aparecem no detalhe do alerta, no prazo dos planos e na Auditoria</p></div></div>
+        <div class="card-body" id="supLog"></div></article>
+      <div class="lgpd-box">${icon('shield')}<span>Pela LGPD, o nome do funcionário aparece só para o supervisor da equipe. O Admin Master, o gestor e os relatórios veem apenas o código.</span></div>
+    </div>
+  </div>`;
+  $('#supEmp').addEventListener('change', e => { SUP = supPadrao(e.target.value); drawSup(); });
+  $('#supEq').addEventListener('change', e => { SUP = { ...SUP, equipe: e.target.value, tela: 'lista', lembrete: null }; drawSup(); });
+  $('#supPhone').addEventListener('click', e => {
+    const t = e.target;
+    const tab = t.closest('#supTabs button'); if (tab) { SUP.filtro = tab.dataset.f; return drawSup(); }
+    const row = t.closest('.sup-row[data-c]'); if (row) { SUP.tela = 'membro'; SUP.codigo = row.dataset.c; return drawSup(); }
+    if (t.closest('#supVoltar')) { SUP.tela = 'lista'; return drawSup(); }
+    const st = t.closest('#supSt button'); if (st) { $('#supSt').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === st)); return; }
+    if (t.closest('#supLembrar')) {
+      const n = equipeDe(SUP.empresa, SUP.equipe).filter(f => f.hoje === 'nao').length;
+      audit('alertas', 'Lembrete enviado pelo supervisor', `${SUP.empresa} · ${SUP.equipe} · ${n} sem resposta`, supUsuario());
+      SUP.lembrete = hhmm(auditMin); drawSup(); return toast(`Lembrete enviado para ${n} ${n > 1 ? 'funcionários' : 'funcionário'}.`);
+    }
+    if (t.closest('#supSalvar')) {
+      const tipo = $('#supTipo').value, status = $('#supSt [aria-pressed="true"]').dataset.v, obs = $('#supObs').value.trim();
+      if (!tipo) { $('#supTipo').classList.add('invalid'); $('#supMsg').textContent = 'Escolha a ação tomada para salvar.'; $('#supMsg').style.color = '#c53030'; return; }
+      const f = FUNCS.find(x => x.codigo === SUP.codigo), a = alertaDoFunc(f), plano = ACOES[a.id] || { registros: [] };
+      if (!ALERTAS.includes(a)) ALERTAS.push(a);
+      audit('alertas', 'Plano de ação registrado', `${a.codigo} · ${tipo} · ${ACAO_ST[status]} · pelo app do supervisor`, supUsuario());
+      ACOES[a.id] = { status, tipo, resp: RESPONSAVEIS[0], obs, em: plano.em ?? agora().getTime(),
+        registros: [...plano.registros, { hora: hhmm(auditMin), texto: `${tipo} · ${ACAO_ST[status]}${obs ? ' · ' + obs : ''}`, usuario: supNome() }] };
+      SUP.tela = 'lista'; drawSup(); toast(`Conversa com ${nomeFunc(f)} registrada.`);
+    }
+  });
+  drawSup();
+}
+function drawSup() {
+  const ph = $('#supPhone'); if (!ph) return;
+  const time = equipeDe(SUP.empresa, SUP.equipe), ord = { risco: 0, atencao: 1, nao: 2, apto: 3 };
+  const resp = time.filter(f => f.hoje !== 'nao').length, pend = time.length - resp, al = time.filter(negativo).length;
+  const eqs = {};
+  FUNCS.forEach(f => { if (f.empresa === SUP.empresa && f.status === 'ativo') { const e = eqs[f.equipe] || (eqs[f.equipe] = { n: 0, al: 0 }); e.n++; if (negativo(f)) e.al++; } });
+  $('#supEq').innerHTML = Object.keys(eqs).sort().map(k => `<option value="${k}" ${k === SUP.equipe ? 'selected' : ''}>${k} · ${eqs[k].n} pessoas${eqs[k].al ? ` · ${eqs[k].al} ${eqs[k].al > 1 ? 'alertas' : 'alerta'}` : ''}</option>`).join('');
+  const topo = `<span>06/11 · ${hhmm(auditMin)}</span>`;
+  if (SUP.tela === 'lista') {
+    const lista = time.filter(f => SUP.filtro === 'alertas' ? negativo(f) : SUP.filtro === 'pendentes' ? f.hoje === 'nao' : true).sort((a, b) => ord[a.hoje] - ord[b.hoje] || a.codigo.localeCompare(b.codigo));
+    ph.innerHTML = `<div class="ph-top"><span>Pulse · Supervisor</span>${topo}</div>
+      <div class="ph-hello"><b>${esc(SUP.equipe)}</b><span>${esc(SUP.empresa)} · ${esc(supNome())}</span></div>
+      <div class="sup-resumo"><div><b>${resp}</b><span>Responderam</span></div><div><b>${pend}</b><span>Sem resposta</span></div><div><b ${al ? 'style="color:#c53030"' : ''}>${al}</b><span>Alertas</span></div></div>
+      <div class="sup-tabs" id="supTabs">${[['todos', 'Todos'], ['alertas', `Alertas (${al})`], ['pendentes', `Sem resposta (${pend})`]].map(([k, l]) => `<button type="button" data-f="${k}" aria-pressed="${SUP.filtro === k}">${l}</button>`).join('')}</div>
+      <div class="sup-lista">${lista.map(f => {
+        const plano = negativo(f) && ACOES[alertaDoFunc(f).id], feito = plano && plano.status !== 'pendente';
+        const tag = f.hoje === 'nao' ? '<span class="ph-tag">Sem resposta</span>' : negativo(f) ? pill(f.hoje) : `<span class="ph-tag">${f.hora}</span>`;
+        const corpo = `<span class="nm"><b>${esc(nomeFunc(f))}</b><span>${f.codigo}${f.tipo === 'Supervisor' ? ' · Supervisor' : ''}${feito ? ' · ' + ACAO_ST[plano.status] : negativo(f) ? ' · conversa pendente' : ''}</span></span>${tag}`;
+        return negativo(f) ? `<button type="button" class="sup-row" data-c="${f.codigo}">${corpo}${icon('chev')}</button>` : `<div class="sup-row">${corpo}</div>`;
+      }).join('') || '<div class="sup-row"><span class="nm"><span>Ninguém nesta lista.</span></span></div>'}</div>
+      ${pend ? `<button class="ph-btn" type="button" id="supLembrar" ${SUP.lembrete ? 'disabled' : ''}>${SUP.lembrete ? 'Lembrete enviado às ' + SUP.lembrete : `Lembrar quem não respondeu (${pend})`}</button>` : ''}`;
+  } else {
+    const f = time.find(x => x.codigo === SUP.codigo), a = alertaDoFunc(f), plano = ACOES[a.id] || { status: 'andamento', tipo: '', obs: '', registros: [] }, pz = prazoInfo(a);
+    const stAtual = plano.status === 'concluido' ? 'concluido' : 'andamento';
+    ph.innerHTML = `<div class="ph-top"><button class="ph-back" type="button" id="supVoltar"><span class="ph-voltar">${icon('chev')}</span>Equipe</button>${topo}</div>
+      <div class="ph-hello"><b>${esc(nomeFunc(f))}</b><span>${f.codigo} · ${esc(f.equipe)}</span></div>
+      <div class="ph-sec"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px">${pill(a.classe)}<span class="ph-tag">Respondeu às ${a.hora}</span></div>
+        <span class="ph-d" style="margin:0">${a.classe === 'risco' ? 'Converse antes do início das atividades e avalie afastar de funções de risco hoje.' : 'Converse com o funcionário antes do início das atividades.'}</span></div>
+      <div class="ph-sec"><h4>Registrar conversa</h4>
+        <select class="input" id="supTipo" aria-label="Ação tomada"><option value="">Ação tomada…</option>${ACAO_TIPOS.map(t => `<option ${t === plano.tipo ? 'selected' : ''}>${t}</option>`).join('')}</select>
+        <div class="sup-tabs" id="supSt">${['andamento', 'concluido'].map(k => `<button type="button" data-v="${k}" aria-pressed="${stAtual === k}">${ACAO_ST[k]}</button>`).join('')}</div>
+        <textarea class="input" id="supObs" rows="2" placeholder="Observação (opcional)" aria-label="Observação">${esc(plano.obs)}</textarea>
+        <span class="ph-tag" id="supMsg" style="white-space:normal">Prazo para registrar: até ${fmtLimite(pz.limite)}</span>
+      </div>
+      ${plano.registros.length ? `<div class="ph-sec"><h4>Histórico</h4>${plano.registros.map(r => `<span class="ph-tag" style="white-space:normal">${r.hora} · ${esc(r.texto)}</span>`).join('')}</div>` : ''}
+      <button class="ph-btn" type="button" id="supSalvar">Salvar registro</button>`;
+  }
+  const regs = time.filter(negativo).map(f => ({ f, p: ACOES[alertaDoFunc(f).id] })).filter(x => x.p && x.p.registros.length);
+  $('#supLog').innerHTML = regs.length
+    ? regs.flatMap(({ f, p }) => p.registros.map(r => `<div class="sim-ev"><span>${r.hora}</span><span><b>${f.codigo}</b> · ${esc(r.texto)} · ${esc(r.usuario)}</span></div>`)).join('')
+    : '<p class="empty" style="padding:24px 0">Nenhum registro ainda. Toque em um funcionário com alerta no celular para registrar a conversa.</p>';
+}
+
+/* ============ Central de notificações ============ */
+const NOTIF_LIDAS = new Set();
+let notifAba = 'todas';
+// Montadas a partir dos dados: planos vencidos ou vencendo, alertas de hoje e respostas suspeitas
+function notificacoes() {
+  const emp = P().empresa, out = [];
+  ALERTAS.filter(a => !emp || a.empresa === emp).forEach(a => {
+    const pz = prazoInfo(a);
+    if (pz.st === 'vencido') out.push({ k: 'venc:' + a.id, tom: 'risco', ico: 'warn', tit: `Plano de ação vencido · ${a.codigo}`, txt: `${a.empresa} · vencido há ${dur(pz.resta)}`, quando: pz.limite, a });
+    else if (pz.st === 'breve') out.push({ k: 'breve:' + a.id, tom: 'atencao', ico: 'clock', tit: `Plano de ação vence em ${dur(pz.resta)} · ${a.codigo}`, txt: `${a.empresa} · até ${fmtLimite(pz.limite)}`, quando: pz.limite - 4 * 3600e3, a });
+    if (!a.dia) out.push({ k: 'al:' + a.id, tom: a.classe, ico: a.classe === 'risco' ? 'risk' : 'warn', tit: `Alerta de ${classeLabel[a.classe]} · ${a.codigo}`, txt: `${a.empresa} · ${a.etapa} · ${a.setor}`, quando: alertaData(a).getTime(), a });
+  });
+  if (CFG.suspeitas) SUSPEITAS.filter(x => x.status === 'revisar' && (!emp || x.empresa === emp)).forEach(x => {
+    const [h, m] = x.hora.split(':').map(Number);
+    out.push({ k: 'susp:' + x.codigo + x.hora, tom: 'neutro', ico: 'eye', tit: `Resposta suspeita · ${x.codigo}`, txt: `${x.empresa} · ${x.motivo}`, quando: new Date(2026, 10, 6, h, m).getTime() });
+  });
+  return out.sort((a, b) => b.quando - a.quando);
+}
+function atualizaSino() {
+  const n = notificacoes().filter(x => !NOTIF_LIDAS.has(x.k)).length, c = $('#bellBtn .count');
+  c.textContent = n > 99 ? '99+' : n; c.style.display = n ? '' : 'none';
+  $('#bellBtn').setAttribute('aria-label', n ? `Notificações: ${n} não lidas` : 'Notificações');
+}
+function fecharNotif() { const p = $('#notif'); if (p) p.remove(); $('#bellBtn').setAttribute('aria-expanded', 'false'); }
+function abrirNotif() {
+  fecharNotif();
+  const lista = notificacoes(), novas = lista.filter(x => !NOTIF_LIDAS.has(x.k)), mostrar = (notifAba === 'novas' ? novas : lista).slice(0, 40);
+  const quando = ms => { const d = new Date(ms), h = hhmm(d.getHours() * 60 + d.getMinutes()); return (d.getDate() === 6 ? 'Hoje' : d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })) + ', ' + h; };
+  const p = document.createElement('div'); p.className = 'notif'; p.id = 'notif'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Notificações');
+  p.innerHTML = `<div class="notif-head"><h3>Notificações</h3>${novas.length ? '<button class="btn btn-sm" type="button" id="nLer">Marcar todas como lidas</button>' : ''}</div>
+    <div class="notif-tabs"><div class="seg" id="nAba" role="group" aria-label="Filtrar notificações"><button type="button" data-v="todas" aria-pressed="${notifAba === 'todas'}">Todas (${lista.length})</button><button type="button" data-v="novas" aria-pressed="${notifAba === 'novas'}">Não lidas (${novas.length})</button></div></div>
+    <div class="notif-list">${mostrar.map((x, i) => `<button type="button" class="notif-item" data-i="${i}"><span class="notif-ico ${x.tom}">${icon(x.ico)}</span>
+      <span class="notif-txt"><b>${esc(x.tit)}</b><span>${esc(x.txt)}</span><small>${quando(x.quando)}</small></span>${NOTIF_LIDAS.has(x.k) ? '' : '<span class="notif-dot" title="Não lida"></span>'}</button>`).join('')
+      || '<p class="empty">Nenhuma notificação não lida.</p>'}</div>`;
+  document.body.appendChild(p); $('#bellBtn').setAttribute('aria-expanded', 'true');
+  p.addEventListener('click', e => {
+    e.stopPropagation();
+    const ab = e.target.closest('#nAba button'); if (ab) { notifAba = ab.dataset.v; return abrirNotif(); }
+    if (e.target.closest('#nLer')) { lista.forEach(x => NOTIF_LIDAS.add(x.k)); agendarSalvar(); atualizaSino(); return abrirNotif(); }
+    const it = e.target.closest('.notif-item'); if (!it) return;
+    const x = mostrar[+it.dataset.i];
+    NOTIF_LIDAS.add(x.k); agendarSalvar(); atualizaSino(); fecharNotif();
+    if (x.a) return alertDetail(x.a);
+    alertaModo = 'suspeitas';
+    if (rotaAtual === 'dashboard') go('dashboard'); else location.hash = 'dashboard';
+    setTimeout(() => { const t = $('#suspRows'); if (t) t.closest('.card').scrollIntoView({ behavior: 'smooth' }); }, 80);
+  });
+}
+
 /* ============ Tema claro/escuro ============ */
 // Sem escolha salva, segue o tema do sistema. A escolha fica salva só neste navegador.
 const temaSalvo = () => { try { return localStorage.getItem('pulse-tema'); } catch (e) { return null; } };
@@ -2434,14 +2686,19 @@ function boot() {
   if (tema === 'dark' || tema === 'light') document.documentElement.dataset.theme = tema;
   pintaBotoesTema();
   document.querySelectorAll('.theme-btn').forEach(b => b.addEventListener('click', trocaTema));
-  buildNav();
+  ['#perfilSel', '#perfilTop'].forEach(sel => {
+    $(sel).innerHTML = Object.entries(PERFIS).map(([k, p]) => `<option value="${k}">${sel === '#perfilTop' ? 'Ver como: ' : ''}${p.nome}</option>`).join('');
+    $(sel).addEventListener('change', e => trocaPerfil(e.target.value));
+  });
+  aplicaPerfil();
   $('#logoutBtn').innerHTML = icon('logout');
   $('#menuBtn').innerHTML = icon('menu');
   $('#bellBtn').insertAdjacentHTML('afterbegin', icon('bell'));
-  $('#bellBtn .count').textContent = SERIE[SERIE.length - 1].risco;
   $('#sideDisparo').textContent = `${CFG.horario} · ${fmt(CAD)} funcionários convocados`;
-  $('#bellBtn').addEventListener('click', () => { location.hash = 'dashboard'; if ((location.hash || '#dashboard') === '#dashboard') go('dashboard'); setTimeout(() => { const t = $('#alertRows'); if (t) t.closest('.card').scrollIntoView({ behavior: 'smooth' }); }, 50); });
-  $('#logoutBtn').addEventListener('click', () => { audit('acesso', 'Saída do painel'); store.del('pulse-auth'); masterOk = false; closeAll(); showLogin(); });
+  $('#bellBtn').addEventListener('click', e => { e.stopPropagation(); $('#notif') ? fecharNotif() : abrirNotif(); });
+  document.addEventListener('click', e => { if ($('#notif') && !e.target.closest('#notif')) fecharNotif(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#notif')) { fecharNotif(); $('#bellBtn').focus(); } });
+  $('#logoutBtn').addEventListener('click', () => { audit('acesso', 'Saída do painel'); store.del('pulse-auth'); store.del('pulse-perfil'); perfil = 'master'; aplicaPerfil(); masterOk = false; fecharNotif(); closeAll(); showLogin(); });
   $('#menuBtn').addEventListener('click', () => {
     document.body.classList.add('nav-open');
     const s = document.createElement('div'); s.className = 'scrim'; s.addEventListener('click', () => { document.body.classList.remove('nav-open'); s.remove(); });

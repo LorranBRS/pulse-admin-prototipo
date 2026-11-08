@@ -10,11 +10,14 @@ Protótipo navegável do painel administrativo da plataforma **Pulse**, de avali
 
 - **Login**: acesso simulado e "Esqueci minha senha".
 - **Tema claro e escuro**: botão no topo (e na tela de login) para alternar; a escolha fica salva no navegador.
+- **Perfis de acesso**: seletor "Ver como" no menu lateral (ou no topo, em telas médias). Admin Master vê tudo; Gestor da empresa e Segurança do trabalho veem só a própria empresa e menos telas.
+- **Central de notificações**: o sino abre a lista de alertas de hoje, planos de ação vencidos ou vencendo e respostas suspeitas, com marcação de lidas.
 - **Dashboard**: indicadores do dia, resultados por período, funil Principais → Avaliação → Adicionais e últimos alertas, com **plano de ação** em cada alerta e aba de **respostas suspeitas** (todas iguais, padrão alternado ou rápidas demais), que podem ser reenviadas.
 - **Prazo dos planos de ação** (Dashboard): vencidos, que vencem em até 4 h, pendentes no prazo e percentual registrado dentro do prazo configurado.
 - **Empresas**: listagem com busca e filtros, cadastro e edição.
 - **Funcionários**: listagem somente por código (LGPD), com tipo, equipe, termo LGPD, resultado do dia e histórico de 30 dias com gráfico de pontuação e indicador de tendência de piora.
 - **App do funcionário**: simulador do celular. O funcionário responde as perguntas sorteadas (Principais → Avaliação → Adicionais) e o resultado entra no painel na hora: alerta, notificação ao supervisor, prazo do plano de ação, desvios de tempo e respostas suspeitas. Tem botões de resposta rápida (Apto, Atenção, Risco e "sem ler") para a apresentação.
+- **Visão do supervisor**: o app do supervisor no celular, com a equipe por nome (só ele vê nomes, pela LGPD), quem respondeu, quem tem alerta, registro da conversa (vira plano de ação) e lembrete para quem não respondeu.
 - **Banco de Perguntas**: 4 grupos de análise com 20+ perguntas cada (texto, imagem na pergunta e alternativas em imagem), 4 perguntas fixas de Avaliação e 4+ Adicionais, edição protegida por senha master e pré-visualização no celular.
 - **Configurações**: sorteio por grupo (total de 8 a 12), disparo diário, faixas Apto/Atenção/Risco, tempo mínimo e máximo por resposta, envio das etapas, bloqueio de login, cópia dos alertas de Risco, WhatsApp (opcional), prazo do plano de ação e detecção de respostas suspeitas.
 
