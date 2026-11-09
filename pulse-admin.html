@@ -546,6 +546,50 @@ button.sup-row:hover { background: #f4f8f9; }
 .notif-txt span { font-size: 12px; color: var(--fg-2); }
 .notif-txt small { font-size: 11px; color: var(--fg-3); }
 .notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; margin-top: 6px; }
+@keyframes entra { from { transform: translateY(-10px); } to { transform: none; } }
+@keyframes desce { from { transform: translateY(-16px) scale(.97); } to { transform: none; } }
+@keyframes destaque { 0%, 40% { background: var(--accent-soft); } 100% { background: transparent; } }
+@keyframes balanca { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(16deg); } 40% { transform: rotate(-13deg); } 60% { transform: rotate(8deg); } 80% { transform: rotate(-4deg); } }
+@keyframes gira { to { transform: rotate(360deg); } }
+@keyframes surge { from { transform: scale(.8); } to { transform: none; } }
+tr.novo td { animation: destaque 3.5s ease-out; }
+#bellBtn.balanca svg.i { animation: balanca .8s ease; transform-origin: 50% 15%; }
+.aviso { position: fixed; top: 64px; right: 16px; width: min(360px, calc(100vw - 32px)); display: flex; gap: 12px; align-items: center; text-align: left; padding: 12px 14px; background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-left: 4px solid var(--warn); border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.18); z-index: 70; font: inherit; cursor: pointer; animation: entra .35s ease-out; }
+.aviso.risco { border-left-color: var(--risk); }
+.phone { position: relative; }
+.ph-lock { margin: -16px -14px -18px; padding: 56px 14px 24px; min-height: 548px; border-radius: 21px; background: linear-gradient(165deg, #1c6f87 0%, #0e3d4d 55%, #15242b 100%); color: #fff; display: grid; align-content: start; gap: 6px; text-align: center; }
+.ph-lock-hora { font-family: var(--font-display); font-size: 56px; font-weight: 500; line-height: 1; letter-spacing: -.02em; }
+.ph-lock-data { font-size: 13px; opacity: .85; margin-bottom: 28px; }
+.ph-lock-dica { font-size: 11px; opacity: .7; margin-top: 8px; }
+.ph-push { display: flex; gap: 10px; align-items: flex-start; text-align: left; width: 100%; background: rgba(255,255,255,.94); color: #15242b; border: 0; border-radius: 14px; padding: 10px 12px; box-shadow: 0 6px 20px rgba(0,0,0,.25); font: inherit; cursor: pointer; animation: desce .4s ease-out; }
+.ph-push.flutua { position: absolute; top: 10px; left: 8px; right: 8px; width: auto; z-index: 2; border: 1px solid #dfe6e9; }
+.ph-push-ico { width: 34px; height: 34px; border-radius: 9px; background: #155e75; color: #fff; display: grid; place-items: center; flex: none; }
+.ph-push-ico svg { width: 20px; height: 20px; }
+.ph-push-txt { display: grid; gap: 1px; font-size: 12px; min-width: 0; flex: 1; }
+.ph-push-head { display: flex; justify-content: space-between; gap: 8px; }
+.ph-push-head small { color: #6b7c84; font-size: 11px; }
+.ph-splash { display: grid; justify-items: center; align-content: center; gap: 12px; min-height: 510px; }
+.ph-splash .logo { width: 76px; height: 76px; border-radius: 22px; background: #155e75; color: #fff; display: grid; place-items: center; animation: surge .45s ease-out; }
+.ph-splash .logo svg { width: 40px; height: 40px; }
+.ph-splash b { font-family: var(--font-display); font-size: 22px; }
+.ph-spin { width: 22px; height: 22px; border: 3px solid #dfe6e9; border-top-color: #155e75; border-radius: 50%; animation: gira .8s linear infinite; }
+.apres-ctrl { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; }
+.apres-ctrl > span { font-weight: 600; font-size: 13px; }
+.apres-grid { display: grid; grid-template-columns: 320px 320px minmax(0, 1fr); gap: 20px; align-items: start; }
+.apres-col { display: grid; gap: 10px; min-width: 0; }
+.apres-tit { margin: 0; font-size: 13px; font-weight: 600; color: var(--fg-2); display: flex; align-items: center; gap: 8px; }
+.apres-tit b { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-size: 12px; }
+.apres-grid .sim-phone { width: 100%; }
+.apres-mini { display: grid; gap: 14px; }
+.mini-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.mini-kpis .card { padding: 12px 14px; display: grid; gap: 4px; }
+.mini-kpis span { font-size: 12px; color: var(--fg-2); }
+.mini-kpis b { font-family: var(--font-display); font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mini-kpis .warn b { color: var(--warn); }
+.mini-kpis .risk b { color: var(--risk); }
+@media (max-width: 1400px) { .apres-grid { grid-template-columns: repeat(2, minmax(0, 320px)); } .apres-grid .apres-col:last-child { grid-column: 1 / -1; } }
+@media (max-width: 760px) { .apres-grid { grid-template-columns: minmax(0, 1fr); } .apres-grid .sim-phone { max-width: 340px; } }
+@media (prefers-reduced-motion: reduce) { tr.novo td, #bellBtn.balanca svg.i, .aviso, .ph-push, .ph-splash .logo, .ph-spin { animation: none !important; } }
 </style>
 
 <!-- ================= LOGIN ================= -->
@@ -684,6 +728,7 @@ const ICONS = {
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
   moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
   simulador: '<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/>',
+  apresentacao: '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4M10 8.5v5l4.5-2.5z"/>',
   supervisor: '<circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 11l2 2 4-4"/>',
   trash: '<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'
 };
@@ -995,6 +1040,7 @@ function drawPulse() {
 /* ============ Navegação ============ */
 const ROUTES = {
   dashboard: { label: 'Dashboard', render: renderDashboard },
+  apresentacao: { label: 'Modo apresentação', render: renderApresentacao },
   empresas: { label: 'Empresas', render: renderEmpresas },
   funcionarios: { label: 'Funcionários', render: renderFuncionarios },
   simulador: { label: 'App do funcionário', render: renderSimulador },
@@ -1071,17 +1117,17 @@ function renderDashboard(v) {
   </div>
 
   <section class="kpi-group" aria-label="Indicadores de hoje"><h2 class="sec-label">Hoje</h2><div class="kpis k4">
-    ${kpi('send', 'Respostas hoje', fmt(hoje.total), '', `${seta(delta(hoje.total, semPassada.total))}<span>vs. sexta passada</span>`)}
-    ${kpi('percent', 'Adesão hoje', pct(adesao), '', `<div class="meter" style="width:100%"><i style="width:${Math.min(adesao, 100)}%"></i></div><span>${fmt(hoje.total)} respostas de ${fmt(cad)} cadastrados</span>`)}
-    ${kpi('warn', 'Alertas de Atenção', fmt(hoje.atencao), '', `${seta(delta(hoje.atencao, media30.atencao), true)}<span>vs. média de 30 dias</span>`, 'warn')}
-    ${kpi('risk', 'Alertas de Risco', fmt(hoje.risco), '', `${seta(delta(hoje.risco, media30.risco), true)}<span>vs. média de 30 dias</span>`, 'risk')}
+    ${kpi('send', 'Respostas hoje', conta('resp', hoje.total), '', `${seta(delta(hoje.total, semPassada.total))}<span>vs. sexta passada</span>`)}
+    ${kpi('percent', 'Adesão hoje', conta('ades', adesao, 1, '%'), '', `<div class="meter" style="width:100%"><i style="width:${Math.min(adesao, 100)}%"></i></div><span>${fmt(hoje.total)} respostas de ${fmt(cad)} cadastrados</span>`)}
+    ${kpi('warn', 'Alertas de Atenção', conta('aten', hoje.atencao), '', `${seta(delta(hoje.atencao, media30.atencao), true)}<span>vs. média de 30 dias</span>`, 'warn')}
+    ${kpi('risk', 'Alertas de Risco', conta('risc', hoje.risco), '', `${seta(delta(hoje.risco, media30.risco), true)}<span>vs. média de 30 dias</span>`, 'risk')}
   </div></section>
 
   <section class="kpi-group" aria-label="Histórico geral"><h2 class="sec-label">Histórico geral</h2><div class="kpis k4">
     ${kpi('empresas', 'Empresas participantes', emp ? '1' : String(ATIVAS.length), emp ? '' : `<small>/ ${EMP.length}</small>`, emp ? `<span>${esc(emp.cidade)}/${emp.uf}</span>` : `<span>${EMP.length - ATIVAS.length} inativas</span>`)}
-    ${kpi('users', 'Funcionários participantes', fmt(cad), '', `<span>${fmt(sup)} supervisores · ${fmt(restr)} acesso restrito</span>`)}
-    ${kpi('calendar', 'Respostas no período', fmt(doPeriodo), '', `<span>últimos ${periodo} dias</span>`)}
-    ${kpi('relatorios', 'Total de respostas', fmt(totalGeral), '', `<span>desde janeiro de 2024</span>`)}
+    ${kpi('users', 'Funcionários participantes', conta('cad', cad), '', `<span>${fmt(sup)} supervisores · ${fmt(restr)} acesso restrito</span>`)}
+    ${kpi('calendar', 'Respostas no período', conta('per', doPeriodo), '', `<span>últimos ${periodo} dias</span>`)}
+    ${kpi('relatorios', 'Total de respostas', conta('tot', totalGeral), '', `<span>desde janeiro de 2024</span>`)}
   </div></section>
 
   <section class="grid-2">
@@ -1133,7 +1179,7 @@ function renderDashboard(v) {
       </div>
       <div class="card-body" style="padding-inline:0;padding-bottom:4px"><div class="table-wrap"><table>
         ${alertaModo === 'resultado' ? `<thead><tr><th>Funcionário</th><th>Empresa</th><th>Data/hora</th><th>Etapa</th><th>Pontuação</th><th>Classificação</th><th>Plano de ação</th></tr></thead>
-          <tbody id="alertRows">${alertas.length ? alertas.slice(0, 8).map(a => `<tr data-i="${ALERTAS.indexOf(a)}" tabindex="0">
+          <tbody id="alertRows">${alertas.length ? alertas.slice(0, 8).map(a => `<tr data-i="${ALERTAS.indexOf(a)}" tabindex="0" class="${recente(a) ? 'novo' : ''}">
             <td><span class="code">${a.codigo}</span></td><td>${esc(a.empresa)}<span class="sub">${a.setor}</span></td>
             <td class="num">06/11/2026 <span style="color:var(--fg-3)">${a.hora}</span></td><td>${a.etapa}</td><td class="num">${a.pont}%</td><td>${pill(a.classe)}</td><td>${acaoTag(a)}</td></tr>`).join('') : vazio('Nenhum alerta de resultado hoje para esta empresa.')}</tbody>`
         : alertaModo === 'suspeitas' ? `<thead><tr><th>Funcionário</th><th>Empresa</th><th>Hora</th><th>Motivo</th><th>Detalhe</th><th>Situação</th></tr></thead>
@@ -1188,7 +1234,7 @@ function renderDashboard(v) {
     const b = e.target.closest('button'); if (!b) return;
     serieModo = b.dataset.v; $('#segModo').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); drawSerie();
   });
-  drawSerie(); drawFunnel();
+  drawSerie(); drawFunnel(); contaNumeros(v);
 }
 function kpi(ic, label, val, extra, foot, tone = '') {
   return `<article class="card kpi ${tone}"><div class="kpi-top"><span>${label}</span><span class="kpi-ico">${icon(ic)}</span></div>
@@ -1305,7 +1351,7 @@ function alertDetail(a, stack = false) {
     if (status !== 'pendente' && !tipo) { $('#aErro', md).hidden = false; $('#aTipo', md).classList.add('invalid'); $('#aTipo', md).focus(); return; }
     audit('alertas', 'Plano de ação registrado', `${a.codigo} · ${tipo || 'sem ação definida'} · ${ACAO_ST[status]}`);
     ACOES[a.id] = { status, tipo, resp, obs, em: plano.em ?? (status !== 'pendente' ? agora().getTime() : null), registros: [...plano.registros, { hora: hhmm(auditMin), texto: `${tipo || 'Sem ação definida'} · ${ACAO_ST[status]}${obs ? ' · ' + obs : ''}`, usuario: usuarioAtual() }] };
-    closeAll(); if (rotaAtual === 'dashboard') renderDashboard($('#view')); else if (rotaAtual === 'simulador') drawSim(); else if (rotaAtual === 'supervisor') drawSup();
+    closeAll(); if (rotaAtual === 'dashboard') renderDashboard($('#view')); else if (rotaAtual === 'simulador') drawSim(); else if (rotaAtual === 'supervisor' || rotaAtual === 'apresentacao') drawSup();
     toast(`Plano de ação de ${a.codigo} salvo.`);
   });
 }
@@ -2311,7 +2357,7 @@ function sortear(etapa) {
   return etapa === 'avaliacao' ? ativas('avaliacao').slice(0, CFG.avalQtd) : ativas('adicional');
 }
 function simNovo(codigo) {
-  SIM = { f: FUNCS.find(x => x.codigo === codigo), fase: 'inicio', etapa: 'principal', fila: [], idx: 0, sel: null, t0: 0, resp: [], passos: [], log: [], tempoTotal: 0, avisado: false, copiaRisco: false };
+  SIM = { f: FUNCS.find(x => x.codigo === codigo), fase: 'bloqueio', etapa: 'principal', fila: [], idx: 0, sel: null, t0: 0, resp: [], passos: [], log: [], tempoTotal: 0, avisado: false, copiaRisco: false };
 }
 const simLog = (txt, tom = '') => SIM.log.push({ hora: hhmm(auditMin), txt, tom });
 function simIniciar(etapa) {
@@ -2368,6 +2414,8 @@ function simConcluir(classe) {
     const a = { id: 's' + Date.now(), dia: 0, codigo: f.codigo, empresa: f.empresa, setor: f.equipe, hora: SIM.passos[0].when, etapa: ult.etapa, pont: ult.pont, classe,
       tempo: SIM.tempoTotal, passos: SIM.passos, sim: true };
     ALERTAS.unshift(a); SIM.alerta = a.id;
+    ALERTA_NOVO = { id: a.id, t: Date.now() }; PUSH = { codigo: f.codigo, classe, empresa: f.empresa, equipe: f.equipe, t: Date.now() };
+    avisoAlerta(a);
     simLog(`Alerta de ${classeLabel[classe]} no Dashboard · plano de ação até ${fmtLimite(prazoInfo(a).limite)}`, classe);
   }
   SIM.fase = 'fim'; SIM.fim = classe;
@@ -2379,7 +2427,7 @@ function simConcluir(classe) {
 // Responde o restante automaticamente, mirando um resultado (para a apresentação)
 function simAuto(alvo) {
   if (SIM.fase === 'fim') simNovo(primeiroCodigo());
-  if (SIM.fase === 'inicio') { const c = $('#simCod'); simNovo(c ? c.value : primeiroCodigo()); simIniciar('principal'); }
+  if (['bloqueio', 'abrindo', 'inicio'].includes(SIM.fase)) { const c = $('#simCod'); simNovo(c ? c.value : SIM.f.codigo); simIniciar('principal'); }
   for (let g = 0; SIM.fase !== 'fim' && g < 200; g++) {
     if (SIM.fase === 'intervalo') { simIniciar(SIM.prox); continue; }
     const ps = SIM.fila[SIM.idx].alts.map(a => a.p), mira = alvo === 'apto' ? 8 : alvo === 'risco' ? 3 : 5;
@@ -2389,7 +2437,7 @@ function simAuto(alvo) {
   drawSim();
 }
 function renderSimulador(v) {
-  if (!SIM || (SIM.fase === 'inicio' && SIM.f.hoje !== 'nao')) simNovo(primeiroCodigo());
+  if (!SIM || (['bloqueio', 'abrindo', 'inicio'].includes(SIM.fase) && SIM.f.hoje !== 'nao')) simNovo(primeiroCodigo());
   v.innerHTML = `
   <div class="page-head">
     <div><h1>App do funcionário</h1><p>Simulação do aplicativo: responda como um funcionário e veja o resultado chegar ao painel na hora.</p></div>
@@ -2400,10 +2448,7 @@ function renderSimulador(v) {
     <div style="display:grid;gap:16px;align-content:start;min-width:0">
       <article class="card"><div class="card-head"><div><h2>Responder rápido</h2><p>Completa a avaliação automaticamente, mirando um resultado</p></div></div>
         <div class="card-body"><div class="sim-btns" id="simAuto">
-          <button class="btn btn-sm" type="button" data-alvo="apto"><span class="pill apto">Apto</span>Bem disposto</button>
-          <button class="btn btn-sm" type="button" data-alvo="atencao"><span class="pill atencao">Atenção</span>Cansado</button>
-          <button class="btn btn-sm" type="button" data-alvo="risco"><span class="pill risco">Risco</span>Sem condições</button>
-          <button class="btn btn-sm" type="button" data-alvo="suspeita"><span class="pill neutro">Suspeita</span>Respondeu sem ler</button>
+          ${botoesAuto()}
         </div></div></article>
       <article class="card"><div class="card-head"><div><h2>No painel, em tempo real</h2><p>O que o Admin Master e o supervisor recebem a cada resposta</p></div></div>
         <div class="card-body" id="simLog"></div></article>
@@ -2411,22 +2456,33 @@ function renderSimulador(v) {
   </div>`;
   $('#simNova').addEventListener('click', () => { simNovo(primeiroCodigo()); drawSim(); });
   $('#simAuto').addEventListener('click', e => { const b = e.target.closest('button[data-alvo]'); if (b) simAuto(b.dataset.alvo); });
+  ligaSimPhone();
+  $('#simLog').addEventListener('click', e => { if (e.target.closest('#simVer')) alertDetail(ALERTAS.find(a => a.id === SIM.alerta)); });
+  drawSim();
+}
+function ligaSimPhone() {
   $('#simPhone').addEventListener('click', e => {
     const alt = e.target.closest('.ph-alt[data-a]');
     if (alt) { SIM.sel = +alt.dataset.a; $('#simPhone').querySelectorAll('.ph-alt').forEach(x => x.classList.toggle('sel', x === alt)); $('#simOk').disabled = false; return; }
+    if (e.target.closest('#simAbrir')) {
+      SIM.fase = 'abrindo'; drawSim();
+      return setTimeout(() => { if (SIM.fase === 'abrindo') { SIM.fase = 'inicio'; drawSim(); } }, 900);
+    }
     if (e.target.closest('#simIni')) { simNovo($('#simCod').value); simIniciar('principal'); drawSim(); }
     else if (e.target.closest('#simOk') && SIM.sel != null) { simResponder(SIM.sel, Math.max(1, Math.round((performance.now() - SIM.t0) / 1000))); drawSim(); }
     else if (e.target.closest('#simCont')) { simIniciar(SIM.prox); drawSim(); }
     else if (e.target.closest('#simOutro')) { simNovo(primeiroCodigo()); drawSim(); }
   });
-  $('#simLog').addEventListener('click', e => { if (e.target.closest('#simVer')) alertDetail(ALERTAS.find(a => a.id === SIM.alerta)); });
-  drawSim();
 }
 function drawSim() {
   const ph = $('#simPhone'); if (!ph) return;
   clearInterval(simTimer);
   const total = sortear('principal').length;
-  if (SIM.fase === 'inicio') {
+  if (SIM.fase === 'bloqueio') {
+    ph.innerHTML = telaBloqueio(pushHtml('simAbrir', 'Pulse', 'Sua avaliação diária está disponível. Toque para responder.'));
+  } else if (SIM.fase === 'abrindo') {
+    ph.innerHTML = telaAbertura('Preparando sua avaliação…');
+  } else if (SIM.fase === 'inicio') {
     ph.innerHTML = `<div class="ph-top"><span>Pulse</span><span>06/11 · ${hhmm(auditMin)}</span></div>
       <div class="ph-hello"><b>Bom dia!</b><span>Sua avaliação diária está disponível até ${somaMin(CFG.horario, CFG.janela)}.</span></div>
       <label class="ph-lbl" for="simCod">Entrar como</label>
@@ -2455,10 +2511,11 @@ function drawSim() {
         <span>${ok ? 'Avaliação concluída. Bom trabalho e boa jornada.' : 'Seu supervisor vai conversar com você antes do início das atividades. Se precisar, procure-o agora.'}</span></div>
       <button class="ph-btn" type="button" id="simOutro">Responder com outro código</button>`;
   }
-  $('#simLog').innerHTML = SIM.log.length
+  if ($('#simLog')) $('#simLog').innerHTML = SIM.log.length
     ? SIM.log.map(x => `<div class="sim-ev ${x.tom}"><span>${x.hora}</span><span>${esc(x.txt)}</span></div>`).join('')
       + (SIM.fase === 'fim' ? `<div class="sim-btns" style="margin-top:14px">${SIM.alerta ? `<button class="btn btn-sm btn-primary" type="button" id="simVer">Ver alerta e plano de ação</button>` : ''}<a class="btn btn-sm" href="#dashboard">Ir para o Dashboard</a></div>` : '')
     : '<p class="empty" style="padding:24px 0">Assim que o funcionário começar a responder, os eventos aparecem aqui.</p>';
+  if (rotaAtual === 'apresentacao') drawApres();
 }
 
 /* ============ Perfis de acesso ============ */
@@ -2519,6 +2576,8 @@ function supPadrao(empresa) {
 // Alerta do funcionário; se ainda não existe no painel, é criado ao salvar o primeiro registro
 const alertaDoFunc = f => ALERTAS.find(a => a.codigo === f.codigo && !a.dia) || { id: 'f' + f.codigo, dia: 0, codigo: f.codigo, empresa: f.empresa, setor: f.equipe,
   hora: f.hora || '06:30', etapa: 'Principais', pont: f.hoje === 'risco' ? 20 + f.seed % 18 : 45 + f.seed % 20, classe: f.hoje, tempo: 90 + f.seed % 200 };
+// Aviso recente de alerta para a equipe que o supervisor está vendo
+const pushDaEquipe = () => PUSH && PUSH.empresa === SUP.empresa && PUSH.equipe === SUP.equipe ? PUSH : null;
 const supNome = () => { const s = equipeDe(SUP.empresa, SUP.equipe).find(f => f.tipo === 'Supervisor'); return s ? nomeFunc(s) : 'Supervisor da equipe'; };
 const supUsuario = () => `${supNome()} (supervisor ${SUP.equipe})`;
 function renderSupervisor(v) {
@@ -2539,10 +2598,21 @@ function renderSupervisor(v) {
       <div class="lgpd-box">${icon('shield')}<span>Pela LGPD, o nome do funcionário aparece só para o supervisor da equipe. O Admin Master, o gestor e os relatórios veem apenas o código.</span></div>
     </div>
   </div>`;
-  $('#supEmp').addEventListener('change', e => { SUP = supPadrao(e.target.value); drawSup(); });
+  $('#supEmp').addEventListener('change', e => { SUP = { ...supPadrao(e.target.value), aberto: true }; drawSup(); });
   $('#supEq').addEventListener('change', e => { SUP = { ...SUP, equipe: e.target.value, tela: 'lista', lembrete: null }; drawSup(); });
+  ligaSupPhone();
+  drawSup();
+}
+function ligaSupPhone() {
   $('#supPhone').addEventListener('click', e => {
     const t = e.target;
+    if (t.closest('#supAbrir')) {
+      const p = pushDaEquipe(); SUP.abrindo = true; SUP.aberto = true;
+      if (p) { SUP.tela = 'membro'; SUP.codigo = p.codigo; p.visto = true; }
+      drawSup();
+      return setTimeout(() => { SUP.abrindo = false; drawSup(); }, 800);
+    }
+    if (t.closest('#supPush')) { const p = pushDaEquipe(); if (p) { SUP.tela = 'membro'; SUP.codigo = p.codigo; p.visto = true; } return drawSup(); }
     const tab = t.closest('#supTabs button'); if (tab) { SUP.filtro = tab.dataset.f; return drawSup(); }
     const row = t.closest('.sup-row[data-c]'); if (row) { SUP.tela = 'membro'; SUP.codigo = row.dataset.c; return drawSup(); }
     if (t.closest('#supVoltar')) { SUP.tela = 'lista'; return drawSup(); }
@@ -2563,7 +2633,6 @@ function renderSupervisor(v) {
       SUP.tela = 'lista'; drawSup(); toast(`Conversa com ${nomeFunc(f)} registrada.`);
     }
   });
-  drawSup();
 }
 function drawSup() {
   const ph = $('#supPhone'); if (!ph) return;
@@ -2571,9 +2640,15 @@ function drawSup() {
   const resp = time.filter(f => f.hoje !== 'nao').length, pend = time.length - resp, al = time.filter(negativo).length;
   const eqs = {};
   FUNCS.forEach(f => { if (f.empresa === SUP.empresa && f.status === 'ativo') { const e = eqs[f.equipe] || (eqs[f.equipe] = { n: 0, al: 0 }); e.n++; if (negativo(f)) e.al++; } });
-  $('#supEq').innerHTML = Object.keys(eqs).sort().map(k => `<option value="${k}" ${k === SUP.equipe ? 'selected' : ''}>${k} · ${eqs[k].n} pessoas${eqs[k].al ? ` · ${eqs[k].al} ${eqs[k].al > 1 ? 'alertas' : 'alerta'}` : ''}</option>`).join('');
-  const topo = `<span>06/11 · ${hhmm(auditMin)}</span>`;
-  if (SUP.tela === 'lista') {
+  if ($('#supEq')) $('#supEq').innerHTML = Object.keys(eqs).sort().map(k => `<option value="${k}" ${k === SUP.equipe ? 'selected' : ''}>${k} · ${eqs[k].n} pessoas${eqs[k].al ? ` · ${eqs[k].al} ${eqs[k].al > 1 ? 'alertas' : 'alerta'}` : ''}</option>`).join('');
+  const topo = `<span>06/11 · ${hhmm(auditMin)}</span>`, p = pushDaEquipe();
+  if (SUP.abrindo) {
+    ph.innerHTML = telaAbertura('Carregando sua equipe…');
+  } else if (!SUP.aberto) {
+    const f = p && time.find(x => x.codigo === p.codigo);
+    ph.innerHTML = telaBloqueio(pushHtml('supAbrir', 'Pulse · Supervisor', f ? `Alerta de ${classeLabel[p.classe]}: ${esc(nomeFunc(f))} (${f.codigo}). Converse antes do início do turno.`
+      : al ? `${al} ${al > 1 ? 'funcionários' : 'funcionário'} da ${esc(SUP.equipe)} com alerta hoje. Toque para ver.` : `${resp} de ${time.length} já responderam a avaliação de hoje.`));
+  } else if (SUP.tela === 'lista') {
     const lista = time.filter(f => SUP.filtro === 'alertas' ? negativo(f) : SUP.filtro === 'pendentes' ? f.hoje === 'nao' : true).sort((a, b) => ord[a.hoje] - ord[b.hoje] || a.codigo.localeCompare(b.codigo));
     ph.innerHTML = `<div class="ph-top"><span>Pulse · Supervisor</span>${topo}</div>
       <div class="ph-hello"><b>${esc(SUP.equipe)}</b><span>${esc(SUP.empresa)} · ${esc(supNome())}</span></div>
@@ -2585,6 +2660,7 @@ function drawSup() {
         const corpo = `<span class="nm"><b>${esc(nomeFunc(f))}</b><span>${f.codigo}${f.tipo === 'Supervisor' ? ' · Supervisor' : ''}${feito ? ' · ' + ACAO_ST[plano.status] : negativo(f) ? ' · conversa pendente' : ''}</span></span>${tag}`;
         return negativo(f) ? `<button type="button" class="sup-row" data-c="${f.codigo}">${corpo}${icon('chev')}</button>` : `<div class="sup-row">${corpo}</div>`;
       }).join('') || '<div class="sup-row"><span class="nm"><span>Ninguém nesta lista.</span></span></div>'}</div>
+      ${p && !p.visto && Date.now() - p.t < 7000 ? pushHtml('supPush', 'Pulse · agora', `Alerta de ${classeLabel[p.classe]}: ${esc(nomeFunc(time.find(x => x.codigo === p.codigo)))}. Toque para registrar a conversa.`, true) : ''}
       ${pend ? `<button class="ph-btn" type="button" id="supLembrar" ${SUP.lembrete ? 'disabled' : ''}>${SUP.lembrete ? 'Lembrete enviado às ' + SUP.lembrete : `Lembrar quem não respondeu (${pend})`}</button>` : ''}`;
   } else {
     const f = time.find(x => x.codigo === SUP.codigo), a = alertaDoFunc(f), plano = ACOES[a.id] || { status: 'andamento', tipo: '', obs: '', registros: [] }, pz = prazoInfo(a);
@@ -2602,8 +2678,10 @@ function drawSup() {
       ${plano.registros.length ? `<div class="ph-sec"><h4>Histórico</h4>${plano.registros.map(r => `<span class="ph-tag" style="white-space:normal">${r.hora} · ${esc(r.texto)}</span>`).join('')}</div>` : ''}
       <button class="ph-btn" type="button" id="supSalvar">Salvar registro</button>`;
   }
+  if ($('#supPush')) setTimeout(() => { const b = $('#supPush'); if (b) b.remove(); }, Math.max(0, 7000 - (Date.now() - p.t)));
+  if (rotaAtual === 'apresentacao') drawMini();
   const regs = time.filter(negativo).map(f => ({ f, p: ACOES[alertaDoFunc(f).id] })).filter(x => x.p && x.p.registros.length);
-  $('#supLog').innerHTML = regs.length
+  if ($('#supLog')) $('#supLog').innerHTML = regs.length
     ? regs.flatMap(({ f, p }) => p.registros.map(r => `<div class="sim-ev"><span>${r.hora}</span><span><b>${f.codigo}</b> · ${esc(r.texto)} · ${esc(r.usuario)}</span></div>`)).join('')
     : '<p class="empty" style="padding:24px 0">Nenhum registro ainda. Toque em um funcionário com alerta no celular para registrar a conversa.</p>';
 }
@@ -2626,8 +2704,11 @@ function notificacoes() {
   });
   return out.sort((a, b) => b.quando - a.quando);
 }
+let sinoAnt = null;
 function atualizaSino() {
   const n = notificacoes().filter(x => !NOTIF_LIDAS.has(x.k)).length, c = $('#bellBtn .count');
+  if (sinoAnt !== null && n > sinoAnt) { const b = $('#bellBtn'); b.classList.remove('balanca'); void b.offsetWidth; b.classList.add('balanca'); }
+  sinoAnt = n;
   c.textContent = n > 99 ? '99+' : n; c.style.display = n ? '' : 'none';
   $('#bellBtn').setAttribute('aria-label', n ? `Notificações: ${n} não lidas` : 'Notificações');
 }
@@ -2655,6 +2736,96 @@ function abrirNotif() {
     if (rotaAtual === 'dashboard') go('dashboard'); else location.hash = 'dashboard';
     setTimeout(() => { const t = $('#suspRows'); if (t) t.closest('.card').scrollIntoView({ behavior: 'smooth' }); }, 80);
   });
+}
+
+/* ============ Animações ============ */
+// Números que contam até o valor, destaque do alerta novo, sino que balança e aviso de alerta
+const KPI_ANT = {};
+const reduzMovimento = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fmtN = (n, dec) => n.toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+const conta = (k, v, dec = 0, suf = '') => `<span data-conta="${k}" data-v="${v}" data-dec="${dec}" data-suf="${suf}">${fmtN(v, dec)}${suf}</span>`;
+function contaNumeros(raiz) {
+  raiz.querySelectorAll('[data-conta]').forEach(el => {
+    const k = el.dataset.conta, alvo = +el.dataset.v, dec = +el.dataset.dec, suf = el.dataset.suf, de = KPI_ANT[k] ?? 0;
+    KPI_ANT[k] = alvo;
+    if (de === alvo || reduzMovimento()) return;
+    const t0 = performance.now();
+    const passo = t => {
+      const p = Math.min(1, (t - t0) / 700), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmtN(de + (alvo - de) * e, dec) + suf;
+      if (p < 1 && el.isConnected) requestAnimationFrame(passo);
+    };
+    requestAnimationFrame(passo); // se a aba estiver em segundo plano, o valor final já está na tela
+  });
+}
+let ALERTA_NOVO = null, PUSH = null;
+const recente = a => ALERTA_NOVO && ALERTA_NOVO.id === a.id && Date.now() - ALERTA_NOVO.t < 20000;
+function avisoAlerta(a) {
+  const old = $('.aviso'); if (old) old.remove();
+  const el = document.createElement('button'); el.type = 'button'; el.className = 'aviso ' + a.classe; el.setAttribute('role', 'status');
+  el.innerHTML = `<span class="notif-ico ${a.classe}">${icon(a.classe === 'risco' ? 'risk' : 'warn')}</span>
+    <span class="notif-txt"><b>Novo alerta de ${classeLabel[a.classe]} · ${a.codigo}</b><span>${esc(a.empresa)} · supervisor notificado</span></span>`;
+  el.addEventListener('click', () => { el.remove(); alertDetail(a); });
+  document.body.appendChild(el); setTimeout(() => el.remove(), 6000);
+}
+
+/* ============ Telas do celular: bloqueio e abertura ============ */
+const LOGO_PULSE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12h4.5l2.5-6 4 12 2.5-6H22"/></svg>';
+const pushHtml = (id, titulo, texto, flutua = false) => `<button type="button" class="ph-push${flutua ? ' flutua' : ''}" id="${id}"><span class="ph-push-ico">${LOGO_PULSE}</span>
+  <span class="ph-push-txt"><span class="ph-push-head"><b>${titulo}</b><small>agora</small></span><span>${texto}</span></span></button>`;
+const telaBloqueio = push => `<div class="ph-lock"><div class="ph-lock-hora">${hhmm(auditMin)}</div>
+  <div class="ph-lock-data">${(d => d.charAt(0).toUpperCase() + d.slice(1))(HOJE.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }))}</div>${push}<div class="ph-lock-dica">Toque na notificação para abrir</div></div>`;
+const telaAbertura = txt => `<div class="ph-splash"><span class="logo">${LOGO_PULSE}</span><b>Pulse</b><span class="ph-spin" aria-hidden="true"></span><span class="ph-tag">${txt}</span></div>`;
+
+/* ============ Modo apresentação ============ */
+// Funcionário, supervisor e painel lado a lado: uma resposta no celular aparece nos outros dois na hora.
+const botoesAuto = () => `
+  <button class="btn btn-sm" type="button" data-alvo="apto"><span class="pill apto">Apto</span>Bem disposto</button>
+  <button class="btn btn-sm" type="button" data-alvo="atencao"><span class="pill atencao">Atenção</span>Cansado</button>
+  <button class="btn btn-sm" type="button" data-alvo="risco"><span class="pill risco">Risco</span>Sem condições</button>
+  <button class="btn btn-sm" type="button" data-alvo="suspeita"><span class="pill neutro">Suspeita</span>Respondeu sem ler</button>`;
+const supDaEquipe = (aberto = false) => ({ empresa: SIM.f.empresa, equipe: SIM.f.equipe, tela: 'lista', filtro: 'todos', aberto });
+function renderApresentacao(v) {
+  if (!SIM || (['bloqueio', 'abrindo', 'inicio'].includes(SIM.fase) && SIM.f.hoje !== 'nao')) simNovo(primeiroCodigo());
+  SUP = supDaEquipe();
+  v.innerHTML = `
+  <div class="page-head">
+    <div><h1>Modo apresentação</h1><p>Os três lados do sistema ao mesmo tempo: o funcionário responde, o supervisor é avisado e o painel atualiza na hora.</p></div>
+    <div class="page-actions"><button class="btn" type="button" id="apNova">${icon('shuffle')}Recomeçar</button></div>
+  </div>
+  <div class="card apres-ctrl"><span>O funcionário responde como:</span><div class="sim-btns" id="simAuto">${botoesAuto()}</div></div>
+  <div class="apres-grid">
+    <section class="apres-col"><h2 class="apres-tit"><b>1</b>Funcionário · app</h2><div class="phone sim-phone" id="simPhone"></div></section>
+    <section class="apres-col"><h2 class="apres-tit"><b>2</b>Supervisor · app</h2><div class="phone sim-phone" id="supPhone"></div></section>
+    <section class="apres-col"><h2 class="apres-tit"><b>3</b>Painel · Admin Master</h2><div class="apres-mini" id="apMini"></div></section>
+  </div>`;
+  $('#simAuto').addEventListener('click', e => { const b = e.target.closest('button[data-alvo]'); if (b) simAuto(b.dataset.alvo); });
+  $('#apNova').addEventListener('click', () => { simNovo(primeiroCodigo()); SUP = supDaEquipe(); drawSim(); });
+  $('#apMini').addEventListener('click', e => { const tr = e.target.closest('tr[data-i]'); if (tr) alertDetail(ALERTAS[tr.dataset.i]); });
+  ligaSimPhone(); ligaSupPhone();
+  drawSim();
+}
+// O supervisor acompanha a equipe do funcionário que está respondendo
+function drawApres() {
+  if (SUP.empresa !== SIM.f.empresa || SUP.equipe !== SIM.f.equipe) SUP = supDaEquipe(SUP.aberto);
+  drawSup();
+}
+function drawMini() {
+  const el = $('#apMini'); if (!el) return;
+  const h = SERIE[SERIE.length - 1], ultimos = ALERTAS.filter(a => !a.dia).slice(0, 5);
+  el.innerHTML = `
+    <div class="mini-kpis">
+      <div class="card"><span>Respostas hoje</span><b>${conta('ap-resp', h.total)}</b></div>
+      <div class="card warn"><span>Atenção</span><b>${conta('ap-aten', h.atencao)}</b></div>
+      <div class="card risk"><span>Risco</span><b>${conta('ap-risc', h.risco)}</b></div>
+    </div>
+    <article class="card"><div class="card-head"><div><h2>Últimos alertas</h2><p>Clique para ver o plano de ação</p></div></div>
+      <div class="table-wrap"><table><tbody>${ultimos.map(a => `<tr data-i="${ALERTAS.indexOf(a)}" tabindex="0" class="${recente(a) ? 'novo' : ''}">
+        <td><span class="code">${a.codigo}</span><span class="sub">${esc(a.empresa)}</span></td><td class="num">${a.hora}</td><td>${pill(a.classe)}</td><td>${acaoTag(a)}</td></tr>`).join('')}</tbody></table></div></article>
+    <article class="card"><div class="card-head"><div><h2>Linha do tempo</h2><p>O que o sistema fez nesta avaliação</p></div></div>
+      <div class="card-body" style="padding-top:0">${SIM.log.length ? SIM.log.slice(-6).reverse().map(x => `<div class="sim-ev ${x.tom}"><span>${x.hora}</span><span>${esc(x.txt)}</span></div>`).join('')
+        : '<p class="empty" style="padding:20px 0">Toque na notificação do celular do funcionário para começar, ou use os botões de resposta rápida.</p>'}</div></article>`;
+  contaNumeros(el);
 }
 
 /* ============ Tema claro/escuro ============ */

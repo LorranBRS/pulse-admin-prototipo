@@ -10,6 +10,8 @@ Protótipo navegável do painel administrativo da plataforma **Pulse**, de avali
 
 - **Login**: acesso simulado e "Esqueci minha senha".
 - **Tema claro e escuro**: botão no topo (e na tela de login) para alternar; a escolha fica salva no navegador.
+- **Modo apresentação**: funcionário, supervisor e painel lado a lado. Os celulares abrem numa tela de bloqueio com notificação; quando o funcionário responde, o supervisor recebe o aviso, o painel atualiza e o alerta novo aparece em destaque.
+- **Animações**: números que contam até o valor, linha do alerta novo em destaque, sino que balança quando chega notificação e aviso de novo alerta no canto da tela (desligadas para quem prefere menos movimento).
 - **Perfis de acesso**: seletor "Ver como" no menu lateral (ou no topo, em telas médias). Admin Master vê tudo; Gestor da empresa e Segurança do trabalho veem só a própria empresa e menos telas.
 - **Central de notificações**: o sino abre a lista de alertas de hoje, planos de ação vencidos ou vencendo e respostas suspeitas, com marcação de lidas.
 - **Dashboard**: indicadores do dia, resultados por período, funil Principais → Avaliação → Adicionais e últimos alertas, com **plano de ação** em cada alerta e aba de **respostas suspeitas** (todas iguais, padrão alternado ou rápidas demais), que podem ser reenviadas.
